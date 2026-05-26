@@ -1,7 +1,12 @@
-export default function App () {
+import { RouterProvider } from "react-router-dom";
+import { Router } from "./router";
+import { TooltipProvider } from "./components/ui/tooltip";
+
+
+export default function App() {
   return (
-    <div className="flex items-center justify-center w-screen h-screen">
-      Hello world
-    </div>
+    <TooltipProvider>
+      <RouterProvider router={Router}/>
+    </TooltipProvider>
   )
 }
