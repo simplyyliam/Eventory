@@ -2,7 +2,7 @@ import { HugeiconsIcon, type IconSvgElement } from '@hugeicons/react';
 import { Button } from '@/components/ui/button';
 
 interface IconButtonProps {
-  Label?: string;
+  Label?: string | number;
   Icon?: IconSvgElement;
   onClick?: () => void;
   stretch?: boolean; 

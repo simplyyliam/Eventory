@@ -9,10 +9,16 @@ import { cn } from '@/lib/utils';
 import { ArrowDown01Icon, ArrowUpDown } from '@hugeicons/core-free-icons';
 import { HugeiconsIcon } from '@hugeicons/react';
 import { useState } from 'react';
+import { useGuestStore } from '@/store/useGuestStore';
+import useGuest from '@/hooks/useGuests';
 
 export const SeatedGuestsSection = () => {
   const [isUnseatedOpen, setIsUnseatedOpen] = useState(true);
-
+  const seatedGuest = useGuestStore((s) => s.seatedGuests);
+  const guests = useGuestStore((s) => s.guests);
+  const unseatGuest = useGuestStore((s) => s.unseatGuest);
+  const { SeatedGuestsAmount } = useGuest()
+  
   return (
     <SidebarGroup>
       <div className="flex items-center gap-2 px-2">
@@ -37,9 +43,33 @@ export const SeatedGuestsSection = () => {
             )}
           />
         </Button>
+        <IconButton Label={SeatedGuestsAmount}/>
       </div>
       {isUnseatedOpen && (
-        <SidebarGroupContent className="px-2">hello</SidebarGroupContent>
+        <SidebarGroupContent className="px-2">
+          {seatedGuest.map((seat) => {
+            const guest = guests.find((guest) => guest.id === seat.guestId);
+
+            if (!guest) return null;
+
+            const initials = guest.Name.split(' ')
+              .map((part) => part[0])
+              .join('');
+
+            return (
+              <div
+                key={seat.guestId}
+                onClick={() => unseatGuest(seat.guestId)}
+                className="flex gap-2 items-center p-2.5 hover:bg-muted transition-all ease-linear rounded-md"
+              >
+                <div className="flex items-center justify-center w-7 h-7 border border-input rounded-md">
+                  {initials}
+                </div>
+                <span>{guest.Name}</span>
+              </div>
+            );
+          })}
+        </SidebarGroupContent>
       )}
     </SidebarGroup>
   );
