@@ -15,8 +15,9 @@ import { CancelIcon, SaveIcon } from '@hugeicons/core-free-icons';
 import { useModalStore } from '@/store/useModalStore';
 
 export function AddGuestModal() {
-  const { isModalOpen, closeModal } = useModalStore();
-  
+  const closeModal  = useModalStore((s) => s.closeModal)
+  const isModalOpen = useModalStore((s) => s.isModalOpen)
+
   return (
     <>
       {isModalOpen && (
@@ -59,8 +60,8 @@ export function AddGuestModal() {
             </form>
           </CardContent>
           <CardFooter className="gap-2.5">
-            <IconButton label="Cancel" Icon={CancelIcon} onClick={closeModal}/>
-            <IconButton label="Save" Icon={SaveIcon} />
+            <IconButton Label="Cancel" Icon={CancelIcon} onClick={closeModal}/>
+            <IconButton Label="Save" Icon={SaveIcon} />
           </CardFooter>
         </Card>
       )}

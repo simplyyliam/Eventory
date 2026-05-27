@@ -2,21 +2,23 @@ import { HugeiconsIcon, type IconSvgElement } from '@hugeicons/react';
 import { Button } from '@/components/ui/button';
 
 interface IconButtonProps {
-  label?: string;
-  Icon: IconSvgElement;
-  onClick?: () => void
+  Label?: string;
+  Icon?: IconSvgElement;
+  onClick?: () => void;
+  stretch?: boolean; 
 }
+export const IconButton = ({ Label, Icon, onClick, stretch = false }: IconButtonProps) => {
+  const icon = Icon;
 
-export const IconButton = ({ label, Icon , onClick}: IconButtonProps) => {
   return (
     <Button
-      size={!label ? 'icon' : undefined}
+      size={!Label ? 'icon' : undefined}
       variant="outline"
-      className={`flex items-center ${label ? 'flex-1 gap-2' : ''}`}
+      className={`flex items-center ${stretch ? "flex-1" : ""}`}
       onClick={onClick}
     >
-      <HugeiconsIcon icon={Icon} />
-      <span>{label}</span>
+      {icon ? <HugeiconsIcon icon={icon} /> : null}
+      {Label && <span>{Label}</span>}
     </Button>
   );
 };

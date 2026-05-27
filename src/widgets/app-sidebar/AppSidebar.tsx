@@ -25,8 +25,8 @@ export function AppSidebar() {
         </SidebarMenu>
         <SidebarGroup>
           <div className="flex gap-2">
-            <IconButton label="Add Guest" Icon={Plus} onClick={() => openModal("GuestModal")}/>
-            <IconButton label="Import" Icon={Upload06Icon} />
+            <IconButton stretch Label="Add Guest" Icon={Plus} onClick={() => openModal("GuestModal")}/>
+            <IconButton stretch Label="Import" Icon={Upload06Icon} />
           </div>
         </SidebarGroup>
       </SidebarHeader>

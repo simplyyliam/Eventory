@@ -19,7 +19,7 @@ export const UnseatedGuestsSection = () => {
         <SidebarGroupLabel className="h-10 flex-1 px-0">
           Unseated Guests
         </SidebarGroupLabel>
-        <IconButton Icon={ArrowUpDown} />
+        <IconButton  Icon={ArrowUpDown} />
         <Button
           type="button"
           variant="outline"

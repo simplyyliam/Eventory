@@ -22,15 +22,17 @@ export function ThemeToggle() {
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger>
-        <Button
-          variant="outline"
-          size="icon"
-          aria-label="Toggle theme"
-          className="size-8"
-        >
-          <CurrentIcon className="size-4" />
-        </Button>
+      <DropdownMenuTrigger
+        render={
+          <Button
+            variant="outline"
+            size="icon"
+            aria-label="Toggle theme"
+            className="size-8"
+          />
+        }
+      >
+        <CurrentIcon className="size-4" />
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-36">
         {themes.map(({ label, value, Icon }) => (
