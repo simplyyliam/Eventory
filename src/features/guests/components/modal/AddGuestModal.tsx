@@ -14,7 +14,6 @@ import { IconButton } from '@/shared/components';
 import { CancelIcon, SaveIcon } from '@hugeicons/core-free-icons';
 import { useModalStore } from '@/store/useModalStore';
 import useGuest from '@/hooks/useGuests';
-import type { SyntheticEvent } from 'react';
 
 export function AddGuestModal() {
   const closeModal  = useModalStore((s) => s.closeModal)
