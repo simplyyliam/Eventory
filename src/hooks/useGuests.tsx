@@ -32,7 +32,6 @@ export default function useGuest() {
     setDietary([]);
   };
 
-  console.log('GUESTS:', guests);
 
   return {
     name,
