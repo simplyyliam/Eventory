@@ -1,6 +1,3 @@
-'use client';
-
-import * as React from 'react';
 
 import {
   Combobox,
@@ -13,6 +10,7 @@ import {
   ComboboxList,
   ComboboxValue,
 } from '@/components/ui/combobox';
+
 import { useComboboxAnchor } from '@/components/ui/internals/combobox';
 
 const dietaryRequirements = [
@@ -33,29 +31,42 @@ const dietaryRequirements = [
   'No Pork',
 ] as const;
 
-export function DietaryComboBox() {
+interface DietaryComboBoxProps {
+  value: string[]
+  onValueChange: (value: string[]) => void
+}
+
+export function DietaryComboBox({value, onValueChange}: DietaryComboBoxProps) {
   const anchor = useComboboxAnchor();
+
 
   return (
     <Combobox
       multiple
       autoHighlight
       items={dietaryRequirements}
+      value={value}
+      onValueChange={onValueChange}
     >
       <ComboboxChips ref={anchor} className="w-full">
         <ComboboxValue>
           {(values) => (
-            <React.Fragment>
+            <>
               {values.map((value: string) => (
-                <ComboboxChip key={value}>{value}</ComboboxChip>
+                <ComboboxChip key={value}>
+                  {value}
+                </ComboboxChip>
               ))}
+
               <ComboboxChipsInput placeholder="Add dietary requirements..." />
-            </React.Fragment>
+            </>
           )}
         </ComboboxValue>
       </ComboboxChips>
+
       <ComboboxContent anchor={anchor}>
         <ComboboxEmpty>No items found.</ComboboxEmpty>
+
         <ComboboxList>
           {(item) => (
             <ComboboxItem key={item} value={item}>
