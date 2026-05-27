@@ -1,0 +1,69 @@
+'use client';
+
+import * as React from 'react';
+
+import {
+  Combobox,
+  ComboboxChip,
+  ComboboxChips,
+  ComboboxChipsInput,
+  ComboboxContent,
+  ComboboxEmpty,
+  ComboboxItem,
+  ComboboxList,
+  ComboboxValue,
+} from '@/components/ui/combobox';
+import { useComboboxAnchor } from '@/components/ui/internals/combobox';
+
+const dietaryRequirements = [
+  'Vegetarian',
+  'Vegan',
+  'Halal',
+  'Kosher',
+  'Gluten-Free',
+  'Dairy-Free',
+  'Nut-Free',
+  'Shellfish-Free',
+  'Egg-Free',
+  'Pescatarian',
+  'Low-Carb',
+  'Keto',
+  'Diabetic-Friendly',
+  'Low-Sodium',
+  'No Pork',
+] as const;
+
+export function DietaryComboBox() {
+  const anchor = useComboboxAnchor();
+
+  return (
+    <Combobox
+      multiple
+      autoHighlight
+      items={dietaryRequirements}
+    >
+      <ComboboxChips ref={anchor} className="w-full">
+        <ComboboxValue>
+          {(values) => (
+            <React.Fragment>
+              {values.map((value: string) => (
+                <ComboboxChip key={value}>{value}</ComboboxChip>
+              ))}
+              <ComboboxChipsInput placeholder="Add dietary requirements..." />
+            </React.Fragment>
+          )}
+        </ComboboxValue>
+      </ComboboxChips>
+      <ComboboxContent anchor={anchor}>
+        <ComboboxEmpty>No items found.</ComboboxEmpty>
+        <ComboboxList>
+          {(item) => (
+            <ComboboxItem key={item} value={item}>
+              {item}
+            </ComboboxItem>
+          )}
+        </ComboboxList>
+      </ComboboxContent>
+    </Combobox>
+  );
+}
