@@ -7,11 +7,11 @@ import {
   SidebarHeader,
   SidebarMenu,
   SidebarMenuItem,
-} from '../ui/sidebar';
-import { ButtonIcon } from './ButtonIcon';
-import { SeatedGuests, UnseatedGuests } from '../views/Groups';
+} from '@/components/ui/sidebar';
+import { SeatedGuestsSection, UnseatedGuestsSection } from '@/features/guests';
+import { IconButton } from '@/shared/components';
 
-export default function AppDefault() {
+export function AppSidebar() {
   return (
     <Sidebar variant="floating">
       <SidebarHeader>
@@ -20,14 +20,14 @@ export default function AppDefault() {
         </SidebarMenu>
         <SidebarGroup>
           <div className="flex gap-2">
-            <ButtonIcon label="Add Guest" Icon={Plus} />
-            <ButtonIcon label="Import" Icon={Upload06Icon} />
+            <IconButton label="Add Guest" Icon={Plus} />
+            <IconButton label="Import" Icon={Upload06Icon} />
           </div>
         </SidebarGroup>
       </SidebarHeader>
       <SidebarContent>
-        <UnseatedGuests />
-        <SeatedGuests/>
+        <UnseatedGuestsSection />
+        <SeatedGuestsSection />
       </SidebarContent>
     </Sidebar>
   );

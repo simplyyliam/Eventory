@@ -1,12 +1,12 @@
 import { HugeiconsIcon, type IconSvgElement } from '@hugeicons/react';
-import { Button } from '../ui/button';
+import { Button } from '@/components/ui/button';
 
-interface ButtonIconProps {
+interface IconButtonProps {
   label?: string;
   Icon: IconSvgElement;
 }
 
-export const ButtonIcon = ({ label, Icon }: ButtonIconProps) => {
+export const IconButton = ({ label, Icon }: IconButtonProps) => {
   return (
     <Button
       size={!label ? 'icon' : undefined}

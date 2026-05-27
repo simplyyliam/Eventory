@@ -1,4 +1,4 @@
-import { ButtonIcon } from '@/components/custom';
+import { IconButton } from '@/shared/components';
 import { Button } from '@/components/ui/button';
 import {
   SidebarGroup,
@@ -10,7 +10,7 @@ import { ArrowDown01Icon, ArrowUpDown } from '@hugeicons/core-free-icons';
 import { HugeiconsIcon } from '@hugeicons/react';
 import { useState } from 'react';
 
-export const SeatedGuests = () => {
+export const SeatedGuestsSection = () => {
   const [isUnseatedOpen, setIsUnseatedOpen] = useState(true);
 
   return (
@@ -19,7 +19,7 @@ export const SeatedGuests = () => {
         <SidebarGroupLabel className="h-10 flex-1 px-0">
           Seated Guests
         </SidebarGroupLabel>
-        <ButtonIcon Icon={ArrowUpDown} />
+        <IconButton Icon={ArrowUpDown} />
         <Button
           type="button"
           variant="outline"

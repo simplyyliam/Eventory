@@ -1,15 +1,15 @@
 import { createBrowserRouter } from "react-router-dom";
-import Layout from "./components/layout/layout";
-import { Venue } from "./components";
+import AppLayout from "./layout/AppLayout";
+import { VenuePage } from "@/features/venue";
 
 export const Router = createBrowserRouter([
   {
     path: "/",
-    element: <Layout />,
+    element: <AppLayout />,
     children: [
       {
         index: true,
-        element: <Venue/>,
+        element: <VenuePage />,
       },
     ],
   },

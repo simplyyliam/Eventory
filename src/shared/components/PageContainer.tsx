@@ -1,6 +1,6 @@
 import type { HTMLAttributes } from 'react';
 
-export const ContainerWrapper: React.FC<HTMLAttributes<HTMLDivElement>> = ({
+export const PageContainer: React.FC<HTMLAttributes<HTMLDivElement>> = ({
   children,
   className,
   ...props
