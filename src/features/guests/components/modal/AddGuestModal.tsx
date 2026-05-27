@@ -16,6 +16,7 @@ import { useModalStore } from '@/store/useModalStore';
 
 export function AddGuestModal() {
   const { isModalOpen, closeModal } = useModalStore();
+  
   return (
     <>
       {isModalOpen && (
