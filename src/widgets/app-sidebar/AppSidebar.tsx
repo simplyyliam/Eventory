@@ -9,18 +9,23 @@ import {
   SidebarMenuItem,
 } from '@/components/ui/sidebar';
 import { SeatedGuestsSection, UnseatedGuestsSection } from '@/features/guests';
-import { IconButton } from '@/shared/components';
+import { IconButton, ThemeToggle } from '@/shared/components';
+import { useModalStore } from '@/store/useModalStore';
 
 export function AppSidebar() {
+  const { openModal } = useModalStore()
   return (
     <Sidebar variant="floating">
       <SidebarHeader>
         <SidebarMenu className="items-center">
-          <SidebarMenuItem>Manage Guest</SidebarMenuItem>
+          <SidebarMenuItem className="flex w-full items-center justify-between gap-2">
+            <span>Manage Guest</span>
+            <ThemeToggle />
+          </SidebarMenuItem>
         </SidebarMenu>
         <SidebarGroup>
           <div className="flex gap-2">
-            <IconButton label="Add Guest" Icon={Plus} />
+            <IconButton label="Add Guest" Icon={Plus} onClick={() => openModal("GuestModal")}/>
             <IconButton label="Import" Icon={Upload06Icon} />
           </div>
         </SidebarGroup>
@@ -32,17 +37,3 @@ export function AppSidebar() {
     </Sidebar>
   );
 }
-
-// <DropdownMenu>
-//   <DropdownMenuTrigger>
-//     <SidebarMenuButton>
-//       Select Workspace
-//       <HugeiconsIcon icon={ChevronDown}/>
-//     </SidebarMenuButton>
-//   </DropdownMenuTrigger>
-//   <DropdownMenuContent className="w-[--radix-popper-anchor-width]">
-//     <DropdownMenuItem>
-//       <span>Acme Inc</span>
-//     </DropdownMenuItem>
-//   </DropdownMenuContent>
-// </DropdownMenu>
