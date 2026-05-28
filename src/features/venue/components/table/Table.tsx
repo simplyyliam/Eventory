@@ -1,9 +1,9 @@
 import { getSeatPosition } from './layout';
 import { TABLE_CONFIG } from './table.config';
-import { useState } from 'react';
 import { AssignSeatModal } from '@/features/guests';
 import type { PopupPlacement } from './table.types';
 import { getPopupPlacement } from './utils';
+import { useModalStore } from '@/store/useModalStore';
 
 interface TableProps {
   shape: 'circle' | 'rectangle';
@@ -15,11 +15,20 @@ const shapeStyle: Record<TableProps['shape'], string> = {
   rectangle: 'rounded-[2px]',
 };
 
+type AssignSeatModalData = {
+  seatIndex: number;
+  placement: PopupPlacement;
+};
+
 export const Table = ({ shape, seatCount = 12 }: TableProps) => {
-  const [activeIndex, setActiveIndex] = useState<number | null>(null);
-  const [popupPlacement, setPopupPlacement] = useState<PopupPlacement | null>(
-    null,
-  );
+  const modalId = useModalStore((s) => s.modalId);
+  const modalData = useModalStore((s) => s.modalData);
+  const openModal = useModalStore((s) => s.openModal);
+
+  const assignSeatModalData =
+    modalId === 'AssignSeatModal'
+      ? (modalData as AssignSeatModalData | null)
+      : null;
 
   const visibleSeatCount =
     shape === 'rectangle'
@@ -27,8 +36,10 @@ export const Table = ({ shape, seatCount = 12 }: TableProps) => {
       : seatCount;
 
   const handleAssignSeat = (index: number, x: number, y: number) => {
-    setPopupPlacement(getPopupPlacement(x, y));
-    setActiveIndex(index);
+    openModal('AssignSeatModal', {
+      seatIndex: index,
+      placement: getPopupPlacement(x, y),
+    } satisfies AssignSeatModalData);
   };
 
   return (
@@ -56,13 +67,13 @@ export const Table = ({ shape, seatCount = 12 }: TableProps) => {
         );
       })}
 
-      {activeIndex !== null && popupPlacement && (
+      {assignSeatModalData && (
         <div
           className="absolute z-20"
           style={{
-            top: popupPlacement.top,
-            left: popupPlacement.left,
-            transform: popupPlacement.transform,
+            top: assignSeatModalData.placement.top,
+            left: assignSeatModalData.placement.left,
+            transform: assignSeatModalData.placement.transform,
           }}
         >
           <AssignSeatModal />
