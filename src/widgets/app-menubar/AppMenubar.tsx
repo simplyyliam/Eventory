@@ -21,11 +21,11 @@ export const AppMenubar = () => {
         </DropdownMenuTrigger>
         <DropdownMenuContent>
           <DropdownMenuGroup>
-            <DropdownMenuItem onClick={() => addTable('circle', 1)}>
+            <DropdownMenuItem onClick={() => addTable('circle', 8)}>
               Circle
             </DropdownMenuItem>
             <DropdownMenuItem
-              onClick={() => addTable('rectangle', 12)}
+              onClick={() => addTable('rectangle', 8)}
             >
               Rectangle
             </DropdownMenuItem>

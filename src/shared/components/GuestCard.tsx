@@ -1,7 +1,7 @@
 
 interface GuestCardProps {
     key: string,
-    onClick: () => void,
+    onClick?: () => void,
     initials: string,
     name: string,
     table?: string,

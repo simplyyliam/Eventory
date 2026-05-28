@@ -16,7 +16,6 @@ export const UnseatedGuestsSection = () => {
   const [isUnseatedOpen, setIsUnseatedOpen] = useState(true);
   const guests = useGuestStore((state) => state.guests);
   const seatedGuests = useGuestStore((state) => state.seatedGuests);
-  const seatGuest = useGuestStore((state) => state.seatGuest);
   const { UnseatedGuestAmount } = useGuest();
 
   const unseatedGuest = guests.filter(
@@ -60,7 +59,6 @@ export const UnseatedGuestsSection = () => {
                 key={guest.id}
                 name={guest.Name}
                 initials={initials}
-                onClick={() => seatGuest(guest.id, 'table-1', 'seat-1')}
               />
             );
           })}
