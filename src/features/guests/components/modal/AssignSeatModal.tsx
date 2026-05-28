@@ -9,6 +9,7 @@ import {
 import { GuestCard, IconButton } from '@/shared/components';
 import { useGuestStore } from '@/store/useGuestStore';
 import { useModalStore } from '@/store/useModalStore';
+import { useTableStore } from '@/store/useTableStore';
 import { ArrowUpDown } from '@hugeicons/core-free-icons';
 
 type AssignSeatModalData = {
@@ -24,10 +25,14 @@ export const AssignSeatModal = () => {
   const modalData = useModalStore((s) => s.modalData) as
     | AssignSeatModalData
     | null;
+  const tables = useTableStore((s) => s.tables);
 
   const unseatedGuest = guests.filter(
     (guest) => !seatedGuests.some((seat) => seat.guestId === guest.id),
   );
+
+  const table = tables.find((t) => t.id === modalData?.tableId);
+  const seatNumber = modalData?.seatId.split('-').pop();
 
   const handleSeatGuest = (guestId: string) => {
     if (!modalData) return;
@@ -39,8 +44,10 @@ export const AssignSeatModal = () => {
   return (
     <Card className="w-full min-w-sm">
       <CardHeader>
-        <CardTitle>Unseated guests</CardTitle>
-        <CardDescription>List of unseated guests</CardDescription>
+        <CardTitle>Assign guest to seat</CardTitle>
+        <CardDescription>
+          {table && seatNumber ? `${table.name} - Seat ${seatNumber}` : 'Select a guest'}
+        </CardDescription>
         <CardAction>
           <IconButton Icon={ArrowUpDown} />
         </CardAction>

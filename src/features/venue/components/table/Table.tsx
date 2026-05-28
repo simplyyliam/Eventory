@@ -49,7 +49,7 @@ export const Table = ({
   const [inputValue, setInputValue] = useState(String(storeSeats));
 
   const assignSeatModalData =
-    modalId === 'AssignSeatModal'
+    modalId === 'AssignSeatModal' && (modalData as AssignSeatModalData)?.tableId === id
       ? (modalData as AssignSeatModalData | null)
       : null;
 
