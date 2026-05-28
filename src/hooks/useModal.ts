@@ -1,6 +1,6 @@
 import { useModalStore } from '@/store/useModalStore';
 import { useEffect } from 'react';
-import useGuest from './useGuests';
+import { useGuest } from './useGuests';
 
 export const useModal = () => {
   const { isModalOpen, closeModal } = useModalStore();

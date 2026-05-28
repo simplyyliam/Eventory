@@ -13,14 +13,23 @@ import { Textarea } from '@/components/ui/textarea';
 import { IconButton } from '@/shared/components';
 import { CancelIcon, SaveIcon } from '@hugeicons/core-free-icons';
 import { useModalStore } from '@/store/useModalStore';
-import useGuest from '@/hooks/useGuests';
+import { useGuest } from '@/hooks/useGuests';
 
 export function AddGuestModal() {
-  const closeModal  = useModalStore((s) => s.closeModal)
-  const isModalOpen = useModalStore((s) => s.isModalOpen)
-  const { setName, setEmail, setComment, setDietary, name, email, comment, dietary, handleAddGuest } = useGuest()
+  const closeModal = useModalStore((s) => s.closeModal);
+  const isModalOpen = useModalStore((s) => s.isModalOpen);
+  const {
+    setName,
+    setEmail,
+    setComment,
+    setDietary,
+    name,
+    email,
+    comment,
+    dietary,
+    handleAddGuest,
+  } = useGuest();
 
-  
   return (
     <>
       {isModalOpen && (
@@ -36,7 +45,14 @@ export function AddGuestModal() {
               <div className="flex flex-col gap-6">
                 <div className="grid gap-2">
                   <Label htmlFor="name">Name</Label>
-                  <Input id="name" type="text" placeholder="Joe Doe" value={name} onChange={(e) => setName(e.target.value)} required />
+                  <Input
+                    id="name"
+                    type="text"
+                    placeholder="Joe Doe"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    required
+                  />
                 </div>
                 <div className="grid gap-2">
                   <Label htmlFor="email">Email</Label>
@@ -44,16 +60,14 @@ export function AddGuestModal() {
                     id="email"
                     type="email"
                     placeholder="joeDoe@gmail.doe"
-                    value={email} onChange={(e) => setEmail(e.target.value)}
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
                     required
                   />
                 </div>
                 <div className="grid gap-2">
                   <Label htmlFor="dietary">Dietary Requirements</Label>
-                  <DietaryComboBox 
-                  value={dietary}
-                  onValueChange={setDietary}
-                  />
+                  <DietaryComboBox value={dietary} onValueChange={setDietary} />
                 </div>
                 <div className="grid gap-2">
                   <Label htmlFor="comments">Comments</Label>
@@ -61,15 +75,16 @@ export function AddGuestModal() {
                     id="comments"
                     placeholder="Add any additional comments"
                     className="resize-none"
-                    value={comment} onChange={(e) => setComment(e.target.value)}
+                    value={comment}
+                    onChange={(e) => setComment(e.target.value)}
                   />
                 </div>
               </div>
             </form>
           </CardContent>
           <CardFooter className="gap-2.5">
-            <IconButton Label="Cancel" Icon={CancelIcon} onClick={closeModal}/>
-            <IconButton Label="Save" Icon={SaveIcon} onClick={handleAddGuest}/>
+            <IconButton Label="Cancel" Icon={CancelIcon} onClick={closeModal} />
+            <IconButton Label="Save" Icon={SaveIcon} onClick={handleAddGuest} />
           </CardFooter>
         </Card>
       )}

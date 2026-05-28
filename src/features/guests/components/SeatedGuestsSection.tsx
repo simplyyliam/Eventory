@@ -10,15 +10,15 @@ import { ArrowDown01Icon, ArrowUpDown } from '@hugeicons/core-free-icons';
 import { HugeiconsIcon } from '@hugeicons/react';
 import { useState } from 'react';
 import { useGuestStore } from '@/store/useGuestStore';
-import useGuest from '@/hooks/useGuests';
+import { useGuest } from '@/hooks/useGuests';
 
 export const SeatedGuestsSection = () => {
   const [isUnseatedOpen, setIsUnseatedOpen] = useState(true);
   const seatedGuest = useGuestStore((s) => s.seatedGuests);
   const guests = useGuestStore((s) => s.guests);
   const unseatGuest = useGuestStore((s) => s.unseatGuest);
-  const { SeatedGuestsAmount } = useGuest()
-  
+  const { SeatedGuestsAmount } = useGuest();
+
   return (
     <SidebarGroup>
       <div className="flex items-center gap-2 px-2">
@@ -43,7 +43,7 @@ export const SeatedGuestsSection = () => {
             )}
           />
         </Button>
-        <IconButton Label={SeatedGuestsAmount}/>
+        <IconButton Label={SeatedGuestsAmount} />
       </div>
       {isUnseatedOpen && (
         <SidebarGroupContent className="px-2">
