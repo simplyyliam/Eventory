@@ -36,6 +36,7 @@ export default function VenuePage() {
             name={table.name}
             shape={table.shape}
             seatCount={table.seatCount}
+            tableId={table.id}
           />
         ))}
       </DragArea>

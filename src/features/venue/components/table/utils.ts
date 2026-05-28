@@ -1,3 +1,4 @@
+import { useTableStore } from "@/store/useTableStore";
 import { TABLE_CONFIG } from "./table.config";
 import type { PopupPlacement } from "./table.types";
 
@@ -22,3 +23,9 @@ export const getPopupPlacement = (x: number, y: number): PopupPlacement => {
       distanceFromCenterY > 0 ? 'translateX(-50%)' : 'translate(-50%, -100%)',
   };
 };
+
+
+export const useTableSeatCount = (tableId: string) =>
+  useTableStore((s) =>
+    s.tables.find(t => t.id === tableId)?.seatCount
+  );

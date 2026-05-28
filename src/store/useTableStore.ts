@@ -22,6 +22,7 @@ type TableStore = {
     seatCount: number,
     name?: string,
   ) => void;
+  updateTableSeats: (tableId: string, seatCount: number) => void;
 };
 
 const createTableId = (tableNumber: number) => `table-${tableNumber}`;
@@ -63,6 +64,15 @@ export const useTableStore = create<TableStore>()(
 
         set({
           tables: [...tables, newTable],
+        });
+      },
+
+      updateTableSeats: (tableId, seatCount) => {
+        const tables = get().tables;
+        set({
+          tables: tables.map((table) =>
+            table.id === tableId ? { ...table, seatCount } : table
+          ),
         });
       },
     }),

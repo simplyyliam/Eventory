@@ -14,14 +14,14 @@ export const AppMenubar = () => {
 
 
   return (
-    <div className="flex items-center justify-end h-fit w-full shrink-0 p-2.5 gap-2.5 absolute">
+    <div className="flex items-center justify-end h-fit w-full shrink-0 p-2.5 gap-2.5 z-10 absolute">
       <DropdownMenu>
         <DropdownMenuTrigger>
           <IconButton Label="Add table" />
         </DropdownMenuTrigger>
         <DropdownMenuContent>
           <DropdownMenuGroup>
-            <DropdownMenuItem onClick={() => addTable('circle', 15)}>
+            <DropdownMenuItem onClick={() => addTable('circle', 1)}>
               Circle
             </DropdownMenuItem>
             <DropdownMenuItem
