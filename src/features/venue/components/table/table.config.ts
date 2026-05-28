@@ -5,5 +5,5 @@ export const TABLE_CONFIG = {
   rectangleHeight: 320,
   seatGap: 28,
   maxRectangleSeats: 12,
-  maxRectangleSideSeats: 5,
+  maxRectangleSideSeats: 3,
 } as const;

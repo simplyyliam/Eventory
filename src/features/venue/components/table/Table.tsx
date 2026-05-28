@@ -8,6 +8,8 @@ import { useModalStore } from '@/store/useModalStore';
 interface TableProps {
   shape: 'circle' | 'rectangle';
   seatCount?: number;
+  id: string;
+  name: string;
 }
 
 const shapeStyle: Record<TableProps['shape'], string> = {
@@ -16,11 +18,13 @@ const shapeStyle: Record<TableProps['shape'], string> = {
 };
 
 type AssignSeatModalData = {
+  tableId: string;
+  seatId: string;
   seatIndex: number;
   placement: PopupPlacement;
 };
 
-export const Table = ({ shape, seatCount = 12 }: TableProps) => {
+export const Table = ({ shape, seatCount = 12, id, name }: TableProps) => {
   const modalId = useModalStore((s) => s.modalId);
   const modalData = useModalStore((s) => s.modalData);
   const openModal = useModalStore((s) => s.openModal);
@@ -37,6 +41,8 @@ export const Table = ({ shape, seatCount = 12 }: TableProps) => {
 
   const handleAssignSeat = (index: number, x: number, y: number) => {
     openModal('AssignSeatModal', {
+      tableId: id,
+      seatId: `${id}-seat-${index + 1}`,
       seatIndex: index,
       placement: getPopupPlacement(x, y),
     } satisfies AssignSeatModalData);
@@ -88,7 +94,7 @@ export const Table = ({ shape, seatCount = 12 }: TableProps) => {
           height: shape === 'circle' ? 200 : TABLE_CONFIG.rectangleHeight,
         }}
       >
-        {shape}
+        {name}
       </div>
     </div>
   );
