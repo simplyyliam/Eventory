@@ -1,5 +1,7 @@
+import { useModalStore } from '@/store/useModalStore';
 import { getSeatPosition } from './layout';
 import { TABLE_CONFIG } from './table.config';
+import { useRef } from 'react';
 
 interface TableProps {
   shape: 'circle' | 'rectangle';
@@ -12,6 +14,9 @@ const shapeStyle: Record<TableProps['shape'], string> = {
 };
 
 export const Table = ({ shape, seatCount = 12 }: TableProps) => {
+  const openModal = useModalStore((s) => s.openModal);
+  const seatRef = useRef<HTMLDivElement>(null)
+  
   const visibleSeatCount =
     shape === 'rectangle'
       ? Math.min(seatCount, TABLE_CONFIG.maxRectangleSeats)
@@ -29,15 +34,19 @@ export const Table = ({ shape, seatCount = 12 }: TableProps) => {
         );
 
         return (
-          <div
-            key={idx}
-            className="absolute w-6 h-6 bg-red-600"
-            style={{
-              left: x,
-              top: y,
-              transform: 'translate(-50%, -50%)',
-            }}
-          />
+          <>
+            <div
+              key={idx}
+              ref={seatRef}
+              className="absolute w-6 h-6 bg-red-600"
+              onClick={() => openModal('AssignSeat')}
+              style={{
+                left: x,
+                top: y,
+                transform: 'translate(-50%, -50%)',
+              }}
+            />
+          </>
         );
       })}
 
@@ -45,12 +54,8 @@ export const Table = ({ shape, seatCount = 12 }: TableProps) => {
       <div
         className={`absolute left-1/2 top-1/2 flex -translate-x-1/2 -translate-y-1/2 items-center justify-center bg-muted-foreground ${shapeStyle[shape]}`}
         style={{
-          width: shape === 'circle'
-            ? 200
-            : TABLE_CONFIG.rectangleWidth,
-          height: shape === 'circle'
-            ? 200
-            : TABLE_CONFIG.rectangleHeight,
+          width: shape === 'circle' ? 200 : TABLE_CONFIG.rectangleWidth,
+          height: shape === 'circle' ? 200 : TABLE_CONFIG.rectangleHeight,
         }}
       >
         {shape}

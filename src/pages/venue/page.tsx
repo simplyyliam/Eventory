@@ -1,9 +1,9 @@
 import { DragArea, PageContainer } from '@/shared/components';
 import { useTableStore } from '@/store/useTableStore';
-import { Table } from '../components/table/Table';
+import { Table } from '../../features/venue/components/table/Table';
 
 
-export function VenuePage() {
+export default function VenuePage() {
   const tables = useTableStore((s) => s.tables)
   return (
     <PageContainer id="venue" className="flex items-center justify-center">

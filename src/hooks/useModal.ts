@@ -3,10 +3,10 @@ import { useEffect } from 'react';
 import { useGuest } from './useGuests';
 
 export const useModal = () => {
-  const { isModalOpen, closeModal } = useModalStore();
+  const { modalId, closeModal } = useModalStore();
   const { handleAddGuest } = useGuest();
 useEffect(() => {
-  if (!isModalOpen) return;
+  if (!modalId) return;
 
   const closeCurrentModal = (e: KeyboardEvent) => {
     if (e.key === 'Escape') {
@@ -19,5 +19,5 @@ useEffect(() => {
   return () => {
     window.removeEventListener('keydown', closeCurrentModal);
   };
-}, [isModalOpen, closeModal, handleAddGuest]); 
+}, [modalId, closeModal, handleAddGuest]); 
 };

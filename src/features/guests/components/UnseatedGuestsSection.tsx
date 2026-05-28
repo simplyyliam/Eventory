@@ -1,4 +1,4 @@
-import { IconButton } from '@/shared/components';
+import { GuestCard, IconButton } from '@/shared/components';
 import { Button } from '@/components/ui/button';
 import {
   SidebarGroup,
@@ -56,16 +56,12 @@ export const UnseatedGuestsSection = () => {
               .map((part) => part[0])
               .join('');
             return (
-              <div
+              <GuestCard
                 key={guest.id}
+                name={guest.Name}
+                initials={initials}
                 onClick={() => seatGuest(guest.id, 'table-1', 'seat-1')}
-                className="flex gap-2 items-center p-2.5 hover:bg-muted transition-all ease-linear rounded-md"
-              >
-                <div className="flex items-center justify-center w-7 h-7 border border-input rounded-md">
-                  {initials}
-                </div>
-                <span>{guest.Name}</span>
-              </div>
+              />
             );
           })}
         </SidebarGroupContent>

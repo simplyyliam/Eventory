@@ -1,22 +1,17 @@
 import { create } from 'zustand';
 
 type ModalStore = {
-  modalId: string;
-  isModalOpen: boolean
+  modalId: string | null;
   openModal: (id: string) => void;
   closeModal: () => void
 };
 
-export const useModalStore = create<ModalStore>((set, get) => ({
+export const useModalStore = create<ModalStore>((set) => ({
     modalId: "",
-    isModalOpen: false,
     openModal: (id) => {
-        const {isModalOpen, modalId} = get() 
-        if(modalId === id && isModalOpen) return
-
-        set({modalId: id, isModalOpen: true})
+        set({modalId: id})
     },
     closeModal: () => {
-        set({modalId: "", isModalOpen: false})
+        set({modalId: null})
     }
 }))
