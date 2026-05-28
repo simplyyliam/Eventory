@@ -1,4 +1,4 @@
-import { IconButton } from '@/shared/components';
+import { GuestCard, IconButton } from '@/shared/components';
 import { Button } from '@/components/ui/button';
 import {
   SidebarGroup,
@@ -10,6 +10,7 @@ import { ArrowDown01Icon, ArrowUpDown } from '@hugeicons/core-free-icons';
 import { HugeiconsIcon } from '@hugeicons/react';
 import { useState } from 'react';
 import { useGuestStore } from '@/store/useGuestStore';
+import { useTableStore } from '@/store/useTableStore';
 import { useGuest } from '@/hooks/useGuests';
 
 export const SeatedGuestsSection = () => {
@@ -17,6 +18,7 @@ export const SeatedGuestsSection = () => {
   const seatedGuest = useGuestStore((s) => s.seatedGuests);
   const guests = useGuestStore((s) => s.guests);
   const unseatGuest = useGuestStore((s) => s.unseatGuest);
+  const tables = useTableStore((s) => s.tables);
   const { SeatedGuestsAmount } = useGuest();
 
   return (
@@ -49,6 +51,8 @@ export const SeatedGuestsSection = () => {
         <SidebarGroupContent className="px-2">
           {seatedGuest.map((seat) => {
             const guest = guests.find((guest) => guest.id === seat.guestId);
+            const table = tables.find((t) => t.id === seat.tableId);
+            const seatNumber = seat.seatId.split('-').pop();
 
             if (!guest) return null;
 
@@ -57,16 +61,14 @@ export const SeatedGuestsSection = () => {
               .join('');
 
             return (
-              <div
+              <GuestCard
                 key={seat.guestId}
+                name={guest.Name}
+                initials={initials}
+                table={table?.name}
+                seat={seatNumber}
                 onClick={() => unseatGuest(seat.guestId)}
-                className="flex gap-2 items-center p-2.5 hover:bg-muted transition-all ease-linear rounded-md"
-              >
-                <div className="flex items-center justify-center w-7 h-7 border border-input rounded-md">
-                  {initials}
-                </div>
-                <span>{guest.Name}</span>
-              </div>
+              />
             );
           })}
         </SidebarGroupContent>
@@ -74,3 +76,4 @@ export const SeatedGuestsSection = () => {
     </SidebarGroup>
   );
 };
+

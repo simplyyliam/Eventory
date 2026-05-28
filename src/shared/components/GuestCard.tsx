@@ -3,10 +3,12 @@ interface GuestCardProps {
     key: string,
     onClick: () => void,
     initials: string,
-    name: string
+    name: string,
+    table?: string,
+    seat?: string,
 }
 
-export const GuestCard = ({key, onClick, initials, name}:GuestCardProps) => {
+export const GuestCard = ({key, onClick, initials, name, table, seat}:GuestCardProps) => {
   return (
     <div
       key={key}
@@ -16,10 +18,13 @@ export const GuestCard = ({key, onClick, initials, name}:GuestCardProps) => {
       <div className="flex items-center justify-center w-7 h-7 border border-input rounded-md">
         {initials}
       </div>
-      <span>{name}</span>
+      <div className="flex flex-col">
+        <span>{name}</span>
+        {table && seat && (
+          <span className="text-xs text-muted-foreground">{table} - Seat {seat}</span>
+        )}
+      </div>
     </div>
   );
 };
 
-
-// seatGuest(guest.id, 'table-1', 'seat-1')
