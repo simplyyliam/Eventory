@@ -1,12 +1,16 @@
 import { DragArea, PageContainer } from '@/shared/components';
+import { useTableStore } from '@/store/useTableStore';
 import { Table } from '../components/table/Table';
 
+
 export function VenuePage() {
+  const tables = useTableStore((s) => s.tables)
   return (
     <PageContainer id="venue" className="flex items-center justify-center">
       <DragArea>
-        <Table shape="circle" />
-        <Table shape="rectangle" />
+        {tables.map((table) => (
+          <Table shape={table.shape} seatCount={table.seatCount}/>
+        ))}
       </DragArea>
     </PageContainer>
   );

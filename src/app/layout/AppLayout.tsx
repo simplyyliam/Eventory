@@ -1,15 +1,17 @@
 import { AppSidebar } from '@/widgets/app-sidebar';
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
 import { Outlet } from 'react-router-dom';
+import { AppMenubar } from '@/widgets/app-menubar';
 
 export default function AppLayout() {
   return (
-    <SidebarProvider>
+    <SidebarProvider className="h-svh overflow-hidden">
       <AppSidebar />
-      <SidebarInset>
-        <main>
+      <SidebarInset className="min-w-0 overflow-hidden ">
+        <AppMenubar/>
+        <div className="min-h-0 flex-1 overflow-hidden">
           <Outlet />
-        </main>
+        </div>
       </SidebarInset>
     </SidebarProvider>
   );

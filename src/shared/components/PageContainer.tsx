@@ -6,7 +6,7 @@ export const PageContainer: React.FC<HTMLAttributes<HTMLDivElement>> = ({
   ...props
 }) => {
   return (
-    <div className={`flex w-full h-screen p-2.5 ${className}`} {...props}>
+    <div className={`flex h-full w-full p-2.5 ${className}`} {...props}>
       {children}
     </div>
   );
