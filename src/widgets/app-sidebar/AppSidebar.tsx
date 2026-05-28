@@ -13,7 +13,7 @@ import { IconButton, ThemeToggle } from '@/shared/components';
 import { useModalStore } from '@/store/useModalStore';
 
 export function AppSidebar() {
-  const { openModal } = useModalStore()
+  const { openModal } = useModalStore();
   return (
     <Sidebar variant="floating">
       <SidebarHeader>
@@ -25,7 +25,12 @@ export function AppSidebar() {
         </SidebarMenu>
         <SidebarGroup>
           <div className="flex gap-2">
-            <IconButton stretch Label="Add Guest" Icon={Plus} onClick={() => openModal("GuestModal")}/>
+            <IconButton
+              stretch
+              Label="Add Guest"
+              Icon={Plus}
+              onClick={() => openModal('GuestModal')}
+            />
             <IconButton stretch Label="Import" Icon={Upload06Icon} />
           </div>
         </SidebarGroup>

@@ -1,7 +1,9 @@
-import { useModalStore } from '@/store/useModalStore';
 import { getSeatPosition } from './layout';
 import { TABLE_CONFIG } from './table.config';
-import { useRef } from 'react';
+import { useState } from 'react';
+import { AssignSeatModal } from '@/features/guests';
+import type { PopupPlacement } from './table.types';
+import { getPopupPlacement } from './utils';
 
 interface TableProps {
   shape: 'circle' | 'rectangle';
@@ -14,13 +16,20 @@ const shapeStyle: Record<TableProps['shape'], string> = {
 };
 
 export const Table = ({ shape, seatCount = 12 }: TableProps) => {
-  const openModal = useModalStore((s) => s.openModal);
-  const seatRef = useRef<HTMLDivElement>(null)
-  
+  const [activeIndex, setActiveIndex] = useState<number | null>(null);
+  const [popupPlacement, setPopupPlacement] = useState<PopupPlacement | null>(
+    null,
+  );
+
   const visibleSeatCount =
     shape === 'rectangle'
       ? Math.min(seatCount, TABLE_CONFIG.maxRectangleSeats)
       : seatCount;
+
+  const handleAssignSeat = (index: number, x: number, y: number) => {
+    setPopupPlacement(getPopupPlacement(x, y));
+    setActiveIndex(index);
+  };
 
   return (
     <div className="relative h-96 w-96">
@@ -34,21 +43,31 @@ export const Table = ({ shape, seatCount = 12 }: TableProps) => {
         );
 
         return (
-          <>
-            <div
-              key={idx}
-              ref={seatRef}
-              className="absolute w-6 h-6 bg-red-600"
-              onClick={() => openModal('AssignSeat')}
-              style={{
-                left: x,
-                top: y,
-                transform: 'translate(-50%, -50%)',
-              }}
-            />
-          </>
+          <div
+            key={idx}
+            className="absolute w-6 h-6 bg-red-600"
+            onClick={() => handleAssignSeat(idx, x, y)}
+            style={{
+              left: x,
+              top: y,
+              transform: 'translate(-50%, -50%)',
+            }}
+          />
         );
       })}
+
+      {activeIndex !== null && popupPlacement && (
+        <div
+          className="absolute z-20"
+          style={{
+            top: popupPlacement.top,
+            left: popupPlacement.left,
+            transform: popupPlacement.transform,
+          }}
+        >
+          <AssignSeatModal />
+        </div>
+      )}
 
       {/* Table */}
       <div

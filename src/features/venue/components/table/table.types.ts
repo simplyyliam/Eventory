@@ -12,3 +12,10 @@ export type TableLayoutConfig = {
   maxRectangleSeats: number;
   maxRectangleSideSeats: number;
 };
+
+
+export type PopupPlacement = {
+  top: number;
+  left: number;
+  transform: string;
+};
