@@ -52,10 +52,12 @@ export const Table = ({
   const openModal = useModalStore((s) => s.openModal);
   const updateTableSeats = useTableStore((s) => s.updateTableSeats);
   const updateTablePosition = useTableStore((s) => s.updateTablePosition);
-  const removeTable = useTableStore((s) => s.removeTable)
+  const updateTableRotation = useTableStore((s) => s.updateTableRotation);
+  const removeTable = useTableStore((s) => s.removeTable);
   const storeSeats = useTableSeatCount(tableId);
 
   const [inputValue, setInputValue] = useState(String(storeSeats));
+  const [isRotating, setIsRotating] = useState(false);
 
   // Use TABLE_CONFIG values so seats/layout match the config
   const tableWidth =
@@ -76,6 +78,11 @@ export const Table = ({
   const centerY = wrapperHeight / 2;
   const isDragging = useRef(false);
   const offset = useRef({ x: 0, y: 0 });
+  const wrapperRef = useRef<HTMLDivElement | null>(null);
+  // const isRotating = useRef(false);
+  const rotateStart = useRef({ angle: 0, rotation: 0 });
+  const rotatePointerId = useRef<number | null>(null);
+  const [hovered, setHovered] = useState(false);
   const WORLD_SIZE = 10000;
   const WORLD_HALF = WORLD_SIZE / 2;
 
@@ -137,8 +144,56 @@ export const Table = ({
     };
   }, [updateTablePosition, tableId]);
 
+  // Rotation handlers (rectangle tables only)
+  useEffect(() => {
+    const handleMove = (e: PointerEvent) => {
+      if (!isRotating || !wrapperRef.current) return;
+
+      const rect = wrapperRef.current.getBoundingClientRect();
+      const cx = rect.left + rect.width / 2;
+      const cy = rect.top + rect.height / 2;
+      const angle =
+        (Math.atan2(e.clientY - cy, e.clientX - cx) * 180) / Math.PI;
+      const delta = angle - rotateStart.current.angle;
+      const newRotation = rotateStart.current.rotation + delta;
+
+      // If Shift is held, snap to 15° increments
+      if (e.shiftKey) {
+        const snapped = Math.round(newRotation / 15) * 15;
+        updateTableRotation(tableId, snapped);
+      } else {
+        updateTableRotation(tableId, newRotation);
+      }
+    };
+
+    const handleUp = () => {
+      if (isRotating) {
+        setIsRotating(false);
+        if (rotatePointerId.current != null && wrapperRef.current) {
+          try {
+            wrapperRef.current.releasePointerCapture(rotatePointerId.current);
+          } catch (err) {
+            console.error(err);
+          }
+        }
+        rotatePointerId.current = null;
+      }
+    };
+
+    window.addEventListener('pointermove', handleMove);
+    window.addEventListener('pointerup', handleUp);
+
+    return () => {
+      window.removeEventListener('pointermove', handleMove);
+      window.removeEventListener('pointerup', handleUp);
+    };
+  }, [tableId, updateTableRotation]);
+
   return (
     <div
+      ref={wrapperRef}
+      onPointerEnter={() => setHovered(true)}
+      onPointerLeave={() => setHovered(false)}
       className="absolute"
       style={{
         left: 0,
@@ -213,6 +268,34 @@ export const Table = ({
             >
               {name}
             </div>
+            {/* Rotate handle for rectangles */}
+            {shape === 'rectangle' && (hovered || isRotating) && (
+              <div
+                onPointerDown={(e) => {
+                  e.stopPropagation();
+                  // start rotating
+                  const node = wrapperRef.current;
+                  if (!node) return;
+                  rotatePointerId.current = e.pointerId;
+                  try {
+                    node.setPointerCapture(e.pointerId);
+                  } catch (err) {
+                    console.error(err);
+                  }
+
+                  const rect = node.getBoundingClientRect();
+                  const cx = rect.left + rect.width / 2;
+                  const cy = rect.top + rect.height / 2;
+                  const angle =
+                    (Math.atan2(e.clientY - cy, e.clientX - cx) * 180) /
+                    Math.PI;
+                  rotateStart.current.angle = angle;
+                  rotateStart.current.rotation = rotation;
+                  setIsRotating(true);
+                }}
+                className="absolute -top-3 left-1/2 -translate-x-1/2 w-3 h-3 bg-blue-500 rounded-full cursor-grab"
+              />
+            )}
           </ContextMenuTrigger>
           <ContextMenuContent className="min-w-44 rounded-xl border bg-background/95 p-2 shadow-lg backdrop-blur-md">
             <div className="flex items-center justify-between gap-3 px-2 py-1">
@@ -260,7 +343,9 @@ export const Table = ({
                 </button>
               </div>
             </div>
-            <ContextMenuItem onClick={() => removeTable(tableId)}>Delete</ContextMenuItem>
+            <ContextMenuItem onClick={() => removeTable(tableId)}>
+              Delete
+            </ContextMenuItem>
           </ContextMenuContent>
         </ContextMenu>
       </div>
