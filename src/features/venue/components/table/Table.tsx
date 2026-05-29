@@ -7,6 +7,7 @@ import { useModalStore } from '@/store/useModalStore';
 import {
   ContextMenu,
   ContextMenuContent,
+  ContextMenuItem,
   ContextMenuTrigger,
 } from '@/components/ui/context-menu';
 import { Input } from '@/components/ui/input';
@@ -51,6 +52,7 @@ export const Table = ({
   const openModal = useModalStore((s) => s.openModal);
   const updateTableSeats = useTableStore((s) => s.updateTableSeats);
   const updateTablePosition = useTableStore((s) => s.updateTablePosition);
+  const removeTable = useTableStore((s) => s.removeTable)
   const storeSeats = useTableSeatCount(tableId);
 
   const [inputValue, setInputValue] = useState(String(storeSeats));
@@ -258,6 +260,7 @@ export const Table = ({
                 </button>
               </div>
             </div>
+            <ContextMenuItem onClick={() => removeTable(tableId)}>Delete</ContextMenuItem>
           </ContextMenuContent>
         </ContextMenu>
       </div>

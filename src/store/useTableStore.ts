@@ -27,6 +27,7 @@ type TableStore = {
   updateTableSeats: (tableId: string, seatCount: number) => void;
   updateTablePosition: (tableId: string, x: number, y: number) => void;
   updateTableRotation: (tableId: string, rotation: number) => void;
+  removeTable: (tableId: string) => void
 };
 
 const createTableId = (tableNumber: number) => `table-${tableNumber}`;
@@ -123,6 +124,14 @@ export const useTableStore = create<TableStore>()(
           ),
         });
       },
+
+      removeTable: (tableId) => {
+        const tables = get().tables
+
+        set({
+          tables: tables.filter((table) => table.id !== tableId)
+        })
+      }
     }),
     {
       name: 'table-store',
