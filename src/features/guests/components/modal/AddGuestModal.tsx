@@ -24,6 +24,7 @@ export function AddGuestModal() {
   const comment = useFormStore((s) => s.comment);
   const dietary = useFormStore((s) => s.dietary);
   const setField = useFormStore((s) => s.setField);
+  const resetForm = useFormStore((s) => s.reset)
 
   const { handleAddGuest } = useGuest();
 
@@ -87,7 +88,10 @@ export function AddGuestModal() {
               <IconButton
                 Label="Cancel"
                 Icon={CancelIcon}
-                onClick={closeModal}
+                onClick={() => {
+                  resetForm()
+                  closeModal()
+                }}
               />
               <IconButton
                 Label="Save"

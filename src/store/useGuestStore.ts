@@ -23,6 +23,7 @@ type GuestStore = {
   guests: Guest[];
   seatedGuests: SeatedGuest[];
   addGuest: (guest: GuestInput) => void;
+  removeGuest: (guestId: string) => void;
   seatGuest: (guestId: string, tableId: string, seatId: string) => void;
   unseatGuest: (guestId: string) => void;
   updateGuest: (guestId: string, updatedGuest: GuestInput) => void;
@@ -30,7 +31,7 @@ type GuestStore = {
 
 export const useGuestStore = create<GuestStore>()(
   persist(
-    (set) => ({
+    (set, get) => ({
       guests: [],
       seatedGuests: [],
       addGuest: (guest) => {
@@ -40,6 +41,12 @@ export const useGuestStore = create<GuestStore>()(
         }));
       },
 
+      removeGuest: (guestId) => {
+        const guests = get().guests;
+        set({
+          guests: guests.filter((guest) => guest.id !== guestId),
+        });
+      },
       seatGuest: (guestId, tableId, seatId) => {
         set((state) => ({
           seatedGuests: [

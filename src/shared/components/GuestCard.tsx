@@ -1,8 +1,16 @@
-import { Edit04Icon } from '@hugeicons/core-free-icons';
+import { MoreHorizontalIcon } from '@hugeicons/core-free-icons';
 import { IconButton } from './IconButton';
 import { useModalStore } from '@/store/useModalStore';
 import { useGuestStore } from '@/store/useGuestStore';
 import { useFormStore } from '@/store/useFormStore';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 
 interface GuestCardProps {
   key: string;
@@ -29,6 +37,7 @@ export const GuestCard = ({
   const guest = useGuestStore((s) =>
     s.guests.find((guest) => guest.id === guestId),
   );
+  const removeGuest = useGuestStore((s) => s.removeGuest)
 
   const handleEdit = () => {
     if (!guest) return;
@@ -61,7 +70,20 @@ export const GuestCard = ({
           )}
         </div>
       </div>
-      <IconButton Icon={Edit04Icon} onClick={handleEdit} />
+      <DropdownMenu>
+        <DropdownMenuTrigger>
+          <IconButton Icon={MoreHorizontalIcon} />
+        </DropdownMenuTrigger>
+        <DropdownMenuContent>
+          <DropdownMenuGroup>
+            <DropdownMenuItem onClick={handleEdit}>Edit Guest</DropdownMenuItem>
+          </DropdownMenuGroup>
+          <DropdownMenuSeparator />
+          <DropdownMenuGroup>
+            <DropdownMenuItem onClick={() => removeGuest(guestId)}>Delete</DropdownMenuItem>
+          </DropdownMenuGroup>
+        </DropdownMenuContent>
+      </DropdownMenu>
     </div>
   );
 };
