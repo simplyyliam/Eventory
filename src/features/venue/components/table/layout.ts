@@ -6,9 +6,10 @@ export function getSeatPosition(
   index: number,
   seatCount: number,
   config: TableLayoutConfig,
+  centerX?: number,
+  centerY?: number
 ): SeatPosition {
   const {
-    center,
     circleRadius,
     rectangleWidth,
     rectangleHeight,
@@ -17,14 +18,21 @@ export function getSeatPosition(
     maxRectangleSideSeats,
   } = config;
 
-  let x = center;
-  let y = center;
+  // compute reasonable defaults when center isn't provided
+  const defaultCx = shape === 'circle' ? circleRadius : rectangleWidth / 2;
+  const defaultCy = shape === 'circle' ? circleRadius : rectangleHeight / 2;
+
+  const cx = typeof centerX === 'number' ? centerX : defaultCx;
+  const cy = typeof centerY === 'number' ? centerY : defaultCy;
+
+  let x = cx;
+  let y = cy;
 
   if (shape === 'circle') {
     const angle = (index / seatCount) * Math.PI * 2;
 
-    x = center + circleRadius * Math.cos(angle);
-    y = center + circleRadius * Math.sin(angle);
+    x = cx + circleRadius * Math.cos(angle);
+    y = cy + circleRadius * Math.sin(angle);
   }
 
   if (shape === 'rectangle') {
@@ -38,10 +46,10 @@ export function getSeatPosition(
     const leftSideCount = Math.ceil(sideSeatCount / 2);
     const rightSideCount = sideSeatCount - leftSideCount;
 
-    const left = center - rectangleWidth / 2 - seatGap;
-    const right = center + rectangleWidth / 2 + seatGap;
-    const top = center - rectangleHeight / 2 - seatGap;
-    const tableTop = center - rectangleHeight / 2;
+    const left = cx - rectangleWidth / 2 - seatGap;
+    const right = cx + rectangleWidth / 2 + seatGap;
+    const top = cy - rectangleHeight / 2 - seatGap;
+    const tableTop = cy - rectangleHeight / 2;
 
     if (index < leftSideCount) {
       const spacing = rectangleHeight / (leftSideCount + 1);
@@ -57,8 +65,8 @@ export function getSeatPosition(
     } else {
       const endIndex = index - sideSeatCount;
 
-      x = center;
-      y = endIndex === 0 ? top : center + rectangleHeight / 2 + seatGap;
+      x = cx;
+      y = endIndex === 0 ? top : cy + rectangleHeight / 2 + seatGap;
     }
   }
 

@@ -1,4 +1,4 @@
-import { DragArea, PageContainer } from '@/shared/components';
+import { PageContainer } from '@/shared/components';
 import { useTableStore } from '@/store/useTableStore';
 import { Table } from '../../features/venue/components/table/Table';
 
@@ -8,21 +8,21 @@ export default function VenuePage() {
   return (
     <PageContainer
       id="venue"
-      className="relative flex items-center justify-center"
+      className="relative w-full h-full"
     >
-
-      <DragArea>
-        {tables.map((table) => (
-          <Table
-            key={table.id}
-            id={table.id}
-            name={table.name}
-            shape={table.shape}
-            seatCount={table.seatCount}
-            tableId={table.id}
-          />
-        ))}
-      </DragArea>
+      {tables.map((table) => (
+        <Table
+          key={table.id}
+          id={table.id}
+          name={table.name}
+          shape={table.shape}
+          seatCount={table.seatCount}
+          tableId={table.id}
+          x={table.x}
+          y={table.y}
+          rotation={table.rotation}
+        />
+      ))}
     </PageContainer>
   );
 }

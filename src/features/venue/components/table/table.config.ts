@@ -1,5 +1,4 @@
 export const TABLE_CONFIG = {
-  center: 192,
   circleRadius: 120,
   rectangleWidth: 150,
   rectangleHeight: 320,

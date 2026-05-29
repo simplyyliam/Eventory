@@ -11,7 +11,7 @@ import {
 } from '@/components/ui/context-menu';
 import { Input } from '@/components/ui/input';
 import { useTableStore } from '@/store/useTableStore';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 interface TableProps {
   shape: 'circle' | 'rectangle';
@@ -19,6 +19,9 @@ interface TableProps {
   id: string;
   name: string;
   tableId: string;
+  x: number;
+  y: number;
+  rotation: number;
 }
 
 const shapeStyle: Record<TableProps['shape'], string> = {
@@ -39,17 +42,42 @@ export const Table = ({
   id,
   name,
   tableId,
+  x,
+  y,
+  rotation,
 }: TableProps) => {
   const modalId = useModalStore((s) => s.modalId);
   const modalData = useModalStore((s) => s.modalData);
   const openModal = useModalStore((s) => s.openModal);
   const updateTableSeats = useTableStore((s) => s.updateTableSeats);
+  const updateTablePosition = useTableStore((s) => s.updateTablePosition);
   const storeSeats = useTableSeatCount(tableId);
 
   const [inputValue, setInputValue] = useState(String(storeSeats));
 
+  // Use TABLE_CONFIG values so seats/layout match the config
+  const tableWidth =
+    shape === 'circle'
+      ? TABLE_CONFIG.circleRadius * 2
+      : TABLE_CONFIG.rectangleWidth;
+  const tableHeight =
+    shape === 'circle'
+      ? TABLE_CONFIG.circleRadius * 2
+      : TABLE_CONFIG.rectangleHeight;
+
+  // wrapper size includes padding for seats
+  const wrapperPadding = TABLE_CONFIG.seatGap + 24; // extra room for seat hit area
+  const wrapperWidth = tableWidth + wrapperPadding * 2;
+  const wrapperHeight = tableHeight + wrapperPadding * 2;
+
+  const centerX = wrapperWidth / 2;
+  const centerY = wrapperHeight / 2;
+  const isDragging = useRef(false);
+  const offset = useRef({ x: 0, y: 0 });
+
   const assignSeatModalData =
-    modalId === 'AssignSeatModal' && (modalData as AssignSeatModalData)?.tableId === id
+    modalId === 'AssignSeatModal' &&
+    (modalData as AssignSeatModalData)?.tableId === id
       ? (modalData as AssignSeatModalData | null)
       : null;
 
@@ -63,7 +91,7 @@ export const Table = ({
       tableId: id,
       seatId: `${id}-seat-${index + 1}`,
       seatIndex: index,
-      placement: getPopupPlacement(x, y),
+      placement: getPopupPlacement(x, y, centerX, centerY),
     } satisfies AssignSeatModalData);
   };
 
@@ -80,102 +108,156 @@ export const Table = ({
     updateTableSeats(tableId, finalSeats);
   };
 
+  // Pointer moving logic
+  useEffect(() => {
+    const handleMove = (e: PointerEvent) => {
+      if (!isDragging.current) return;
+
+      updateTablePosition(
+        tableId,
+        e.clientX - offset.current.x,
+        e.clientY - offset.current.y,
+      );
+    };
+
+    const handleUp = () => {
+      isDragging.current = false;
+    };
+
+    window.addEventListener('pointermove', handleMove);
+    window.addEventListener('pointerup', handleUp);
+
+    return () => {
+      window.removeEventListener('pointermove', handleMove);
+      window.removeEventListener('pointerup', handleUp);
+    };
+  }, [updateTablePosition, tableId]);
+
   return (
-    <div className="relative h-96 w-96">
-      {Array.from({ length: visibleSeatCount }).map((_, idx) => {
-        const { x, y } = getSeatPosition(
-          shape,
-          idx,
-          visibleSeatCount,
-          TABLE_CONFIG,
-        );
+    <div
+      className="absolute"
+      style={{
+        left: 0,
+        top: 0,
+        width: wrapperWidth,
+        height: wrapperHeight,
+        transformOrigin: `${centerX}px ${centerY}px`,
+        transform: `translate(${x}px, ${y}px) ${shape === 'rectangle' ? `rotate(${rotation}deg)` : ''}`,
+      }}
+    >
+      <div
+        style={{
+          position: 'relative',
+          width: wrapperWidth,
+          height: wrapperHeight,
+        }}
+      >
+        {Array.from({ length: visibleSeatCount }).map((_, idx) => {
+          const { x, y } = getSeatPosition(
+            shape,
+            idx,
+            visibleSeatCount,
+            TABLE_CONFIG,
+            centerX,
+            centerY,
+          );
 
-        return (
+          return (
+            <div
+              key={idx}
+              className="absolute w-6 h-6 bg-red-600"
+              onClick={() => handleAssignSeat(idx, x, y)}
+              style={{
+                left: x,
+                top: y,
+                transform: 'translate(-50%, -50%)',
+              }}
+            />
+          );
+        })}
+
+        {assignSeatModalData && (
           <div
-            key={idx}
-            className="absolute w-6 h-6 bg-red-600"
-            onClick={() => handleAssignSeat(idx, x, y)}
+            onPointerDown={(e) => e.stopPropagation()}
+            className="absolute z-20"
             style={{
-              left: x,
-              top: y,
-              transform: 'translate(-50%, -50%)',
-            }}
-          />
-        );
-      })}
-
-      {assignSeatModalData && (
-        <div
-          className="absolute z-20"
-          style={{
-            top: assignSeatModalData.placement.top,
-            left: assignSeatModalData.placement.left,
-            transform: assignSeatModalData.placement.transform,
-          }}
-        >
-          <AssignSeatModal />
-        </div>
-      )}
-
-      <ContextMenu>
-        <ContextMenuTrigger>
-          <div
-            className={`absolute left-1/2 top-1/2 flex -translate-x-1/2 -translate-y-1/2 items-center justify-center bg-muted-foreground ${shapeStyle[shape]}`}
-            style={{
-              width: shape === 'circle' ? 200 : TABLE_CONFIG.rectangleWidth,
-              height: shape === 'circle' ? 200 : TABLE_CONFIG.rectangleHeight,
+              top: assignSeatModalData.placement.top,
+              left: assignSeatModalData.placement.left,
+              transform: assignSeatModalData.placement.transform,
             }}
           >
-            {name}
+            <AssignSeatModal />
           </div>
-        </ContextMenuTrigger>
-        <ContextMenuContent className="min-w-44 rounded-xl border bg-background/95 p-2 shadow-lg backdrop-blur-md">
-          <div className="flex items-center justify-between gap-3 px-2 py-1">
-            <div className="flex flex-col">
-              <span className="text-xs font-medium text-foreground">
-                Table seats
-              </span>
-              <span className="text-[10px] text-muted-foreground">
-                Adjust capacity
-              </span>
-            </div>
-
+        )}
+        <ContextMenu>
+          <ContextMenuTrigger onPointerDown={(e) => e.stopPropagation()}>
+            {/* Table Shape */}
             <div
-              key={storeSeats}
-              className="flex items-center gap-1"
-              onPointerDown={(e) => e.stopPropagation()}
-              onClick={(e) => e.stopPropagation()}
-              onMouseDown={(e) => e.stopPropagation()}
-              onKeyDown={(e) => e.stopPropagation()}
+              onPointerDown={(e) => {
+                isDragging.current = true;
+                offset.current = {
+                  x: e.clientX - x,
+                  y: e.clientY - y,
+                };
+              }}
+              className={`absolute left-1/2 top-1/2 flex -translate-x-1/2 -translate-y-1/2 items-center justify-center bg-muted-foreground ${shapeStyle[shape]}`}
+              style={{
+                width: shape === 'circle' ? 200 : TABLE_CONFIG.rectangleWidth,
+                height: shape === 'circle' ? 200 : TABLE_CONFIG.rectangleHeight,
+              }}
             >
-              <button
-                type="button"
-                className="h-6 w-6 rounded-md bg-muted text-xs hover:bg-muted/80 active:scale-95"
-                onClick={() => handleAdjustSeats(-1)}
-              >
-                −
-              </button>
-
-              <Input
-                type="text"
-                inputMode="numeric"
-                className="h-7 w-10 rounded-md border border-input bg-background text-center text-xs"
-                defaultValue={String(storeSeats)}
-                onChange={(e) => setInputValue(e.target.value)}
-                onBlur={handleSeatInputBlur}
-              />
-
-              <button
-                type="button"
-                className="h-6 w-6 rounded-md bg-muted text-xs hover:bg-muted/80 active:scale-95"
-                onClick={() => handleAdjustSeats(1)}
-              >
-                +
-              </button>
+              {name}
             </div>
-          </div>
-        </ContextMenuContent>
-      </ContextMenu>
+          </ContextMenuTrigger>
+          <ContextMenuContent className="min-w-44 rounded-xl border bg-background/95 p-2 shadow-lg backdrop-blur-md">
+            <div className="flex items-center justify-between gap-3 px-2 py-1">
+              <div className="flex flex-col">
+                <span className="text-xs font-medium text-foreground">
+                  Table seats
+                </span>
+                <span className="text-[10px] text-muted-foreground">
+                  Adjust capacity
+                </span>
+              </div>
+
+              <div
+                key={storeSeats}
+                className="flex items-center gap-1"
+                onPointerDown={(e) => e.stopPropagation()}
+                onClick={(e) => e.stopPropagation()}
+                onMouseDown={(e) => e.stopPropagation()}
+                onKeyDown={(e) => e.stopPropagation()}
+              >
+                <button
+                  type="button"
+                  className="h-6 w-6 rounded-md bg-muted text-xs hover:bg-muted/80 active:scale-95"
+                  onClick={() => handleAdjustSeats(-1)}
+                >
+                  −
+                </button>
+
+                <Input
+                  type="text"
+                  inputMode="numeric"
+                  className="h-7 w-10 rounded-md border border-input bg-background text-center text-xs"
+                  defaultValue={String(storeSeats)}
+                  onChange={(e) => setInputValue(e.target.value)}
+                  onPointerDown={(e) => e.stopPropagation()}
+                  onBlur={handleSeatInputBlur}
+                />
+
+                <button
+                  type="button"
+                  className="h-6 w-6 rounded-md bg-muted text-xs hover:bg-muted/80 active:scale-95"
+                  onClick={() => handleAdjustSeats(1)}
+                >
+                  +
+                </button>
+              </div>
+            </div>
+          </ContextMenuContent>
+        </ContextMenu>
+      </div>
     </div>
   );
 };

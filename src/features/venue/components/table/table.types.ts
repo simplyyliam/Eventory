@@ -4,7 +4,6 @@ export type SeatPosition = {
 };
 
 export type TableLayoutConfig = {
-  center: number;
   circleRadius: number;
   rectangleWidth: number;
   rectangleHeight: number;

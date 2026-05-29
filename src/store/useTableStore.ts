@@ -12,8 +12,10 @@ export type SeatingTable = {
   id: string;
   name: string;
   tableNumber: number;
+  x: number;
+  y: number;
+  rotation: number;
 };
-
 
 type TableStore = {
   tables: SeatingTable[];
@@ -23,6 +25,8 @@ type TableStore = {
     name?: string,
   ) => void;
   updateTableSeats: (tableId: string, seatCount: number) => void;
+  updateTablePosition: (tableId: string, x: number, y: number) => void;
+  updateTableRotation: (tableId: string, rotation: number) => void;
 };
 
 const createTableId = (tableNumber: number) => `table-${tableNumber}`;
@@ -37,6 +41,10 @@ const normalizeTables = (tables: SeatingTable[]) =>
       id: createTableId(tableNumber),
       name: table.name ?? createTableName(tableNumber),
       tableNumber,
+
+      x: table.x ?? 0,
+      y: table.y ?? 0,
+      rotation: table.rotation ?? 0,
     };
   });
 
@@ -50,7 +58,7 @@ export const useTableStore = create<TableStore>()(
 
         const maxNumber = tables.reduce(
           (max, t) => Math.max(max, t.tableNumber ?? 0),
-          0
+          0,
         );
         const tableNumber = maxNumber + 1;
 
@@ -60,6 +68,9 @@ export const useTableStore = create<TableStore>()(
           id: createTableId(tableNumber),
           name: name ?? createTableName(tableNumber),
           tableNumber,
+          x: 0,
+          y: 0,
+          rotation: 0,
         };
 
         set({
@@ -71,7 +82,26 @@ export const useTableStore = create<TableStore>()(
         const tables = get().tables;
         set({
           tables: tables.map((table) =>
-            table.id === tableId ? { ...table, seatCount } : table
+            table.id === tableId ? { ...table, seatCount } : table,
+          ),
+        });
+      },
+
+      updateTablePosition: (tableId, x, y) => {
+        const tables = get().tables;
+
+        set({
+          tables: tables.map((table) =>
+            table.id === tableId ? { ...table, x, y } : table,
+          ),
+        });
+      },
+      updateTableRotation: (tableId, rotation) => {
+        const tables = get().tables;
+
+        set({
+          tables: tables.map((table) =>
+            table.id === tableId ? { ...table, rotation } : table,
           ),
         });
       },
