@@ -32,9 +32,27 @@ type TableStore = {
 const createTableId = (tableNumber: number) => `table-${tableNumber}`;
 const createTableName = (tableNumber: number) => `Table ${tableNumber}`;
 
+const WORLD_SIZE = 10000;
+const WORLD_HALF = WORLD_SIZE / 2;
+
 const normalizeTables = (tables: SeatingTable[]) =>
   tables.map((table, index) => {
     const tableNumber = table.tableNumber ?? index + 1;
+
+    // If stored coordinates appear to be in top-left origin (0..WORLD_SIZE),
+    // convert them to center-origin by subtracting WORLD_HALF. This allows a
+    // smooth one-time migration when switching coordinate systems.
+    let x = table.x ?? 0;
+    let y = table.y ?? 0;
+
+    const looksLikeTopLeft =
+      typeof x === 'number' && typeof y === 'number' &&
+      x >= 0 && x <= WORLD_SIZE && y >= 0 && y <= WORLD_SIZE;
+
+    if (looksLikeTopLeft) {
+      x = x - WORLD_HALF;
+      y = y - WORLD_HALF;
+    }
 
     return {
       ...table,
@@ -42,8 +60,8 @@ const normalizeTables = (tables: SeatingTable[]) =>
       name: table.name ?? createTableName(tableNumber),
       tableNumber,
 
-      x: table.x ?? 0,
-      y: table.y ?? 0,
+      x,
+      y,
       rotation: table.rotation ?? 0,
     };
   });

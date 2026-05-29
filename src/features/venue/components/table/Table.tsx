@@ -74,6 +74,8 @@ export const Table = ({
   const centerY = wrapperHeight / 2;
   const isDragging = useRef(false);
   const offset = useRef({ x: 0, y: 0 });
+  const WORLD_SIZE = 10000;
+  const WORLD_HALF = WORLD_SIZE / 2;
 
   const assignSeatModalData =
     modalId === 'AssignSeatModal' &&
@@ -142,7 +144,7 @@ export const Table = ({
         width: wrapperWidth,
         height: wrapperHeight,
         transformOrigin: `${centerX}px ${centerY}px`,
-        transform: `translate(${x}px, ${y}px) ${shape === 'rectangle' ? `rotate(${rotation}deg)` : ''}`,
+        transform: `translate(${x + WORLD_HALF}px, ${y + WORLD_HALF}px) ${shape === 'rectangle' ? `rotate(${rotation}deg)` : ''}`,
       }}
     >
       <div
