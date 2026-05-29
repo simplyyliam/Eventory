@@ -1,17 +1,15 @@
 import { useGuestStore } from '@/store/useGuestStore';
 import { useModalStore } from '@/store/useModalStore';
-import { useState } from 'react';
+import { useFormStore } from '@/store/useFormStore';
 
 export const useGuest = () => {
   const addGuest = useGuestStore((s) => s.addGuest);
   const guests = useGuestStore((s) => s.guests);
   const seatedGuests = useGuestStore((s) => s.seatedGuests);
+  const editingGuestId = useModalStore((s) => s.editingGuestId);
   const closeModal = useModalStore((s) => s.closeModal);
-
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [comment, setComment] = useState('');
-  const [dietary, setDietary] = useState<string[]>([]);
+  const updateGuest = useGuestStore((s) => s.updateGuest);
+  const { name, email, comment, dietary, reset } = useFormStore();
 
   const UnseatedGuestAmount = guests.filter(
     (guest) => !seatedGuests.some((seat) => seat.guestId === guest.id),
@@ -20,18 +18,24 @@ export const useGuest = () => {
   const SeatedGuestsAmount = seatedGuests.length;
 
   const handleAddGuest = () => {
-    addGuest({
-      Name: name,
-      Email: email,
-      Dietary: dietary,
-      Comments: comment,
-    });
+    if (editingGuestId) {
+      updateGuest(editingGuestId, {
+        Name: name,
+        Email: email,
+        Dietary: dietary,
+        Comments: comment,
+      });
+    } else {
+      addGuest({
+        Name: name,
+        Email: email,
+        Dietary: dietary,
+        Comments: comment,
+      });
+    }
 
     closeModal();
-    setName('');
-    setEmail('');
-    setComment('');
-    setDietary([]);
+    reset();
   };
 
   return {
@@ -39,12 +43,10 @@ export const useGuest = () => {
     email,
     comment,
     dietary,
-    setName,
-    setEmail,
-    setComment,
-    setDietary,
-    handleAddGuest,
+
     UnseatedGuestAmount,
     SeatedGuestsAmount,
+
+    handleAddGuest,
   };
 };

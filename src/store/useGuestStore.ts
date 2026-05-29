@@ -25,6 +25,7 @@ type GuestStore = {
   addGuest: (guest: GuestInput) => void;
   seatGuest: (guestId: string, tableId: string, seatId: string) => void;
   unseatGuest: (guestId: string) => void;
+  updateGuest: (guestId: string, updatedGuest: GuestInput) => void;
 };
 
 export const useGuestStore = create<GuestStore>()(
@@ -51,6 +52,14 @@ export const useGuestStore = create<GuestStore>()(
         set((state) => ({
           seatedGuests: state.seatedGuests.filter(
             (seat) => seat.guestId !== guestId,
+          ),
+        }));
+      },
+
+      updateGuest: (guestId, updatedGuest) => {
+        set((state) => ({
+          guests: state.guests.map((guest) =>
+            guest.id === guestId ? { ...guest, ...updatedGuest } : guest,
           ),
         }));
       },

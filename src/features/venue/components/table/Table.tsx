@@ -187,7 +187,7 @@ export const Table = ({
       window.removeEventListener('pointermove', handleMove);
       window.removeEventListener('pointerup', handleUp);
     };
-  }, [tableId, updateTableRotation]);
+  }, [tableId, updateTableRotation, isRotating]);
 
   return (
     <div

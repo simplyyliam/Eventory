@@ -14,25 +14,22 @@ import { IconButton } from '@/shared/components';
 import { CancelIcon, SaveIcon } from '@hugeicons/core-free-icons';
 import { useModalStore } from '@/store/useModalStore';
 import { useGuest } from '@/hooks/useGuests';
+import { useFormStore } from '@/store/useFormStore';
 
 export function AddGuestModal() {
   const closeModal = useModalStore((s) => s.closeModal);
   const modalId = useModalStore((s) => s.modalId);
-  const {
-    setName,
-    setEmail,
-    setComment,
-    setDietary,
-    name,
-    email,
-    comment,
-    dietary,
-    handleAddGuest,
-  } = useGuest();
+  const name = useFormStore((s) => s.name);
+  const email = useFormStore((s) => s.email);
+  const comment = useFormStore((s) => s.comment);
+  const dietary = useFormStore((s) => s.dietary);
+  const setField = useFormStore((s) => s.setField);
+
+  const { handleAddGuest } = useGuest();
 
   return (
     <>
-      {modalId === "GuestModal" && (
+      {modalId === 'GuestModal' && (
         <div className="fixed inset-0 flex items-center justify-center z-50">
           <Card className="w-full max-w-sm">
             <CardHeader>
@@ -51,7 +48,7 @@ export function AddGuestModal() {
                       type="text"
                       placeholder="Joe Doe"
                       value={name}
-                      onChange={(e) => setName(e.target.value)}
+                      onChange={(e) => setField('name', e.target.value)}
                       required
                     />
                   </div>
@@ -62,7 +59,7 @@ export function AddGuestModal() {
                       type="email"
                       placeholder="joeDoe@gmail.doe"
                       value={email}
-                      onChange={(e) => setEmail(e.target.value)}
+                      onChange={(e) => setField('email', e.target.value)}
                       required
                     />
                   </div>
@@ -70,7 +67,7 @@ export function AddGuestModal() {
                     <Label htmlFor="dietary">Dietary Requirements</Label>
                     <DietaryComboBox
                       value={dietary}
-                      onValueChange={setDietary}
+                      onValueChange={(value) => setField('dietary', value)}
                     />
                   </div>
                   <div className="grid gap-2">
@@ -80,7 +77,7 @@ export function AddGuestModal() {
                       placeholder="Add any additional comments"
                       className="resize-none"
                       value={comment}
-                      onChange={(e) => setComment(e.target.value)}
+                      onChange={(e) => setField('comment', e.target.value)}
                     />
                   </div>
                 </div>

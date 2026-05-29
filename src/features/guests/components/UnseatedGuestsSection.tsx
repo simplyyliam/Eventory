@@ -59,6 +59,7 @@ export const UnseatedGuestsSection = () => {
                 key={guest.id}
                 name={guest.Name}
                 initials={initials}
+                guestId={guest.id}
               />
             );
           })}
