@@ -194,6 +194,7 @@ export const Table = ({
             {/* Table Shape */}
             <div
               onPointerDown={(e) => {
+                e.stopPropagation();
                 isDragging.current = true;
                 offset.current = {
                   x: e.clientX - x,
