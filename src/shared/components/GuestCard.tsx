@@ -20,6 +20,7 @@ interface GuestCardProps {
   table?: string;
   seat?: string;
   guestId: string;
+  showSeatedActions?: boolean
 }
 
 export const GuestCard = ({
@@ -30,14 +31,20 @@ export const GuestCard = ({
   table,
   seat,
   guestId,
+  showSeatedActions
 }: GuestCardProps) => {
   const openModal = useModalStore((s) => s.openModal);
   const setEditingGuestId = useModalStore((s) => s.setEditingGuestId);
   const setForm = useFormStore((s) => s.setForm);
+  const seatedGuests = useGuestStore((s) => s.seatedGuests);
+  const unseatGuest = useGuestStore((s) => s.unseatGuest);
   const guest = useGuestStore((s) =>
     s.guests.find((guest) => guest.id === guestId),
   );
-  const removeGuest = useGuestStore((s) => s.removeGuest)
+  const removeGuest = useGuestStore((s) => s.removeGuest);
+
+  const isSeated = seatedGuests.some((guest) => guest.guestId === guestId)
+  
 
   const handleEdit = () => {
     if (!guest) return;
@@ -80,7 +87,13 @@ export const GuestCard = ({
           </DropdownMenuGroup>
           <DropdownMenuSeparator />
           <DropdownMenuGroup>
-            <DropdownMenuItem onClick={() => removeGuest(guestId)}>Delete</DropdownMenuItem>
+            <DropdownMenuItem onClick={() => {
+              if(showSeatedActions && isSeated) {
+                unseatGuest(guestId)
+              } else {
+                removeGuest(guestId)
+              }
+            }}>{showSeatedActions && isSeated ? "Unassign Guest" : "Remove Guest"}</DropdownMenuItem>
           </DropdownMenuGroup>
         </DropdownMenuContent>
       </DropdownMenu>

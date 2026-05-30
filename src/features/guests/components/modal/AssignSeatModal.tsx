@@ -65,6 +65,7 @@ export const AssignSeatModal = () => {
                 name={guest.Name}
                 initials={initials}
                 onClick={() => handleSeatGuest(guest.id)}
+                guestId={guest.id}
               />
             );
           })

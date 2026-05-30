@@ -1,7 +1,12 @@
 import { getSeatPosition } from './layout';
 import { TABLE_CONFIG } from './table.config';
-import { AssignSeatModal } from '@/features/guests';
-import type { PopupPlacement } from './table.types';
+import { AssignSeatModal, GuestInfoModal } from '@/features/guests';
+import {
+  shapeStyle,
+  type AssignSeatModalData,
+  type GuestInfoModalData,
+  type TableProps,
+} from './table.types';
 import { getPopupPlacement, useTableSeatCount } from './utils';
 import { useModalStore } from '@/store/useModalStore';
 import {
@@ -13,29 +18,8 @@ import {
 import { Input } from '@/components/ui/input';
 import { useTableStore } from '@/store/useTableStore';
 import { useEffect, useRef, useState } from 'react';
-
-interface TableProps {
-  shape: 'circle' | 'rectangle';
-  seatCount?: number;
-  id: string;
-  name: string;
-  tableId: string;
-  x: number;
-  y: number;
-  rotation: number;
-}
-
-const shapeStyle: Record<TableProps['shape'], string> = {
-  circle: 'rounded-full',
-  rectangle: 'rounded-[2px]',
-};
-
-type AssignSeatModalData = {
-  tableId: string;
-  seatId: string;
-  seatIndex: number;
-  placement: PopupPlacement;
-};
+import { useGuestStore } from '@/store/useGuestStore';
+import { isModal } from '@/lib/isModal';
 
 export const Table = ({
   shape,
@@ -55,7 +39,8 @@ export const Table = ({
   const updateTableRotation = useTableStore((s) => s.updateTableRotation);
   const removeTable = useTableStore((s) => s.removeTable);
   const storeSeats = useTableSeatCount(tableId);
-
+  const seatedGuests = useGuestStore((s) => s.seatedGuests);
+  const guests = useGuestStore((s) => s.guests);
   const [inputValue, setInputValue] = useState(String(storeSeats));
   const [isRotating, setIsRotating] = useState(false);
 
@@ -86,11 +71,17 @@ export const Table = ({
   const WORLD_SIZE = 10000;
   const WORLD_HALF = WORLD_SIZE / 2;
 
-  const assignSeatModalData =
-    modalId === 'AssignSeatModal' &&
-    (modalData as AssignSeatModalData)?.tableId === id
-      ? (modalData as AssignSeatModalData | null)
-      : null;
+  const assignSeatModalData = isModal<AssignSeatModalData>(
+    modalId,
+    'AssignSeatModal',
+    modalData,
+  );
+
+  const guestInfoModalData = isModal<GuestInfoModalData>(
+    modalId,
+    'GuestInfoModal',
+    modalData,
+  );
 
   const visibleSeatCount =
     shape === 'rectangle'
@@ -98,12 +89,30 @@ export const Table = ({
       : seatCount;
 
   const handleAssignSeat = (index: number, x: number, y: number) => {
+    const seat = seatedGuests.find(
+      (s) => s.seatId === `${id}-seat-${index + 1}`,
+    );
+
+    const guest = guests.find((guest) => guest.id === seat?.guestId);
+
+    if (seat?.guestId) {
+      openModal('GuestInfoModal', {
+        tableId: id,
+        seatId: seat.seatId,
+        seatIndex: index,
+        guestName: guest?.Name,
+        placement: getPopupPlacement(x, y, centerX, centerY),
+      });
+      return;
+    }
+
+    // empty seat → open assign modal
     openModal('AssignSeatModal', {
       tableId: id,
       seatId: `${id}-seat-${index + 1}`,
       seatIndex: index,
       placement: getPopupPlacement(x, y, centerX, centerY),
-    } satisfies AssignSeatModalData);
+    });
   };
 
   const handleSeatInputBlur = () => {
@@ -236,6 +245,7 @@ export const Table = ({
         })}
 
         {assignSeatModalData && (
+          // Seat
           <div
             onPointerDown={(e) => e.stopPropagation()}
             className="absolute z-20"
@@ -246,6 +256,20 @@ export const Table = ({
             }}
           >
             <AssignSeatModal />
+          </div>
+        )}
+
+        {guestInfoModalData && (
+          <div
+            onPointerDown={(e) => e.stopPropagation()}
+            className="absolute z-20"
+            style={{
+              top: guestInfoModalData.placement.top,
+              left: guestInfoModalData.placement.left,
+              transform: guestInfoModalData.placement.transform,
+            }}
+          >
+            <GuestInfoModal />
           </div>
         )}
         <ContextMenu>
@@ -302,9 +326,6 @@ export const Table = ({
               <div className="flex flex-col">
                 <span className="text-xs font-medium text-foreground">
                   Table seats
-                </span>
-                <span className="text-[10px] text-muted-foreground">
-                  Adjust capacity
                 </span>
               </div>
 

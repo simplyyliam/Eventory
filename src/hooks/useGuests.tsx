@@ -15,7 +15,7 @@ export const useGuest = () => {
     (guest) => !seatedGuests.some((seat) => seat.guestId === guest.id),
   ).length;
 
-  const SeatedGuestsAmount = seatedGuests.length;
+  const SeatedGuestAmount = seatedGuests.length
 
   const handleAddGuest = () => {
     if (editingGuestId) {
@@ -39,14 +39,8 @@ export const useGuest = () => {
   };
 
   return {
-    name,
-    email,
-    comment,
-    dietary,
-
     UnseatedGuestAmount,
-    SeatedGuestsAmount,
-
+    SeatedGuestAmount,
     handleAddGuest,
   };
 };

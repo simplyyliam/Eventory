@@ -12,14 +12,14 @@ import { useState } from 'react';
 import { useGuestStore } from '@/store/useGuestStore';
 import { useTableStore } from '@/store/useTableStore';
 import { useGuest } from '@/hooks/useGuests';
+import { getInitials } from '@/lib/convertToInitials';
 
 export const SeatedGuestsSection = () => {
   const [isUnseatedOpen, setIsUnseatedOpen] = useState(true);
   const seatedGuest = useGuestStore((s) => s.seatedGuests);
   const guests = useGuestStore((s) => s.guests);
-  const unseatGuest = useGuestStore((s) => s.unseatGuest);
   const tables = useTableStore((s) => s.tables);
-  const { SeatedGuestsAmount } = useGuest();
+  const { SeatedGuestAmount } = useGuest();
 
   return (
     <SidebarGroup>
@@ -45,7 +45,7 @@ export const SeatedGuestsSection = () => {
             )}
           />
         </Button>
-        <IconButton Label={SeatedGuestsAmount} />
+        <IconButton Label={SeatedGuestAmount} />
       </div>
       {isUnseatedOpen && (
         <SidebarGroupContent className="px-2">
@@ -56,18 +56,16 @@ export const SeatedGuestsSection = () => {
 
             if (!guest) return null;
 
-            const initials = guest.Name.split(' ')
-              .map((part) => part[0])
-              .join('');
 
             return (
               <GuestCard
                 key={seat.guestId}
                 name={guest.Name}
-                initials={initials}
+                initials={getInitials(guest.Name)}
                 table={table?.name}
                 seat={seatNumber}
-                onClick={() => unseatGuest(seat.guestId)}
+                guestId={guest.id}
+                showSeatedActions
               />
             );
           })}

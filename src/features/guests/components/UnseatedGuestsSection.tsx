@@ -11,6 +11,7 @@ import { HugeiconsIcon } from '@hugeicons/react';
 import { useState } from 'react';
 import { useGuestStore } from '@/store/useGuestStore';
 import { useGuest } from '@/hooks/useGuests';
+import { getInitials } from '@/lib/convertToInitials';
 
 export const UnseatedGuestsSection = () => {
   const [isUnseatedOpen, setIsUnseatedOpen] = useState(true);
@@ -51,14 +52,11 @@ export const UnseatedGuestsSection = () => {
       {isUnseatedOpen && (
         <SidebarGroupContent className="px-2">
           {unseatedGuest.map((guest) => {
-            const initials = guest.Name.split(' ')
-              .map((part) => part[0])
-              .join('');
             return (
               <GuestCard
                 key={guest.id}
                 name={guest.Name}
-                initials={initials}
+                initials={getInitials(guest.Name)}
                 guestId={guest.id}
               />
             );
