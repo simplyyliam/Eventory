@@ -20,6 +20,8 @@ import { useTableStore } from '@/store/useTableStore';
 import { useEffect, useRef, useState } from 'react';
 import { useGuestStore } from '@/store/useGuestStore';
 import { isModal } from '@/lib/isModal';
+import { TEXTURE_LOADER } from '@/config';
+import { Chair, TableSurface } from '../assets';
 
 export const Table = ({
   shape,
@@ -230,21 +232,29 @@ export const Table = ({
             centerY,
           );
 
+          const dx = centerX - x;
+          const dy = centerY - y;
+          const angle = (Math.atan2(dy, dx) * 180) / Math.PI - 90;
+
           return (
             <div
               key={idx}
-              className="absolute w-6 h-6 bg-red-600"
+              className="absolute"
               onClick={() => handleAssignSeat(idx, x, y)}
               style={{
                 left: x,
                 top: y,
-                transform: 'translate(-50%, -50%)',
+                transform: `translate(-50%, -50%) rotate(${angle}deg)`,
+                width: 24,
+                height: 24,
               }}
-            />
+            >
+              <Chair idx={idx} />
+            </div>
           );
         })}
 
-        {assignSeatModalData && (
+        {assignSeatModalData && assignSeatModalData.tableId === id && (
           // Seat
           <div
             onPointerDown={(e) => e.stopPropagation()}
@@ -259,7 +269,7 @@ export const Table = ({
           </div>
         )}
 
-        {guestInfoModalData && (
+        {guestInfoModalData && guestInfoModalData.tableId === id && (
           <div
             onPointerDown={(e) => e.stopPropagation()}
             className="absolute z-20"
@@ -275,23 +285,17 @@ export const Table = ({
         <ContextMenu>
           <ContextMenuTrigger onPointerDown={(e) => e.stopPropagation()}>
             {/* Table Shape */}
-            <div
-              onPointerDown={(e) => {
-                e.stopPropagation();
-                isDragging.current = true;
-                offset.current = {
-                  x: e.clientX - x,
-                  y: e.clientY - y,
-                };
-              }}
-              className={`absolute left-1/2 top-1/2 flex -translate-x-1/2 -translate-y-1/2 items-center justify-center bg-muted-foreground ${shapeStyle[shape]}`}
-              style={{
-                width: shape === 'circle' ? 200 : TABLE_CONFIG.rectangleWidth,
-                height: shape === 'circle' ? 200 : TABLE_CONFIG.rectangleHeight,
-              }}
-            >
-              {name}
-            </div>
+            <TableSurface
+              x={x}
+              y={y}
+              name={name}
+              shape={shape}
+              shapeStyle={shapeStyle}
+              TABLE_CONFIG={TABLE_CONFIG}
+              TEXTURE_LOADER={TEXTURE_LOADER}
+              isDraggingRef={isDragging}
+              offsetRef={offset}
+            />
             {/* Rotate handle for rectangles */}
             {shape === 'rectangle' && (hovered || isRotating) && (
               <div
