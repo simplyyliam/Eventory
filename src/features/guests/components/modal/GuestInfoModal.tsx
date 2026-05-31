@@ -5,22 +5,16 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 
-import { getInitials } from '@/lib/convertToInitials';
+import { getInitials } from '@/lib/getInitials';
 import { getSeatLabel } from '@/lib/getSeat';
-import { useModalStore } from '@/store/useModalStore';
+import type { GuestInfoModalData } from '@/features/venue/components/table/table.types';
 
-type GuestInfoModalData = {
-  tableId: string;
-  seatId: string;
-  guestName: string;
+type Props = {
+  data: GuestInfoModalData | null;
 };
 
-export const GuestInfoModal = () => {
-  const modalData = useModalStore(
-    (s) => s.modalData,
-  ) as GuestInfoModalData | null;
-
-  if (!modalData) return null;
+export const GuestInfoModal = ({ data }: Props) => {
+  if (!data) return null;
 
   return (
     <Card className="w-full min-w-sm rounded-xl">
@@ -28,12 +22,12 @@ export const GuestInfoModal = () => {
         <CardTitle>
           <div className="flex items-center gap-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-muted text-sm font-medium">
-              {getInitials(modalData.guestName)}
+              {getInitials(data.guestName)}
             </div>
 
             <div className="flex flex-col leading-tight">
               <span className="text-sm font-medium">
-                {modalData.guestName}
+                {data.guestName}
               </span>
               <span className="text-xs text-muted-foreground">
                 Guest details
@@ -48,14 +42,14 @@ export const GuestInfoModal = () => {
           <div className="inline-flex items-center gap-2 rounded-full border border-border bg-muted/40 px-3 py-1 text-xs">
             <span className="text-muted-foreground">Seat</span>
             <span className="font-medium text-foreground">
-              {getSeatLabel(modalData.seatId)}
+              {getSeatLabel(data.seatId)}
             </span>
           </div>
 
           <div className="inline-flex items-center gap-2 rounded-full border border-border bg-muted/40 px-3 py-1 text-xs">
             <span className="text-muted-foreground">Table</span>
             <span className="font-medium text-foreground">
-              {modalData.tableId}
+              {data.tableId}
             </span>
           </div>
         </div>

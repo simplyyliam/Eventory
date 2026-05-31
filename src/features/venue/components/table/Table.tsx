@@ -1,14 +1,12 @@
 import { getSeatPosition } from './layout';
 import { TABLE_CONFIG } from './table.config';
-import { AssignSeatModal, GuestInfoModal } from '@/features/guests';
+import { AssignSeatDialog, GuestInfoModal } from '@/features/guests';
 import {
   shapeStyle,
-  type AssignSeatModalData,
   type GuestInfoModalData,
   type TableProps,
 } from './table.types';
 import { getPopupPlacement, useTableSeatCount } from './utils';
-import { useModalStore } from '@/store/useModalStore';
 import {
   ContextMenu,
   ContextMenuContent,
@@ -19,9 +17,9 @@ import { Input } from '@/components/ui/input';
 import { useTableStore } from '@/store/useTableStore';
 import { useEffect, useRef, useState } from 'react';
 import { useGuestStore } from '@/store/useGuestStore';
-import { isModal } from '@/lib/isModal';
 import { TEXTURE_LOADER } from '@/config';
 import { Chair, TableSurface } from '../assets';
+import { getInitials } from '@/lib/getInitials';
 
 export const Table = ({
   shape,
@@ -33,9 +31,7 @@ export const Table = ({
   y,
   rotation,
 }: TableProps) => {
-  const modalId = useModalStore((s) => s.modalId);
-  const modalData = useModalStore((s) => s.modalData);
-  const openModal = useModalStore((s) => s.openModal);
+  // modal store is used elsewhere; GuestInfo will be shown on hover instead
   const updateTableSeats = useTableStore((s) => s.updateTableSeats);
   const updateTablePosition = useTableStore((s) => s.updateTablePosition);
   const updateTableRotation = useTableStore((s) => s.updateTableRotation);
@@ -45,6 +41,12 @@ export const Table = ({
   const guests = useGuestStore((s) => s.guests);
   const [inputValue, setInputValue] = useState(String(storeSeats));
   const [isRotating, setIsRotating] = useState(false);
+
+  const [assignSeatOpen, setAssignSeatOpen] = useState(false);
+  const [activeSeat, setActiveSeat] = useState<{
+    tableId: string;
+    seatId: string;
+  } | null>(null);
 
   // Use TABLE_CONFIG values so seats/layout match the config
   const tableWidth =
@@ -73,48 +75,27 @@ export const Table = ({
   const WORLD_SIZE = 10000;
   const WORLD_HALF = WORLD_SIZE / 2;
 
-  const assignSeatModalData = isModal<AssignSeatModalData>(
-    modalId,
-    'AssignSeatModal',
-    modalData,
-  );
-
-  const guestInfoModalData = isModal<GuestInfoModalData>(
-    modalId,
-    'GuestInfoModal',
-    modalData,
-  );
+  const [hoverGuest, setHoverGuest] = useState<GuestInfoModalData | null>(null);
 
   const visibleSeatCount =
     shape === 'rectangle'
       ? Math.min(seatCount, TABLE_CONFIG.maxRectangleSeats)
       : seatCount;
 
-  const handleAssignSeat = (index: number, x: number, y: number) => {
+  const handleAssignSeat = (index: number) => {
     const seat = seatedGuests.find(
       (s) => s.seatId === `${id}-seat-${index + 1}`,
     );
 
-    const guest = guests.find((guest) => guest.id === seat?.guestId);
-
-    if (seat?.guestId) {
-      openModal('GuestInfoModal', {
+    if (!seat) {
+      setActiveSeat({
         tableId: id,
-        seatId: seat.seatId,
-        seatIndex: index,
-        guestName: guest?.Name,
-        placement: getPopupPlacement(x, y, centerX, centerY),
+        seatId: `${id}-seat-${index + 1}`,
       });
+
+      setAssignSeatOpen(true);
       return;
     }
-
-    // empty seat → open assign modal
-    openModal('AssignSeatModal', {
-      tableId: id,
-      seatId: `${id}-seat-${index + 1}`,
-      seatIndex: index,
-      placement: getPopupPlacement(x, y, centerX, centerY),
-    });
   };
 
   const handleSeatInputBlur = () => {
@@ -236,50 +217,69 @@ export const Table = ({
           const dy = centerY - y;
           const angle = (Math.atan2(dy, dx) * 180) / Math.PI - 90;
 
+          const seatId = `${id}-seat-${idx + 1}`;
+          const seat = seatedGuests.find((s) => s.seatId === seatId);
+          const guest = guests.find((g) => g.id === seat?.guestId);
+
           return (
             <div
               key={idx}
               className="absolute"
-              onClick={() => handleAssignSeat(idx, x, y)}
+              onClick={() => handleAssignSeat(idx)}
+              onMouseEnter={() => {
+                if (!seat?.guestId || !guest) return;
+
+                setHoverGuest({
+                  tableId: id,
+                  seatId,
+                  guestId: guest.id,
+                  guestName: guest.Name,
+                  placement: getPopupPlacement(x, y, centerX, centerY),
+                });
+              }}
+              onMouseLeave={() => setHoverGuest(null)}
               style={{
                 left: x,
                 top: y,
                 transform: `translate(-50%, -50%) rotate(${angle}deg)`,
-                width: 24,
-                height: 24,
+                width: 50,
+                height: 50,
               }}
             >
               <Chair idx={idx} />
+
+              {seat?.guestId && (
+                <div className="absolute top-1.75 inset-0 flex items-center justify-center pointer-events-none">
+                  <span
+                    className="flex items-center justify-center text-xs font-medium bg-background/80 w-7 h-7 rounded-md border border-input"
+                    style={{ transform: `rotate(${-angle}deg)` }}
+                  >
+                    {getInitials(guest?.Name ?? '')}
+                  </span>
+                </div>
+              )}
             </div>
           );
         })}
 
-        {assignSeatModalData && assignSeatModalData.tableId === id && (
-          // Seat
-          <div
-            onPointerDown={(e) => e.stopPropagation()}
-            className="absolute z-20"
-            style={{
-              top: assignSeatModalData.placement.top,
-              left: assignSeatModalData.placement.left,
-              transform: assignSeatModalData.placement.transform,
-            }}
-          >
-            <AssignSeatModal />
-          </div>
-        )}
+        <AssignSeatDialog
+          open={assignSeatOpen && activeSeat?.tableId === id}
+          onOpenChange={setAssignSeatOpen}
+          tableId={activeSeat?.tableId ?? ''}
+          seatId={activeSeat?.seatId ?? ''}
+        />
 
-        {guestInfoModalData && guestInfoModalData.tableId === id && (
+        {hoverGuest && hoverGuest.tableId === id && (
           <div
             onPointerDown={(e) => e.stopPropagation()}
             className="absolute z-20"
             style={{
-              top: guestInfoModalData.placement.top,
-              left: guestInfoModalData.placement.left,
-              transform: guestInfoModalData.placement.transform,
+              top: hoverGuest.placement.top,
+              left: hoverGuest.placement.left,
+              transform: hoverGuest.placement.transform,
             }}
           >
-            <GuestInfoModal />
+            <GuestInfoModal data={hoverGuest} />
           </div>
         )}
         <ContextMenu>

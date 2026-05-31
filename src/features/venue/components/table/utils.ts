@@ -3,7 +3,7 @@ import { TABLE_CONFIG } from "./table.config";
 import type { PopupPlacement } from "./table.types";
 
 export const getPopupPlacement = (x: number, y: number, centerX?: number, centerY?: number): PopupPlacement => {
-  const modalGap = 16;
+  const modalGap = 40;
   const cx = typeof centerX === 'number' ? centerX : TABLE_CONFIG.rectangleWidth / 2;
   const cy = typeof centerY === 'number' ? centerY : TABLE_CONFIG.rectangleHeight / 2;
   const distanceFromCenterX = x - cx;

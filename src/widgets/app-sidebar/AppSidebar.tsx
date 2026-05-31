@@ -8,37 +8,44 @@ import {
   SidebarMenu,
   SidebarMenuItem,
 } from '@/components/ui/sidebar';
-import { SeatedGuestsSection, UnseatedGuestsSection } from '@/features/guests';
+import {
+  AddGuestDialog,
+  SeatedGuestsSection,
+  UnseatedGuestsSection,
+} from '@/features/guests';
 import { IconButton, ThemeToggle } from '@/shared/components';
-import { useModalStore } from '@/store/useModalStore';
+import { useState } from 'react';
 
 export function AppSidebar() {
-  const { openModal } = useModalStore();
+  const [open, setOpen] = useState(false);
   return (
-    <Sidebar variant="floating">
-      <SidebarHeader>
-        <SidebarMenu className="items-center">
-          <SidebarMenuItem className="flex w-full items-center justify-between gap-2">
-            <span>Manage Guest</span>
-            <ThemeToggle />
-          </SidebarMenuItem>
-        </SidebarMenu>
-        <SidebarGroup>
-          <div className="flex gap-2">
-            <IconButton
-              stretch
-              Label="Add Guest"
-              Icon={Plus}
-              onClick={() => openModal('GuestModal')}
-            />
-            <IconButton stretch Label="Import" Icon={Upload06Icon} />
-          </div>
-        </SidebarGroup>
-      </SidebarHeader>
-      <SidebarContent>
-        <UnseatedGuestsSection />
-        <SeatedGuestsSection />
-      </SidebarContent>
-    </Sidebar>
+    <>
+      <Sidebar variant="floating">
+        <SidebarHeader>
+          <SidebarMenu className="items-center">
+            <SidebarMenuItem className="flex w-full items-center justify-between gap-2">
+              <span>Manage Guest</span>
+              <ThemeToggle />
+            </SidebarMenuItem>
+          </SidebarMenu>
+          <SidebarGroup>
+            <div className="flex gap-2">
+              <IconButton
+                stretch
+                Label="Add Guest"
+                Icon={Plus}
+                onClick={() => setOpen(true)}
+              />
+              <IconButton stretch Label="Import" Icon={Upload06Icon} />
+            </div>
+          </SidebarGroup>
+        </SidebarHeader>
+        <SidebarContent>
+          <UnseatedGuestsSection />
+          <SeatedGuestsSection />
+        </SidebarContent>
+      </Sidebar>
+      <AddGuestDialog open={open} onOpenChange={setOpen}/>
+    </>
   );
 }

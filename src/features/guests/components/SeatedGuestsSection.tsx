@@ -12,7 +12,7 @@ import { useState } from 'react';
 import { useGuestStore } from '@/store/useGuestStore';
 import { useTableStore } from '@/store/useTableStore';
 import { useGuest } from '@/hooks/useGuests';
-import { getInitials } from '@/lib/convertToInitials';
+import { getInitials } from '@/lib/getInitials';
 
 export const SeatedGuestsSection = () => {
   const [isUnseatedOpen, setIsUnseatedOpen] = useState(true);

@@ -1,6 +1,6 @@
 export { SeatedGuestsSection } from './components/SeatedGuestsSection';
 export { UnseatedGuestsSection } from './components/UnseatedGuestsSection';
-export { AddGuestModal } from './components/modal/AddGuestModal';
+export { AddGuestDialog } from './components/modal/AddGuestDialog';
 export { DietaryComboBox } from './components/DietaryComboBox';
-export { AssignSeatModal } from './components/modal/AssignSeatModal';
+export { AssignSeatDialog } from './components/modal/AssignSeatDialog';
 export { GuestInfoModal } from './components/modal/GuestInfoModal';

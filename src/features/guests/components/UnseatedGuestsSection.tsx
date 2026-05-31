@@ -11,7 +11,7 @@ import { HugeiconsIcon } from '@hugeicons/react';
 import { useState } from 'react';
 import { useGuestStore } from '@/store/useGuestStore';
 import { useGuest } from '@/hooks/useGuests';
-import { getInitials } from '@/lib/convertToInitials';
+import { getInitials } from '@/lib/getInitials';
 
 export const UnseatedGuestsSection = () => {
   const [isUnseatedOpen, setIsUnseatedOpen] = useState(true);
