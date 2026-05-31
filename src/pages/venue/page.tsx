@@ -11,6 +11,8 @@ type Viewport = {
 };
 
 export default function VenuePage() {
+
+
   const tables = useTableStore((s) => s.tables);
   const [viewport, setViewport] = useState<Viewport>({
     x: 0,
@@ -24,7 +26,7 @@ export default function VenuePage() {
   useEffect(() => {
     const move = (e: PointerEvent) => {
       if (!isPanning.current) return;
-      // isPanning.current = true
+
       const dx = e.clientX - last.current.x;
       const dy = e.clientY - last.current.y;
 

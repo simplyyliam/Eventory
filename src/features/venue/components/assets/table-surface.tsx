@@ -1,3 +1,4 @@
+import { TEXTURE_LOADER } from '@/config';
 import type { RefObject } from 'react';
 
 type TableProps = {
@@ -10,16 +11,12 @@ type TableProps = {
     rectangleWidth: number;
     rectangleHeight: number;
   };
-  TEXTURE_LOADER: {
-    WHITE_OAK: {
-      texture: string;
-    };
-  };
   isDraggingRef: RefObject<boolean>;
   offsetRef: RefObject<{
     x: number;
     y: number;
   }>;
+  onClick: () => void;
 };
 export const TableSurface = ({
   x,
@@ -28,15 +25,14 @@ export const TableSurface = ({
   shape,
   shapeStyle,
   TABLE_CONFIG,
-  TEXTURE_LOADER,
   isDraggingRef,
   offsetRef,
+  onClick,
 }: TableProps) => {
   return (
     <div
+      onClick={onClick}
       onPointerDown={(e) => {
-        e.stopPropagation();
-
         isDraggingRef.current = true;
 
         offsetRef.current = {

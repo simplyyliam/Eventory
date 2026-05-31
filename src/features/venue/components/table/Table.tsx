@@ -17,9 +17,9 @@ import { Input } from '@/components/ui/input';
 import { useTableStore } from '@/store/useTableStore';
 import { useEffect, useRef, useState } from 'react';
 import { useGuestStore } from '@/store/useGuestStore';
-import { TEXTURE_LOADER } from '@/config';
 import { Chair, TableSurface } from '../assets';
 import { getInitials } from '@/lib/getInitials';
+import { TableSheet } from './TableSheet';
 
 export const Table = ({
   shape,
@@ -41,7 +41,7 @@ export const Table = ({
   const guests = useGuestStore((s) => s.guests);
   const [inputValue, setInputValue] = useState(String(storeSeats));
   const [isRotating, setIsRotating] = useState(false);
-
+  const DidDragRef = useRef(false)
   const [assignSeatOpen, setAssignSeatOpen] = useState(false);
   const [activeSeat, setActiveSeat] = useState<{
     tableId: string;
@@ -76,7 +76,8 @@ export const Table = ({
   const WORLD_HALF = WORLD_SIZE / 2;
 
   const [hoverGuest, setHoverGuest] = useState<GuestInfoModalData | null>(null);
-
+  const [open, setOpen] = useState(false)
+  
   const visibleSeatCount =
     shape === 'rectangle'
       ? Math.min(seatCount, TABLE_CONFIG.maxRectangleSeats)
@@ -115,7 +116,7 @@ export const Table = ({
   useEffect(() => {
     const handleMove = (e: PointerEvent) => {
       if (!isDragging.current) return;
-
+      DidDragRef.current = true
       updateTablePosition(
         tableId,
         e.clientX - offset.current.x,
@@ -125,6 +126,9 @@ export const Table = ({
 
     const handleUp = () => {
       isDragging.current = false;
+      setTimeout(() => {
+        DidDragRef.current = false
+      }, 0);
     };
 
     window.addEventListener('pointermove', handleMove);
@@ -292,9 +296,9 @@ export const Table = ({
               shape={shape}
               shapeStyle={shapeStyle}
               TABLE_CONFIG={TABLE_CONFIG}
-              TEXTURE_LOADER={TEXTURE_LOADER}
               isDraggingRef={isDragging}
               offsetRef={offset}
+              onClick={() => setOpen(true)}
             />
             {/* Rotate handle for rectangles */}
             {shape === 'rectangle' && (hovered || isRotating) && (
@@ -374,6 +378,7 @@ export const Table = ({
           </ContextMenuContent>
         </ContextMenu>
       </div>
+      <TableSheet open={open} onOpenChange={setOpen} tableId={id} tableName={name} seatCount={seatCount}/>
     </div>
   );
 };
