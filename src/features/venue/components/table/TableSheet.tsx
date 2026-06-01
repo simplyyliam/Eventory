@@ -31,7 +31,15 @@ export const TableSheet = ({
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent showCloseButton={false}>
+      <SheetContent
+        onPointerDown={(e) => {
+          e.stopPropagation();
+        }}
+        onPointerMove={(e) => {
+          e.stopPropagation();
+        }}
+        showCloseButton={false}
+      >
         <SheetHeader>
           <SheetTitle>{tableName}</SheetTitle>
           <SheetDescription>

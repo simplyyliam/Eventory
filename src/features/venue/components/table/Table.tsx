@@ -41,7 +41,7 @@ export const Table = ({
   const guests = useGuestStore((s) => s.guests);
   const [inputValue, setInputValue] = useState(String(storeSeats));
   const [isRotating, setIsRotating] = useState(false);
-  const DidDragRef = useRef(false)
+  const DidDragRef = useRef(false);
   const [assignSeatOpen, setAssignSeatOpen] = useState(false);
   const [activeSeat, setActiveSeat] = useState<{
     tableId: string;
@@ -76,8 +76,8 @@ export const Table = ({
   const WORLD_HALF = WORLD_SIZE / 2;
 
   const [hoverGuest, setHoverGuest] = useState<GuestInfoModalData | null>(null);
-  const [open, setOpen] = useState(false)
-  
+  const [open, setOpen] = useState(false);
+
   const visibleSeatCount =
     shape === 'rectangle'
       ? Math.min(seatCount, TABLE_CONFIG.maxRectangleSeats)
@@ -116,7 +116,7 @@ export const Table = ({
   useEffect(() => {
     const handleMove = (e: PointerEvent) => {
       if (!isDragging.current) return;
-      DidDragRef.current = true
+      DidDragRef.current = true;
       updateTablePosition(
         tableId,
         e.clientX - offset.current.x,
@@ -127,7 +127,7 @@ export const Table = ({
     const handleUp = () => {
       isDragging.current = false;
       setTimeout(() => {
-        DidDragRef.current = false
+        DidDragRef.current = false;
       }, 0);
     };
 
@@ -298,7 +298,10 @@ export const Table = ({
               TABLE_CONFIG={TABLE_CONFIG}
               isDraggingRef={isDragging}
               offsetRef={offset}
-              onClick={() => setOpen(true)}
+              onClick={() => {
+                if (DidDragRef.current) return;
+                setOpen(true);
+              }}
             />
             {/* Rotate handle for rectangles */}
             {shape === 'rectangle' && (hovered || isRotating) && (
@@ -378,7 +381,13 @@ export const Table = ({
           </ContextMenuContent>
         </ContextMenu>
       </div>
-      <TableSheet open={open} onOpenChange={setOpen} tableId={id} tableName={name} seatCount={seatCount}/>
+      <TableSheet
+        open={open}
+        onOpenChange={setOpen}
+        tableId={id}
+        tableName={name}
+        seatCount={seatCount}
+      />
     </div>
   );
 };
