@@ -2,8 +2,6 @@ import { Chair } from '../assets';
 import { getSeatPosition } from './layout';
 import { TABLE_CONFIG } from './table.config';
 import { shapeStyle } from './table.types';
-import { IconButton } from '@/shared/components';
-import { Table02Icon } from '@hugeicons/core-free-icons';
 import { useTableTexture } from '@/lib/useTableTexture';
 
 type TablePreviewProps = {
