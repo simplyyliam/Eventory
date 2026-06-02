@@ -6,20 +6,19 @@ import {
   type GuestInfoModalData,
   type TableProps,
 } from './table.types';
-import { getPopupPlacement, useTableSeatCount } from './utils';
+import { getPopupPlacement } from './utils';
 import {
   ContextMenu,
   ContextMenuContent,
   ContextMenuItem,
   ContextMenuTrigger,
 } from '@/components/ui/context-menu';
-import { Input } from '@/components/ui/input';
 import { useTableStore } from '@/store/useTableStore';
 import { useEffect, useRef, useState } from 'react';
 import { useGuestStore } from '@/store/useGuestStore';
 import { Chair, TableSurface } from '../assets';
 import { getInitials } from '@/lib/getInitials';
-import { TableSheet } from './TableSheet';
+import { TableSheet } from './table-sheet/TableSheet';
 
 export const Table = ({
   shape,
@@ -32,14 +31,11 @@ export const Table = ({
   rotation,
 }: TableProps) => {
   // modal store is used elsewhere; GuestInfo will be shown on hover instead
-  const updateTableSeats = useTableStore((s) => s.updateTableSeats);
   const updateTablePosition = useTableStore((s) => s.updateTablePosition);
   const updateTableRotation = useTableStore((s) => s.updateTableRotation);
   const removeTable = useTableStore((s) => s.removeTable);
-  const storeSeats = useTableSeatCount(tableId);
   const seatedGuests = useGuestStore((s) => s.seatedGuests);
   const guests = useGuestStore((s) => s.guests);
-  const [inputValue, setInputValue] = useState(String(storeSeats));
   const [isRotating, setIsRotating] = useState(false);
   const DidDragRef = useRef(false);
   const [assignSeatOpen, setAssignSeatOpen] = useState(false);
@@ -97,19 +93,6 @@ export const Table = ({
       setAssignSeatOpen(true);
       return;
     }
-  };
-
-  const handleSeatInputBlur = () => {
-    const newSeats = parseInt(inputValue, 10) || 0;
-    updateTableSeats(tableId, newSeats);
-  };
-
-  const handleAdjustSeats = (amount: number) => {
-    const current = parseInt(inputValue, 10) || 0;
-    const computed = current + amount;
-    const finalSeats = computed < 0 ? 0 : computed;
-    setInputValue(String(finalSeats));
-    updateTableSeats(tableId, finalSeats);
   };
 
   // Pointer moving logic
@@ -302,6 +285,7 @@ export const Table = ({
                 if (DidDragRef.current) return;
                 setOpen(true);
               }}
+              tableId={tableId}
             />
             {/* Rotate handle for rectangles */}
             {shape === 'rectangle' && (hovered || isRotating) && (
@@ -332,49 +316,8 @@ export const Table = ({
               />
             )}
           </ContextMenuTrigger>
-          <ContextMenuContent className="min-w-44 rounded-xl border bg-background/95 p-2 shadow-lg backdrop-blur-md">
-            <div className="flex items-center justify-between gap-3 px-2 py-1">
-              <div className="flex flex-col">
-                <span className="text-xs font-medium text-foreground">
-                  Table seats
-                </span>
-              </div>
+          <ContextMenuContent >
 
-              <div
-                key={storeSeats}
-                className="flex items-center gap-1"
-                onPointerDown={(e) => e.stopPropagation()}
-                onClick={(e) => e.stopPropagation()}
-                onMouseDown={(e) => e.stopPropagation()}
-                onKeyDown={(e) => e.stopPropagation()}
-              >
-                <button
-                  type="button"
-                  className="h-6 w-6 rounded-md bg-muted text-xs hover:bg-muted/80 active:scale-95"
-                  onClick={() => handleAdjustSeats(-1)}
-                >
-                  −
-                </button>
-
-                <Input
-                  type="text"
-                  inputMode="numeric"
-                  className="h-7 w-10 rounded-md border border-input bg-background text-center text-xs"
-                  defaultValue={String(storeSeats)}
-                  onChange={(e) => setInputValue(e.target.value)}
-                  onPointerDown={(e) => e.stopPropagation()}
-                  onBlur={handleSeatInputBlur}
-                />
-
-                <button
-                  type="button"
-                  className="h-6 w-6 rounded-md bg-muted text-xs hover:bg-muted/80 active:scale-95"
-                  onClick={() => handleAdjustSeats(1)}
-                >
-                  +
-                </button>
-              </div>
-            </div>
             <ContextMenuItem onClick={() => removeTable(tableId)}>
               Delete
             </ContextMenuItem>

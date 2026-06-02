@@ -11,4 +11,7 @@ export const TEXTURE_LOADER = {
     texture: '/src/textures/texture-wood-white-elm.png',
     intensity: 1.0,
   },
-};
+} as const;
+
+
+export type TextureId = (typeof TEXTURE_LOADER)[keyof typeof TEXTURE_LOADER]['id']

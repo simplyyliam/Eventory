@@ -1,4 +1,4 @@
-import { TEXTURE_LOADER } from '@/config';
+import { useTableTexture } from '@/lib/useTableTexture';
 import type { RefObject } from 'react';
 
 type TableProps = {
@@ -17,6 +17,7 @@ type TableProps = {
     y: number;
   }>;
   onClick: () => void;
+  tableId: string
 };
 export const TableSurface = ({
   x,
@@ -28,7 +29,10 @@ export const TableSurface = ({
   isDraggingRef,
   offsetRef,
   onClick,
+  tableId
 }: TableProps) => {
+    const texture = useTableTexture(tableId);
+  
   return (
     <div
       onClick={onClick}
@@ -44,7 +48,7 @@ export const TableSurface = ({
       style={{
         width: shape === 'circle' ? 200 : TABLE_CONFIG.rectangleWidth,
         height: shape === 'circle' ? 200 : TABLE_CONFIG.rectangleHeight,
-        background: `url('${TEXTURE_LOADER.WHITE_OAK.texture}')`,
+        background: `url('${texture.texture}')`,
         backgroundRepeat: 'no-repeat',
         backgroundPosition: 'center',
         backgroundSize: 'cover',

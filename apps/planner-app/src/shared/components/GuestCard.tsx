@@ -62,7 +62,7 @@ export const GuestCard = ({
     <div
       key={key}
       onClick={onClick}
-      className="flex gap-2 items-center justify-between p-2.5 hover:bg-muted transition-all ease-linear rounded-md"
+      className="flex gap-2 items-center justify-between p-2.5 hover:bg-muted transition-all ease-linear rounded-md w-full"
     >
       <div className="flex items-center gap-2.5">
         <div className="flex items-center justify-center w-7 h-7 border border-input rounded-md">

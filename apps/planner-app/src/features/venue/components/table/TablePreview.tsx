@@ -1,22 +1,28 @@
-import { TEXTURE_LOADER } from '@/config';
 import { Chair } from '../assets';
 import { getSeatPosition } from './layout';
 import { TABLE_CONFIG } from './table.config';
 import { shapeStyle } from './table.types';
+import { IconButton } from '@/shared/components';
+import { Table02Icon } from '@hugeicons/core-free-icons';
+import { useTableTexture } from '@/lib/useTableTexture';
 
 type TablePreviewProps = {
   shape: 'circle' | 'rectangle';
   seatCount: number;
   rotation?: number;
   name?: string;
+  tableId: string;
 };
 
 export const TablePreview = ({
   shape,
   seatCount,
   rotation = 0,
-  name,
+  tableId,
+  // name,
 }: TablePreviewProps) => {
+  const texture = useTableTexture(tableId);
+
   const tableWidth =
     shape === 'circle'
       ? TABLE_CONFIG.circleRadius * 2
@@ -38,6 +44,7 @@ export const TablePreview = ({
     shape === 'rectangle'
       ? Math.min(seatCount, TABLE_CONFIG.maxRectangleSeats)
       : seatCount;
+
   return (
     <div
       className="relative"
@@ -79,18 +86,16 @@ export const TablePreview = ({
       })}
 
       <div
-        className={`absolute left-1/2 top-1/2 flex -translate-x-1/2 -translate-y-1/2 justify-center border border-input bg-muted ${shapeStyle[shape]}`}
+        className={`absolute  left-1/2 top-1/2 flex -translate-x-1/2 -translate-y-1/2 justify-center items-center border border-input bg-muted ${shapeStyle[shape]}`}
         style={{
           width: shape === 'circle' ? 200 : TABLE_CONFIG.rectangleWidth,
           height: shape === 'circle' ? 200 : TABLE_CONFIG.rectangleHeight,
-          background: `url('${TEXTURE_LOADER.WHITE_ELM.texture}')`,
+          backgroundImage: `url('${texture.texture}')`,
           backgroundRepeat: 'no-repeat',
           backgroundPosition: 'center',
           backgroundSize: 'cover',
         }}
-      >
-        {name}
-      </div>
+      ></div>
     </div>
   );
 };

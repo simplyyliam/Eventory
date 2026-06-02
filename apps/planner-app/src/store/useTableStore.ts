@@ -5,6 +5,7 @@ import {
 } from 'zustand/middleware';
 import { create } from 'zustand';
 import localforage from 'localforage';
+import type { TextureId } from '@/config/textureLoader';
 
 export type SeatingTable = {
   shape: 'circle' | 'rectangle';
@@ -15,6 +16,7 @@ export type SeatingTable = {
   x: number;
   y: number;
   rotation: number;
+  textureId: TextureId
 };
 
 type TableStore = {
@@ -27,7 +29,10 @@ type TableStore = {
   updateTableSeats: (tableId: string, seatCount: number) => void;
   updateTablePosition: (tableId: string, x: number, y: number) => void;
   updateTableRotation: (tableId: string, rotation: number) => void;
-  removeTable: (tableId: string) => void
+  updateTableShape: (tableId: string, shape: SeatingTable['shape']) => void;
+  updateTableName: (tableId: string, name: SeatingTable['name']) => void;
+  updateTableTexture: (tableId: string, textureId: TextureId) => void;
+  removeTable: (tableId: string) => void;
 };
 
 const createTableId = (tableNumber: number) => `table-${tableNumber}`;
@@ -47,8 +52,12 @@ const normalizeTables = (tables: SeatingTable[]) =>
     let y = table.y ?? 0;
 
     const looksLikeTopLeft =
-      typeof x === 'number' && typeof y === 'number' &&
-      x >= 0 && x <= WORLD_SIZE && y >= 0 && y <= WORLD_SIZE;
+      typeof x === 'number' &&
+      typeof y === 'number' &&
+      x >= 0 &&
+      x <= WORLD_SIZE &&
+      y >= 0 &&
+      y <= WORLD_SIZE;
 
     if (looksLikeTopLeft) {
       x = x - WORLD_HALF;
@@ -90,6 +99,7 @@ export const useTableStore = create<TableStore>()(
           x: 0,
           y: 0,
           rotation: 0,
+          textureId: 'white-oak'
         };
 
         set({
@@ -125,13 +135,43 @@ export const useTableStore = create<TableStore>()(
         });
       },
 
-      removeTable: (tableId) => {
-        const tables = get().tables
+      updateTableShape: (tableId, shape) => {
+        const tables = get().tables;
 
         set({
-          tables: tables.filter((table) => table.id !== tableId)
-        })
-      }
+          tables: tables.map((table) =>
+            table.id === tableId ? { ...table, shape } : table,
+          ),
+        });
+      },
+
+      updateTableName: (tableId, name) => {
+        const tables = get().tables;
+
+        set({
+          tables: tables.map((table) =>
+            table.id === tableId ? { ...table, name } : table,
+          ),
+        });
+      },
+
+      updateTableTexture: (tableId, textureId) => {
+        const tables = get().tables;
+
+        set({
+          tables: tables.map((table) =>
+            table.id === tableId ? { ...table, textureId } : table,
+          ),
+        });
+      },
+
+      removeTable: (tableId) => {
+        const tables = get().tables;
+
+        set({
+          tables: tables.filter((table) => table.id !== tableId),
+        });
+      },
     }),
     {
       name: 'table-store',
