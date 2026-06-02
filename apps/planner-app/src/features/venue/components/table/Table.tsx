@@ -387,6 +387,8 @@ export const Table = ({
         tableId={id}
         tableName={name}
         seatCount={seatCount}
+        shape={shape}
+        rotation={rotation}
       />
     </div>
   );

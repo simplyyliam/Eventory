@@ -5,6 +5,7 @@ import {
   SheetHeader,
   SheetTitle,
 } from '@/components/ui/sheet';
+import { TablePreview } from './TablePreview';
 // import { useTableStore } from '@/store/useTableStore';
 // import { useTableSeatCount } from './utils';
 
@@ -14,6 +15,8 @@ type TableSheetProps = {
   tableId: string;
   tableName: string;
   seatCount: number;
+  shape: 'circle' | 'rectangle';
+  rotation: number;
 };
 
 export const TableSheet = ({
@@ -21,6 +24,8 @@ export const TableSheet = ({
   onOpenChange,
   tableName,
   seatCount,
+  shape, 
+  rotation
 }: TableSheetProps) => {
   //   const removeTable = useTableStore((s) => s.removeTable);
   //   const storeSeats = useTableSeatCount(tableId);
@@ -48,7 +53,14 @@ export const TableSheet = ({
         </SheetHeader>
 
         <div className="flex flex-col gap-2.5 h-full">
-          <div className="w-full h-full bg-muted"></div>
+          <div className="w-full h-full flex items-center justify-center">
+            <TablePreview 
+            shape={shape}
+            seatCount={seatCount}
+            rotation={rotation}
+            name={tableName}
+            />
+          </div>
           <div className="w-full h-full bg-muted"></div>
           <div className="w-full h-full bg-muted"></div>
         </div>
