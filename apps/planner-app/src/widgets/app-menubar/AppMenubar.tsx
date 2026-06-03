@@ -9,10 +9,19 @@ import { IconButton } from '@/shared/components';
 import { useTableStore } from '@/store/useTableStore';
 import { Download01Icon } from '@hugeicons/core-free-icons';
 import { MenubarGroup } from './MenubarGroup';
+import { buildEventPayload } from '@/lib/buildEventPayload';
+import axios from 'axios';
 
 export const AppMenubar = () => {
   const addTable = useTableStore((s) => s.addTables);
   const tables = useTableStore((s) => s.tables);
+
+  const PublishEvent = async () => {
+    const payload = buildEventPayload()
+    console.log("📦 Frontend Payload:", payload)
+    const res = await axios.post('http://localhost:3001/events', payload);
+    console.log("🚀 Server Response:", res.data)
+  };
 
   return (
     <div className="flex items-center justify-between h-fit w-full shrink-0 p-2.5 z-10 absolute">
@@ -37,7 +46,7 @@ export const AppMenubar = () => {
                   </ul>
                 ) : (
                   <p className="text-muted-foreground">No tables yet</p>
-              )}
+                )}
               </div>
             </DropdownMenuGroup>
           </DropdownMenuContent>
@@ -61,7 +70,12 @@ export const AppMenubar = () => {
           </DropdownMenuContent>
         </DropdownMenu>
 
-        <IconButton Label="Sign in to save" />
+        <IconButton
+          Label="Publish Event"
+          onClick={() => {
+            PublishEvent();
+          }}
+        />
         <IconButton Icon={Download01Icon} />
       </MenubarGroup>
     </div>

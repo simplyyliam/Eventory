@@ -1,6 +1,6 @@
 // data normalization layer
 
-import { useFormStore } from '@/store/useFormStore';
+import { useEventStore } from '@/store/useEventStore';
 import { useGuestStore } from '@/store/useGuestStore';
 import { useTableStore } from '@/store/useTableStore';
 import { createSlug } from '@app/shared';
@@ -8,23 +8,27 @@ import { createSlug } from '@app/shared';
 export function buildEventPayload() {
   const { guests, seatedGuests } = useGuestStore.getState();
   const { tables } = useTableStore.getState();
+  const { activeEvent } = useEventStore.getState()
 
-  const { name, email, comment, dietary } = useFormStore.getState();
+  const eventName = activeEvent?.name ?? ""
 
-  const slug = createSlug(name);
+  const slug = createSlug(eventName);
 
   return {
     slug,
 
-    events: {
-      name,
-      contactEmail: email,
-      comment,
-      dietary,
+    event: {
+      id: activeEvent?.id,
+      eventName,
+      slug,
+      status: activeEvent?.status ?? "draft",
+      createdAt: activeEvent?.createdAt,
+      updatedAt: activeEvent?.updatedAt
     },
 
     guests,
     seatedGuests,
+    metadata: activeEvent?.metadata,
 
     tables: tables.map((table) => ({
       id: table.id,

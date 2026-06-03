@@ -1,9 +1,12 @@
-// export type EventPayload = {
-
-// }
 
 
 export type EventStatus = "draft" | "published" | "archived";
+
+export type EventMetadata = {
+  contactEmail: string;
+  comment: string;
+  dietary: string[];
+};
 
 export type Event = {
   id: string;
@@ -14,4 +17,6 @@ export type Event = {
 
   createdAt: string;
   updatedAt: string;
+
+  metadata?: EventMetadata;
 };

@@ -16,13 +16,19 @@ app.get('/', (_, res) => {
 
 app.post('/events', (req, res) => {
   const data = req.body;
+  const eventData = data.events ?? {};
+  const eventName = eventData.name ?? data.eventName ?? data.name;
+
+  if (typeof eventName !== 'string' || eventName.trim().length === 0) {
+    return res.status(400).json({ error: 'Event name is required' });
+  }
 
   const now = new Date().toISOString();
 
   const newEvent: Event = {
     id: crypto.randomUUID(),
-    name: data.eventName,
-    slug: data.slug || createSlug(data.eventName),
+    name: eventName,
+    slug: data.slug || createSlug(eventName),
     status: 'draft',
 
     createdAt: now,
@@ -32,6 +38,9 @@ app.post('/events', (req, res) => {
     seatedGuests: data.seatedGuests ?? [],
     tables: data.tables ?? [],
   };
+
+  console.log("🚀 Created Event:");
+  console.dir(newEvent, { depth: null }); // ensures I see everything using .dir
 
   events.push(newEvent);
 
