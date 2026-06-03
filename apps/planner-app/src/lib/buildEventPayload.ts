@@ -3,7 +3,7 @@
 import { useFormStore } from '@/store/useFormStore';
 import { useGuestStore } from '@/store/useGuestStore';
 import { useTableStore } from '@/store/useTableStore';
-import { createSlug } from './createSlug';
+import { createSlug } from '@app/shared';
 
 export function buildEventPayload() {
   const { guests, seatedGuests } = useGuestStore.getState();
