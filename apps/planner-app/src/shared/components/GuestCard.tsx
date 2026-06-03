@@ -20,7 +20,7 @@ interface GuestCardProps {
   table?: string;
   seat?: string;
   guestId: string;
-  showSeatedActions?: boolean
+  showSeatedActions?: boolean;
 }
 
 export const GuestCard = ({
@@ -31,7 +31,7 @@ export const GuestCard = ({
   table,
   seat,
   guestId,
-  showSeatedActions
+  showSeatedActions,
 }: GuestCardProps) => {
   const openModal = useModalStore((s) => s.openModal);
   const setEditingGuestId = useModalStore((s) => s.setEditingGuestId);
@@ -43,8 +43,7 @@ export const GuestCard = ({
   );
   const removeGuest = useGuestStore((s) => s.removeGuest);
 
-  const isSeated = seatedGuests.some((guest) => guest.guestId === guestId)
-  
+  const isSeated = seatedGuests.some((guest) => guest.guestId === guestId);
 
   const handleEdit = () => {
     if (!guest) return;
@@ -78,22 +77,28 @@ export const GuestCard = ({
         </div>
       </div>
       <DropdownMenu>
-        <DropdownMenuTrigger>
-          <IconButton Icon={MoreHorizontalIcon} />
-        </DropdownMenuTrigger>
+        <DropdownMenuTrigger
+          render={<IconButton Icon={MoreHorizontalIcon} />}
+        />
         <DropdownMenuContent>
           <DropdownMenuGroup>
             <DropdownMenuItem onClick={handleEdit}>Edit Guest</DropdownMenuItem>
           </DropdownMenuGroup>
           <DropdownMenuSeparator />
           <DropdownMenuGroup>
-            <DropdownMenuItem onClick={() => {
-              if(showSeatedActions && isSeated) {
-                unseatGuest(guestId)
-              } else {
-                removeGuest(guestId)
-              }
-            }}>{showSeatedActions && isSeated ? "Unassign Guest" : "Remove Guest"}</DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={() => {
+                if (showSeatedActions && isSeated) {
+                  unseatGuest(guestId);
+                } else {
+                  removeGuest(guestId);
+                }
+              }}
+            >
+              {showSeatedActions && isSeated
+                ? 'Unassign Guest'
+                : 'Remove Guest'}
+            </DropdownMenuItem>
           </DropdownMenuGroup>
         </DropdownMenuContent>
       </DropdownMenu>

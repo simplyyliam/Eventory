@@ -6,9 +6,10 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Button } from '@/components/ui/button';
 import { useTheme } from '@/components/theme-provider';
 import type { Theme } from '@/components/theme-provider';
+import { IconButton } from './IconButton';
+import { Moon02Icon, Sun03Icon } from '@hugeicons/core-free-icons';
 
 const themes: Array<{ label: string; value: Theme; Icon: typeof Sun }> = [
   { label: 'Light', value: 'light', Icon: Sun },
@@ -18,22 +19,16 @@ const themes: Array<{ label: string; value: Theme; Icon: typeof Sun }> = [
 
 export function ThemeToggle() {
   const { theme, resolvedTheme, setTheme } = useTheme();
-  const CurrentIcon = resolvedTheme === 'dark' ? Moon : Sun;
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger
         render={
-          <Button
-            variant="outline"
-            size="icon"
-            aria-label="Toggle theme"
-            className="size-8"
+          <IconButton
+            Icon={resolvedTheme === 'dark' ? Moon02Icon : Sun03Icon}
           />
         }
-      >
-        <CurrentIcon className="size-4" />
-      </DropdownMenuTrigger>
+      />
       <DropdownMenuContent align="end" className="w-36">
         {themes.map(({ label, value, Icon }) => (
           <DropdownMenuItem key={value} onClick={() => setTheme(value)}>
@@ -46,4 +41,3 @@ export function ThemeToggle() {
     </DropdownMenu>
   );
 }
-

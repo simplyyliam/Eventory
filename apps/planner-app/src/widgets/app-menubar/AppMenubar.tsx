@@ -32,9 +32,9 @@ export const AppMenubar = () => {
     <div className="flex items-center justify-between h-fit w-full shrink-0 p-2.5 z-10 absolute">
       <MenubarGroup>
         <DropdownMenu>
-          <DropdownMenuTrigger>
-            <IconButton Label="Table Properties" />
-          </DropdownMenuTrigger>
+          <DropdownMenuTrigger
+            render={<IconButton Label="Table Properties" />}
+          />
           <DropdownMenuContent className="w-fit">
             <DropdownMenuGroup>
               <div className=" p-3 text-sm backdrop-blur-md">
@@ -60,9 +60,7 @@ export const AppMenubar = () => {
 
       <MenubarGroup>
         <DropdownMenu>
-          <DropdownMenuTrigger>
-            <IconButton Label="Add table" />
-          </DropdownMenuTrigger>
+          <DropdownMenuTrigger render={<IconButton Label="Add table" />}/>
           <DropdownMenuContent>
             <DropdownMenuGroup>
               <DropdownMenuItem onClick={() => addTable('rectangle', 8)}>

@@ -194,9 +194,9 @@ export const TableSheet = ({
                   <ItemTitle>Table Shape</ItemTitle>
                 </ItemContent>
                 <DropdownMenu>
-                  <DropdownMenuTrigger>
-                    <IconButton Label={tableLabel} />
-                  </DropdownMenuTrigger>
+                  <DropdownMenuTrigger
+                    render={<IconButton Label={tableLabel} />}
+                  />
                   <DropdownMenuContent>
                     <DropdownMenuGroup>
                       <DropdownMenuItem
