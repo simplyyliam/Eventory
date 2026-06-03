@@ -1,3 +1,3 @@
 
-export { default as VenuePage } from "./venue/page";
-export { World } from "./venue/world";
+export { default as VenuePage } from "./app/venue/page";
+export { World } from "./app/venue/world";

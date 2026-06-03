@@ -20,7 +20,10 @@ export type SeatingTable = {
 };
 
 type TableStore = {
+  activeEventId: string | null;
   tables: SeatingTable[];
+  tablesByEventId: Record<string, SeatingTable[]>;
+  setActiveEvent: (eventId: string) => void;
   addTables: (
     shape: SeatingTable['shape'],
     seatCount: number,
@@ -76,13 +79,45 @@ const normalizeTables = (tables: SeatingTable[]) =>
     };
   });
 
+const updateEventTables = (
+  activeEventId: string | null,
+  tablesByEventId: Record<string, SeatingTable[]>,
+  tables: SeatingTable[],
+) => {
+  if (!activeEventId) {
+    return {
+      tables,
+    };
+  }
+
+  return {
+    tables,
+    tablesByEventId: {
+      ...tablesByEventId,
+      [activeEventId]: tables,
+    },
+  };
+};
+
 export const useTableStore = create<TableStore>()(
   persist(
     (set, get) => ({
+      activeEventId: null,
       tables: [],
+      tablesByEventId: {},
+
+      setActiveEvent: (eventId) => {
+        const tablesByEventId = get().tablesByEventId;
+
+        set({
+          activeEventId: eventId,
+          tables: tablesByEventId[eventId] ?? [],
+        });
+      },
 
       addTables: (shape, seatCount, name) => {
-        const tables = get().tables;
+        const state = get();
+        const tables = state.tables;
 
         const maxNumber = tables.reduce(
           (max, t) => Math.max(max, t.tableNumber ?? 0),
@@ -102,86 +137,119 @@ export const useTableStore = create<TableStore>()(
           textureId: 'white-oak'
         };
 
-        set({
-          tables: [...tables, newTable],
-        });
+        set(
+          updateEventTables(state.activeEventId, state.tablesByEventId, [
+            ...tables,
+            newTable,
+          ]),
+        );
       },
 
       updateTableSeats: (tableId, seatCount) => {
-        const tables = get().tables;
-        set({
-          tables: tables.map((table) =>
+        const state = get();
+        set(
+          updateEventTables(
+            state.activeEventId,
+            state.tablesByEventId,
+            state.tables.map((table) =>
             table.id === tableId ? { ...table, seatCount } : table,
           ),
-        });
+          ),
+        );
       },
 
       updateTablePosition: (tableId, x, y) => {
-        const tables = get().tables;
+        const state = get();
 
-        set({
-          tables: tables.map((table) =>
+        set(
+          updateEventTables(
+            state.activeEventId,
+            state.tablesByEventId,
+            state.tables.map((table) =>
             table.id === tableId ? { ...table, x, y } : table,
           ),
-        });
+          ),
+        );
       },
       updateTableRotation: (tableId, rotation) => {
-        const tables = get().tables;
+        const state = get();
 
-        set({
-          tables: tables.map((table) =>
+        set(
+          updateEventTables(
+            state.activeEventId,
+            state.tablesByEventId,
+            state.tables.map((table) =>
             table.id === tableId ? { ...table, rotation } : table,
           ),
-        });
+          ),
+        );
       },
 
       updateTableShape: (tableId, shape) => {
-        const tables = get().tables;
+        const state = get();
 
-        set({
-          tables: tables.map((table) =>
+        set(
+          updateEventTables(
+            state.activeEventId,
+            state.tablesByEventId,
+            state.tables.map((table) =>
             table.id === tableId ? { ...table, shape } : table,
           ),
-        });
+          ),
+        );
       },
 
       updateTableName: (tableId, name) => {
-        const tables = get().tables;
+        const state = get();
 
-        set({
-          tables: tables.map((table) =>
+        set(
+          updateEventTables(
+            state.activeEventId,
+            state.tablesByEventId,
+            state.tables.map((table) =>
             table.id === tableId ? { ...table, name } : table,
           ),
-        });
+          ),
+        );
       },
 
       updateTableTexture: (tableId, textureId) => {
-        const tables = get().tables;
+        const state = get();
 
-        set({
-          tables: tables.map((table) =>
+        set(
+          updateEventTables(
+            state.activeEventId,
+            state.tablesByEventId,
+            state.tables.map((table) =>
             table.id === tableId ? { ...table, textureId } : table,
           ),
-        });
+          ),
+        );
       },
 
       removeTable: (tableId) => {
-        const tables = get().tables;
+        const state = get();
 
-        set({
-          tables: tables.filter((table) => table.id !== tableId),
-        });
+        set(
+          updateEventTables(
+            state.activeEventId,
+            state.tablesByEventId,
+            state.tables.filter((table) => table.id !== tableId),
+          ),
+        );
       },
     }),
     {
       name: 'table-store',
-      version: 1,
+      version: 2,
       migrate: (persistedState) => {
         const state = persistedState as TableStore;
 
         return {
           ...state,
+          activeEventId: state.activeEventId ?? null,
           tables: normalizeTables(state.tables ?? []),
+          tablesByEventId: state.tablesByEventId ?? {},
         };
       },
       storage: createJSONStorage(

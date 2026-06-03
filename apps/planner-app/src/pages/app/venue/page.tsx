@@ -1,7 +1,10 @@
 import { PageContainer } from '@/shared/components';
+import { useEventStore } from '@/store/useEventStore';
+import { useGuestStore } from '@/store/useGuestStore';
 import { useTableStore } from '@/store/useTableStore';
-import { Table } from '../../features/venue/components/table/Table';
+import { Table } from '../../../features/venue/components/table/Table';
 import { useEffect, useRef, useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import { World } from './world';
 
 type Viewport = {
@@ -11,8 +14,12 @@ type Viewport = {
 };
 
 export default function VenuePage() {
-
-
+  const navigate = useNavigate();
+  const { eventId } = useParams();
+  const activeEvent = useEventStore((s) => s.activeEvent);
+  const openEvent = useEventStore((s) => s.openEvent);
+  const setActiveGuestEvent = useGuestStore((s) => s.setActiveEvent);
+  const setActiveTableEvent = useTableStore((s) => s.setActiveEvent);
   const tables = useTableStore((s) => s.tables);
   const [viewport, setViewport] = useState<Viewport>({
     x: 0,
@@ -22,6 +29,20 @@ export default function VenuePage() {
 
   const isPanning = useRef(false);
   const last = useRef({ x: 0, y: 0 });
+
+  useEffect(() => {
+    if (!eventId) return;
+
+    const event = openEvent(eventId);
+
+    if (!event) {
+      navigate('/', { replace: true });
+      return;
+    }
+
+    setActiveGuestEvent(event.id);
+    setActiveTableEvent(event.id);
+  }, [eventId, navigate, openEvent, setActiveGuestEvent, setActiveTableEvent]);
 
   useEffect(() => {
     const move = (e: PointerEvent) => {
@@ -99,6 +120,12 @@ export default function VenuePage() {
       onWheel={handleWheel}
       className="relative w-full h-full overflow-hidden"
     >
+      {activeEvent ? (
+        <div className="pointer-events-none absolute left-4 top-4 z-10 rounded-md border bg-background/90 px-3 py-2 text-sm shadow-sm">
+          <span className="font-medium">{activeEvent.name}</span>
+          <span className="ml-2 text-muted-foreground">{activeEvent.status}</span>
+        </div>
+      ) : null}
       <World viewport={viewport}>
         {tables.map((table) => (
           <Table
