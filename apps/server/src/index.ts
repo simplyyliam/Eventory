@@ -16,27 +16,31 @@ app.get('/', (_, res) => {
 
 app.post('/events', (req, res) => {
   const data = req.body;
-  const eventData = data.events ?? {};
-  const eventName = eventData.name ?? data.eventName ?? data.name;
+  const eventData = data.event ?? data.events ?? {};
+  const eventName =
+    eventData.name ?? eventData.eventName ?? data.eventName ?? data.name;
 
   if (typeof eventName !== 'string' || eventName.trim().length === 0) {
     return res.status(400).json({ error: 'Event name is required' });
   }
 
   const now = new Date().toISOString();
+  const name = eventName.trim();
+  const slug = eventData.slug ?? data.slug ?? createSlug(name);
 
   const newEvent: Event = {
-    id: crypto.randomUUID(),
-    name: eventName,
-    slug: data.slug || createSlug(eventName),
-    status: 'draft',
+    id: eventData.id ?? crypto.randomUUID(),
+    name,
+    slug,
+    status: eventData.status ?? 'draft',
 
-    createdAt: now,
+    createdAt: eventData.createdAt ?? now,
     updatedAt: now,
 
     guests: data.guests ?? [],
     seatedGuests: data.seatedGuests ?? [],
     tables: data.tables ?? [],
+    metadata: data.metadata ?? eventData.metadata,
   };
 
   console.log("🚀 Created Event:");
@@ -44,7 +48,7 @@ app.post('/events', (req, res) => {
 
   events.push(newEvent);
 
-  res.json(newEvent);
+  res.status(201).json(newEvent);
 });
 
 // Listing events
@@ -56,7 +60,7 @@ app.get('/events', (_, res) => {
 app.get('/events/:slug', (req, res) => {
   const { slug } = req.params;
 
-  const event = events.find((e) => e.slug === slug);
+  const event = events.find((e) => e.slug === slug || e.slug === createSlug(slug));
 
   if (!event) {
     return res.status(404).json({ error: 'Event not found' });
@@ -66,5 +70,5 @@ app.get('/events/:slug', (req, res) => {
 });
 
 app.listen(3001, () => {
-  console.log('Server running on https://localhost:3001☕');
+  console.log('Server running on http://localhost:3001');
 });

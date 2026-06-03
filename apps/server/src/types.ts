@@ -10,4 +10,5 @@ export type Event = {
   guests: any[];
   seatedGuests: any[];
   tables: any[];
+  metadata?: any;
 };

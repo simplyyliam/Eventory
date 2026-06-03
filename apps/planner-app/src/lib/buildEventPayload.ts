@@ -8,9 +8,9 @@ import { createSlug } from '@app/shared';
 export function buildEventPayload() {
   const { guests, seatedGuests } = useGuestStore.getState();
   const { tables } = useTableStore.getState();
-  const { activeEvent } = useEventStore.getState()
+  const { activeEvent } = useEventStore.getState();
 
-  const eventName = activeEvent?.name ?? ""
+  const eventName = activeEvent?.name ?? "";
 
   const slug = createSlug(eventName);
 
@@ -19,7 +19,7 @@ export function buildEventPayload() {
 
     event: {
       id: activeEvent?.id,
-      eventName,
+      name: eventName,
       slug,
       status: activeEvent?.status ?? "draft",
       createdAt: activeEvent?.createdAt,

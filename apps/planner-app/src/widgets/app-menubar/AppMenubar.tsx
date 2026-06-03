@@ -17,10 +17,15 @@ export const AppMenubar = () => {
   const tables = useTableStore((s) => s.tables);
 
   const PublishEvent = async () => {
-    const payload = buildEventPayload()
-    console.log("📦 Frontend Payload:", payload)
-    const res = await axios.post('http://localhost:3001/events', payload);
-    console.log("🚀 Server Response:", res.data)
+    const payload = buildEventPayload();
+    console.log('Frontend Payload:', payload);
+
+    try {
+      const res = await axios.post('http://localhost:3001/events', payload);
+      console.log('Server Response:', res.data);
+    } catch (error) {
+      console.error('Failed to publish event', error);
+    }
   };
 
   return (
