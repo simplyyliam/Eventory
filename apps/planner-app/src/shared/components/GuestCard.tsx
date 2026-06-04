@@ -33,8 +33,8 @@ export const GuestCard = ({
   guestId,
   showSeatedActions,
 }: GuestCardProps) => {
-  const openModal = useModalStore((s) => s.openModal);
   const setEditingGuestId = useModalStore((s) => s.setEditingGuestId);
+  const setAddGuestOpen = useModalStore((s) => s.setAddGuestOpen);
   const setForm = useFormStore((s) => s.setForm);
   const seatedGuests = useGuestStore((s) => s.seatedGuests);
   const unseatGuest = useGuestStore((s) => s.unseatGuest);
@@ -54,7 +54,7 @@ export const GuestCard = ({
       dietary: guest.Dietary,
     });
     setEditingGuestId(guestId);
-    openModal('GuestModal');
+    setAddGuestOpen(true);
   };
 
   return (

@@ -49,12 +49,10 @@ export function AddGuestDialog({ open, onOpenChange }: Props) {
 
     onOpenChange(newOpen);
   };
-  
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent 
-       className="w-full max-w-sm">
+      <DialogContent className="w-full max-w-sm">
         <DialogHeader>
           <DialogTitle>Add Guest</DialogTitle>
           <DialogDescription>
@@ -108,17 +106,9 @@ export function AddGuestDialog({ open, onOpenChange }: Props) {
         </div>
 
         <DialogFooter className="gap-2.5">
-          <IconButton
-            Label="Cancel"
-            Icon={CancelIcon}
-            onClick={handleClose}
-          />
+          <IconButton Label="Cancel" Icon={CancelIcon} onClick={handleClose} />
 
-          <IconButton
-            Label="Save"
-            Icon={SaveIcon}
-            onClick={handleSave}
-          />
+          <IconButton Label="Save" Icon={SaveIcon} onClick={handleSave} />
         </DialogFooter>
       </DialogContent>
     </Dialog>

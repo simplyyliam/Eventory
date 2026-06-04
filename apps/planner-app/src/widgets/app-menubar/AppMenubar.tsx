@@ -9,24 +9,12 @@ import { IconButton } from '@/shared/components';
 import { useTableStore } from '@/store/useTableStore';
 import { Download01Icon } from '@hugeicons/core-free-icons';
 import { MenubarGroup } from './MenubarGroup';
-import { buildEventPayload } from '@/lib/buildEventPayload';
-import axios from 'axios';
+import { EventPublishDialog } from '@/features/events/components';
 
 export const AppMenubar = () => {
   const addTable = useTableStore((s) => s.addTables);
   const tables = useTableStore((s) => s.tables);
 
-  const PublishEvent = async () => {
-    const payload = buildEventPayload();
-    console.log('Frontend Payload:', payload);
-
-    try {
-      const res = await axios.post('http://localhost:3001/events', payload);
-      console.log('Server Response:', res.data);
-    } catch (error) {
-      console.error('Failed to publish event', error);
-    }
-  };
 
   return (
     <div className="flex items-center justify-between h-fit w-full shrink-0 p-2.5 z-10 absolute">
@@ -60,7 +48,7 @@ export const AppMenubar = () => {
 
       <MenubarGroup>
         <DropdownMenu>
-          <DropdownMenuTrigger render={<IconButton Label="Add table" />}/>
+          <DropdownMenuTrigger render={<IconButton Label="Add table" />} />
           <DropdownMenuContent>
             <DropdownMenuGroup>
               <DropdownMenuItem onClick={() => addTable('rectangle', 8)}>
@@ -73,12 +61,7 @@ export const AppMenubar = () => {
           </DropdownMenuContent>
         </DropdownMenu>
 
-        <IconButton
-          Label="Publish Event"
-          onClick={() => {
-            PublishEvent();
-          }}
-        />
+        <EventPublishDialog />
         <IconButton Icon={Download01Icon} />
       </MenubarGroup>
     </div>

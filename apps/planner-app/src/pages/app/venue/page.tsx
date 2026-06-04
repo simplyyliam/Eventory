@@ -16,7 +16,6 @@ type Viewport = {
 export default function VenuePage() {
   const navigate = useNavigate();
   const { eventId } = useParams();
-  const activeEvent = useEventStore((s) => s.activeEvent);
   const openEvent = useEventStore((s) => s.openEvent);
   const setActiveGuestEvent = useGuestStore((s) => s.setActiveEvent);
   const setActiveTableEvent = useTableStore((s) => s.setActiveEvent);
@@ -120,12 +119,6 @@ export default function VenuePage() {
       onWheel={handleWheel}
       className="relative w-full h-full overflow-hidden"
     >
-      {activeEvent ? (
-        <div className="pointer-events-none absolute left-4 top-4 z-10 rounded-md border bg-background/90 px-3 py-2 text-sm shadow-sm">
-          <span className="font-medium">{activeEvent.name}</span>
-          <span className="ml-2 text-muted-foreground">{activeEvent.status}</span>
-        </div>
-      ) : null}
       <World viewport={viewport}>
         {tables.map((table) => (
           <Table

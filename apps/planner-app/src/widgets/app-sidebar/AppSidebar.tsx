@@ -1,4 +1,8 @@
-import { Plus, Upload06Icon } from '@hugeicons/core-free-icons';
+import {
+  ArrowLeft01Icon,
+  Plus,
+  Upload06Icon,
+} from '@hugeicons/core-free-icons';
 
 import {
   Sidebar,
@@ -14,17 +18,33 @@ import {
   UnseatedGuestsSection,
 } from '@/features/guests';
 import { IconButton, ThemeToggle } from '@/shared/components';
-import { useState } from 'react';
+import { useEventStore } from '@/store/useEventStore';
+import { useModalStore } from '@/store/useModalStore';
 
 export function AppSidebar() {
-  const [open, setOpen] = useState(false);
+  const open = useModalStore((s) => s.addGuestOpen);
+const setOpen = useModalStore((s) => s.setAddGuestOpen);
+  const activeEvent = useEventStore((s) => s.activeEvent);
+  
   return (
     <>
       <Sidebar variant="floating">
         <SidebarHeader>
           <SidebarMenu className="items-center">
             <SidebarMenuItem className="flex w-full items-center justify-between gap-2">
-              <span>Manage Guest</span>
+              {activeEvent ? (
+                <div className="flex items-center gap-2.5">
+                  <IconButton Icon={ArrowLeft01Icon}/>
+                  <div className="flex items-center">
+                    <span className="font-medium text-sm">
+                      {activeEvent.name}
+                    </span>
+                    <span className="ml-2 text-muted-foreground text-sm">
+                      {activeEvent.status}
+                    </span>
+                  </div>
+                </div>
+              ) : null}
               <ThemeToggle />
             </SidebarMenuItem>
           </SidebarMenu>
@@ -45,7 +65,7 @@ export function AppSidebar() {
           <SeatedGuestsSection />
         </SidebarContent>
       </Sidebar>
-      <AddGuestDialog open={open} onOpenChange={setOpen}/>
+      <AddGuestDialog open={open} onOpenChange={setOpen} />
     </>
   );
 }
