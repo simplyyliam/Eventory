@@ -4,7 +4,11 @@
 @import "@fontsource-variable/geist";
 @import "@fontsource-variable/inter";
 
+@source "../../../shared/src/components/**/*.{[jt]s,[jt]sx}";
+@source "./**/*.{[jt]s,[jt]sx}";
+
 @custom-variant dark (&:is(.dark *));
+
 
 @theme inline {
     --font-heading: var(--font-sans);

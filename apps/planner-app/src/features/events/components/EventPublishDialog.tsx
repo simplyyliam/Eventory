@@ -37,21 +37,21 @@ export const EventPublishDialog = () => {
     new Promise((resolve) => setTimeout(resolve, ms));
 
   // Smooth suspense progress animation
-useEffect(() => {
-  if (publishState.status !== 'building') return;
+  useEffect(() => {
+    if (publishState.status !== 'building') return;
 
-  let value = 0;
+    let value = 0;
 
-  const interval = setInterval(() => {
-    value += Math.random() * 8;
+    const interval = setInterval(() => {
+      value += Math.random() * 8;
 
-    if (value >= 92) value = 92;
+      if (value >= 92) value = 92;
 
-    setProgress(value);
-  }, 120);
+      setProgress(value);
+    }, 120);
 
-  return () => clearInterval(interval);
-}, [publishState.status]);
+    return () => clearInterval(interval);
+  }, [publishState.status]);
 
   const PublishEvent = async () => {
     try {
@@ -62,8 +62,8 @@ useEffect(() => {
       const payload = buildEventPayload();
 
       console.log('Frontend Payload:', payload);
-      
-      setProgress(100); 
+
+      setProgress(100);
       await wait(500);
 
       setPublishState({ status: 'uploading', progress: 0 });
@@ -75,17 +75,15 @@ useEffect(() => {
           onUploadProgress(progressEvent) {
             const total = progressEvent.total ?? 1;
 
-            const percent = Math.round(
-              (progressEvent.loaded * 100) / total
-            );
+            const percent = Math.round((progressEvent.loaded * 100) / total);
 
             setPublishState((prev) =>
               prev.status === 'uploading'
                 ? { ...prev, progress: percent }
-                : prev
+                : prev,
             );
           },
-        }
+        },
       );
 
       await wait(400);
@@ -102,10 +100,7 @@ useEffect(() => {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <IconButton
-        Label="Publish Event"
-        onClick={() => setOpen(true)}
-      />
+      <IconButton Label="Publish Event" onClick={() => setOpen(true)} />
 
       <DialogContent className="w-full min-w-lg">
         {publishState.status === 'idle' && (
@@ -115,9 +110,7 @@ useEffect(() => {
           >
             <IconButton
               Label={
-                activeEvent
-                  ? `Publish ${activeEvent.name}`
-                  : 'Publish Event'
+                activeEvent ? `Publish ${activeEvent.name}` : 'Publish Event'
               }
               onClick={PublishEvent}
             />
@@ -147,9 +140,15 @@ useEffect(() => {
             title={`${publishState.event.name} Event Published`}
             description="Your event has been published successfully."
           >
-            <QRCode value={`http://localhost:5174/events/${publishState.event.slug}`}/>
+            <QRCode
+              value={
+                publishState.status === 'success'
+                  ? `https://eventory-guest-app.vercel.app/events/${publishState.event.slug}`
+                  : ''
+              }
+            />
             <p className="text-sm text-muted-foreground">
-              <IconButton Label='Copy QR Code'/>
+              <IconButton Label="Copy QR Code" />
             </p>
           </StateContainer>
         )}
