@@ -10,7 +10,7 @@ import {
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
+} from '@app/shared/components/ui/dropdown-menu';
 
 interface GuestCardProps {
   key: string;

@@ -1,5 +1,5 @@
 import { AppSidebar } from '@/widgets/app-sidebar';
-import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
+import { SidebarInset, SidebarProvider } from '@app/shared/components/ui/sidebar';
 import { Outlet } from 'react-router-dom';
 import { AppMenubar } from '@/widgets/app-menubar';
 

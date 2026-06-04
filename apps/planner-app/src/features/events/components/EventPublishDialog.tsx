@@ -1,11 +1,12 @@
-import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { Dialog, DialogContent } from '@app/shared/components/ui/dialog';
 import { buildEventPayload } from '@/lib/buildEventPayload';
 import { IconButton } from '@/shared/components';
 import axios from 'axios';
 import { useEffect, useState } from 'react';
 import { StateContainer } from './PublishStateContainer';
-import { Progress } from '@/components/ui/progress';
+import { Progress } from '@app/shared/components/ui/progress';
 import { useEventStore } from '@/store/useEventStore';
+import { QRCode } from './QRCode';
 
 type Event = {
   id: string;
@@ -146,11 +147,9 @@ useEffect(() => {
             title={`${publishState.event.name} Event Published`}
             description="Your event has been published successfully."
           >
+            <QRCode value={`http://localhost:5174/events/${publishState.event.slug}`}/>
             <p className="text-sm text-muted-foreground">
-              Event ID: {publishState.event.id}
-            </p>
-            <p className="text-sm text-muted-foreground">
-              Slug: {publishState.event.slug}
+              <IconButton Label='Copy QR Code'/>
             </p>
           </StateContainer>
         )}

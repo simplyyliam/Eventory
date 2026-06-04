@@ -11,7 +11,7 @@ import {
   SidebarHeader,
   SidebarMenu,
   SidebarMenuItem,
-} from '@/components/ui/sidebar';
+} from '@app/shared/components/ui/sidebar';
 import {
   AddGuestDialog,
   SeatedGuestsSection,

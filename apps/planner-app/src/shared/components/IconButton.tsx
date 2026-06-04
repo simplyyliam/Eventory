@@ -1,5 +1,5 @@
 import { HugeiconsIcon, type IconSvgElement } from '@hugeicons/react';
-import { Button } from '@/components/ui/button';
+import { Button } from '@app/shared/components/ui/button';
 
 interface IconButtonProps {
   Label?: string | number;

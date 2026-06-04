@@ -4,7 +4,7 @@ import {
   DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
+} from '@app/shared/components/ui/dropdown-menu';
 import { IconButton } from '@/shared/components';
 import { useTableStore } from '@/store/useTableStore';
 import { Download01Icon } from '@hugeicons/core-free-icons';

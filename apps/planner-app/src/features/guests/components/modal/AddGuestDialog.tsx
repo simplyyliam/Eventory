@@ -1,21 +1,13 @@
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from '@/components/ui/dialog';
 
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
 import { DietaryComboBox } from '../DietaryComboBox';
 import { IconButton } from '@/shared/components';
 import { CancelIcon, SaveIcon } from '@hugeicons/core-free-icons';
 
 import { useGuest } from '@/hooks/useGuests';
 import { useFormStore } from '@/store/useFormStore';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@app/shared/components/ui/dialog';
+import { Textarea } from '@app/shared/components/ui/textarea';
+import { Input, Label } from '@app/shared';
 
 type Props = {
   open: boolean;

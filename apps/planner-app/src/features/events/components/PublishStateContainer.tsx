@@ -1,4 +1,4 @@
-import { DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { DialogHeader, DialogTitle } from '@app/shared/components/ui/dialog';
 import type { HTMLAttributes } from 'react';
 
 interface StateContainerProps extends HTMLAttributes<HTMLDivElement> {

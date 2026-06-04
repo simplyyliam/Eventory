@@ -7,18 +7,13 @@ import {
   type TableProps,
 } from './table.types';
 import { getPopupPlacement } from './utils';
-import {
-  ContextMenu,
-  ContextMenuContent,
-  ContextMenuItem,
-  ContextMenuTrigger,
-} from '@/components/ui/context-menu';
 import { useTableStore } from '@/store/useTableStore';
 import { useEffect, useRef, useState } from 'react';
 import { useGuestStore } from '@/store/useGuestStore';
 import { Chair, TableSurface } from '../assets';
 import { getInitials } from '@/lib/getInitials';
 import { TableSheet } from './table-sheet/TableSheet';
+import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuTrigger } from '@app/shared/components/ui/context-menu';
 
 export const Table = ({
   shape,

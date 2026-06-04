@@ -5,8 +5,9 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "pnpm --filter planner-app dev",
-    "server": "pnpm --filter server dev"
+    "planner-app": "pnpm --filter planner-app",
+    "guest-app": "pnpm --filter guest-app",
+    "server": "pnpm --filter server"
   },
   "keywords": [],
   "author": "",

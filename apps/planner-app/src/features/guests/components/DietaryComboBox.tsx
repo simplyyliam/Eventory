@@ -1,17 +1,6 @@
 
-import {
-  Combobox,
-  ComboboxChip,
-  ComboboxChips,
-  ComboboxChipsInput,
-  ComboboxContent,
-  ComboboxEmpty,
-  ComboboxItem,
-  ComboboxList,
-  ComboboxValue,
-} from '@/components/ui/combobox';
 
-import { useComboboxAnchor } from '@/components/ui/internals/combobox';
+import { Combobox, ComboboxChip, ComboboxChips, ComboboxChipsInput, ComboboxContent, ComboboxEmpty, ComboboxItem, ComboboxList, ComboboxValue, useComboboxAnchor } from '@app/shared';
 
 const dietaryRequirements = [
   'Vegetarian',

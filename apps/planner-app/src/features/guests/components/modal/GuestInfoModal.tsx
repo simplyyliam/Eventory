@@ -3,7 +3,7 @@ import {
   CardContent,
   CardHeader,
   CardTitle,
-} from '@/components/ui/card';
+} from '@app/shared/components/ui/card';
 
 import { getInitials } from '@/lib/getInitials';
 import { getSeatLabel } from '@/lib/getSeat';

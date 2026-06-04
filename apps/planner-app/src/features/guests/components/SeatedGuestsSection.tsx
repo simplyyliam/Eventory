@@ -1,11 +1,5 @@
 import { GuestCard, IconButton } from '@/shared/components';
-import { Button } from '@/components/ui/button';
-import {
-  SidebarGroup,
-  SidebarGroupContent,
-  SidebarGroupLabel,
-} from '@/components/ui/sidebar';
-import { cn } from '@/lib/utils';
+import { cn } from '@app/shared/lib/utils';
 import { ArrowDown01Icon, ArrowUpDown } from '@hugeicons/core-free-icons';
 import { HugeiconsIcon } from '@hugeicons/react';
 import { useState } from 'react';
@@ -13,6 +7,7 @@ import { useGuestStore } from '@/store/useGuestStore';
 import { useTableStore } from '@/store/useTableStore';
 import { useGuest } from '@/hooks/useGuests';
 import { getInitials } from '@/lib/getInitials';
+import { Button, SidebarGroup, SidebarGroupContent, SidebarGroupLabel } from '@app/shared';
 
 export const SeatedGuestsSection = () => {
   const [isUnseatedOpen, setIsUnseatedOpen] = useState(true);
