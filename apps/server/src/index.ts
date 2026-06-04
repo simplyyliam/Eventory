@@ -5,9 +5,20 @@ import { Event } from './types';
 
 const events: Event[] = [];
 
+const PORT = process.env.PORT || 3001
+
 const app = express();
 app.use(cors());
 app.use(express.json());
+
+app.use(cors({
+  origin: [
+    'http://localhost:5173', // First local Vite app
+    'http://localhost:5174', // Second local Vite app (when running concurrently)
+    'https://eventory-guest-app.vercel.app',
+    'https://eventory-planner-app.vercel.app'
+  ]
+}));
 
 // Creating events
 app.get('/', (_, res) => {
@@ -69,6 +80,6 @@ app.get('/events/:slug', (req, res) => {
   res.json(event);
 });
 
-app.listen(3001, () => {
+app.listen(PORT, () => {
   console.log('Server running on http://localhost:3001');
 });

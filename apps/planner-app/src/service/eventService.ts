@@ -3,12 +3,13 @@
 import { useEventStore } from '@/store/useEventStore';
 import { useGuestStore } from '@/store/useGuestStore';
 import { useTableStore } from '@/store/useTableStore';
+import { API_BASE_URL } from '@app/shared/utils/api';
 import axios from 'axios';
 
 export async function loadEvent(slug: string) {
   try {
     const { data: event } = await axios.get(
-      `http://localhost:3001/events/${slug}`,
+      `${API_BASE_URL}/events/${slug}`,
     );
 
     // Clear previous state

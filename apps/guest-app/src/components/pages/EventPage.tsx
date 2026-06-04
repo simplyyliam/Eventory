@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
 import type { EventResponse } from '@/types/event.types';
+import { API_BASE_URL } from '@app/shared/utils/api';
 
 
 export const EventPage = () => {
@@ -11,7 +12,7 @@ export const EventPage = () => {
 
   useEffect(() => {
     axios
-      .get(`http://localhost:3001/events/${slug}`)
+      .get(`${API_BASE_URL}/events/${slug}`)
       .then((res) => setEvent(res.data));
   }, [slug]);
 

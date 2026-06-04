@@ -7,6 +7,7 @@ import { StateContainer } from './PublishStateContainer';
 import { Progress } from '@app/shared/components/ui/progress';
 import { useEventStore } from '@/store/useEventStore';
 import { QRCode } from './QRCode';
+import { API_BASE_URL } from '@app/shared/utils/api';
 
 type Event = {
   id: string;
@@ -69,7 +70,7 @@ export const EventPublishDialog = () => {
       setPublishState({ status: 'uploading', progress: 0 });
 
       const res = await axios.post<Event>(
-        'http://localhost:3001/events',
+        `${API_BASE_URL}/events`,
         payload,
         {
           onUploadProgress(progressEvent) {
