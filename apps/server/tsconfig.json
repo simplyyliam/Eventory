@@ -10,7 +10,11 @@
     "jsx": "react-jsx",
     "skipLibCheck": true,
     "esModuleInterop": true,
-    "strict": true
+    "strict": true,
+    "paths": {
+      "@app/shared/*": ["../../shared/src/*"],
+      "@app/database/*": ["../../packages/database/src/*"]
+    }
   },
   "include": ["src/**/*"]
 }
