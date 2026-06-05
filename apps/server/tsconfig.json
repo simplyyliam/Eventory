@@ -12,8 +12,7 @@
     "esModuleInterop": true,
     "strict": true,
     "paths": {
-      "@app/shared/*": ["../../shared/src/*"],
-      "@app/database/*": ["../../packages/database/src/*"]
+      "@app/shared/*": ["../../shared/src/*"]
     }
   },
   "include": ["src/**/*"]

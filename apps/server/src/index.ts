@@ -2,7 +2,7 @@ import 'dotenv/config'
 import { createSlug } from '@app/shared'
 import express from 'express'
 import cors from 'cors'
-import { prisma } from '@app/database'
+import { prisma } from '@app/database';
 
 const PORT = process.env.PORT || 3001
 const app = express()
