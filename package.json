@@ -13,7 +13,8 @@
     "prisma:dev": "pnpm --filter @app/database exec npx prisma dev",
     "prisma:init": "pnpm --filter @app/database exec npx prisma init",
     "db:seed": "pnpm --filter @app/database db:seed",
-    "server": "pnpm --filter server"
+    "server": "pnpm --filter server",
+    "build": "pnpm --filter @app/database db:generate && pnpm --filter server build"
   },
   "keywords": [],
   "author": "",
