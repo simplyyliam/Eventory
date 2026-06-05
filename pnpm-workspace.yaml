@@ -3,5 +3,7 @@ packages:
   - "packages/*"
   - "shared"
 allowBuilds:
+  '@prisma/engines': true
   esbuild: false
   msw: false
+  prisma: true

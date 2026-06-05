@@ -1,0 +1,62 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum EventStatus {
+  draft
+  published
+  archived
+}
+
+enum GuestStatus {
+  pending
+  confirmed
+  declined
+}
+
+model Event {
+  id        String      @id @default(uuid())
+  name      String
+  slug      String      @unique
+  status    EventStatus @default(draft)
+  metadata  Json?
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+  tables    Table[]
+  guests    Guest[]
+}
+
+model Table {
+  id          String  @id @default(uuid())
+  name        String
+  tableNumber Int
+  seatCount   Int
+  shape       String
+  textureId   String
+  eventId     String
+  event       Event   @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  guests      Guest[]
+
+  @@index([eventId])
+}
+
+model Guest {
+  id       String      @id @default(uuid())
+  name     String
+  email    String?
+  dietary  String[]
+  comments String?
+  status   GuestStatus @default(pending)
+  seat     String?
+  eventId  String
+  event    Event       @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  tableId  String?
+  table    Table?      @relation(fields: [tableId], references: [id], onDelete: SetNull)
+
+  @@index([eventId])
+  @@index([tableId])
+}

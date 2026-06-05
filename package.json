@@ -7,10 +7,16 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "planner-app": "pnpm --filter planner-app",
     "guest-app": "pnpm --filter guest-app",
+    "database": "pnpm --filter @app/database",
+    "db:push": "pnpm --filter @app/database db:push",
+    "db:generate": "pnpm --filter @app/database db:generate",
+    "prisma:dev": "pnpm --filter @app/database exec npx prisma dev",
+    "prisma:init": "pnpm --filter @app/database exec npx prisma init",
+    "db:seed": "pnpm --filter @app/database db:seed",
     "server": "pnpm --filter server"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "packageManager": "pnpm@11.5.1"
+  "packageManager": "pnpm@11.5.2"
 }
