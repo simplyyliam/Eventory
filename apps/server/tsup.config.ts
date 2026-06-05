@@ -4,6 +4,6 @@ export default defineConfig({
   entry: ['src/index.ts'],
   format: ['cjs'],
   clean: true,
-  // This explicitly instructs tsup to bundle our workspace packages instead of leaving them external
-  noExternal: ['@app/shared'], 
+  // This tells tsup to bundle all local workspace packages into your server code
+  noExternal: ['@app/shared', '@app/database'], 
 });
