@@ -36,22 +36,21 @@ export const GuestCard = ({
   const setEditingGuestId = useModalStore((s) => s.setEditingGuestId);
   const setAddGuestOpen = useModalStore((s) => s.setAddGuestOpen);
   const setForm = useFormStore((s) => s.setForm);
-  const seatedGuests = useGuestStore((s) => s.seatedGuests);
   const unseatGuest = useGuestStore((s) => s.unseatGuest);
-  const guest = useGuestStore((s) =>
-    s.guests.find((guest) => guest.id === guestId),
-  );
   const removeGuest = useGuestStore((s) => s.removeGuest);
+  const guest = useGuestStore((s) =>
+    s.guests.find((g) => g.id === guestId),
+  );
 
-  const isSeated = seatedGuests.some((guest) => guest.guestId === guestId);
+  const isSeated = !!guest?.tableId;
 
   const handleEdit = () => {
     if (!guest) return;
     setForm({
-      name: guest.Name,
-      email: guest.Email,
-      comment: guest.Comments,
-      dietary: guest.Dietary,
+      name: guest.name,
+      email: guest.email ?? undefined,
+      comment: guest.comments ?? undefined,
+      dietary: guest.dietary ?? undefined,
     });
     setEditingGuestId(guestId);
     setAddGuestOpen(true);

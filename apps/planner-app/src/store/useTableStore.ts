@@ -16,7 +16,7 @@ export type SeatingTable = {
   x: number;
   y: number;
   rotation: number;
-  textureId: TextureId
+  textureId: TextureId;
 };
 
 type TableStore = {
@@ -24,6 +24,7 @@ type TableStore = {
   tables: SeatingTable[];
   tablesByEventId: Record<string, SeatingTable[]>;
   setActiveEvent: (eventId: string) => void;
+  setTables: (eventId: string, tables: SeatingTable[]) => void;
   addTables: (
     shape: SeatingTable['shape'],
     seatCount: number,
@@ -33,12 +34,11 @@ type TableStore = {
   updateTablePosition: (tableId: string, x: number, y: number) => void;
   updateTableRotation: (tableId: string, rotation: number) => void;
   updateTableShape: (tableId: string, shape: SeatingTable['shape']) => void;
-  updateTableName: (tableId: string, name: SeatingTable['name']) => void;
+  updateTableName: (tableId: string, name: string) => void;
   updateTableTexture: (tableId: string, textureId: TextureId) => void;
   removeTable: (tableId: string) => void;
 };
 
-const createTableId = (tableNumber: number) => `table-${tableNumber}`;
 const createTableName = (tableNumber: number) => `Table ${tableNumber}`;
 
 const WORLD_SIZE = 10000;
@@ -48,13 +48,13 @@ const normalizeTables = (tables: SeatingTable[]) =>
   tables.map((table, index) => {
     const tableNumber = table.tableNumber ?? index + 1;
 
-    // If stored coordinates appear to be in top-left origin (0..WORLD_SIZE),
-    // convert them to center-origin by subtracting WORLD_HALF. This allows a
-    // smooth one-time migration when switching coordinate systems.
     let x = table.x ?? 0;
     let y = table.y ?? 0;
 
+    // Only convert coordinates for legacy slug-based tables
+    const isLegacyTable = table.id.startsWith('table-');
     const looksLikeTopLeft =
+      isLegacyTable &&
       typeof x === 'number' &&
       typeof y === 'number' &&
       x >= 0 &&
@@ -69,10 +69,9 @@ const normalizeTables = (tables: SeatingTable[]) =>
 
     return {
       ...table,
-      id: createTableId(tableNumber),
+      id: table.id,
       name: table.name ?? createTableName(tableNumber),
       tableNumber,
-
       x,
       y,
       rotation: table.rotation ?? 0,
@@ -84,11 +83,7 @@ const updateEventTables = (
   tablesByEventId: Record<string, SeatingTable[]>,
   tables: SeatingTable[],
 ) => {
-  if (!activeEventId) {
-    return {
-      tables,
-    };
-  }
+  if (!activeEventId) return { tables };
 
   return {
     tables,
@@ -107,39 +102,45 @@ export const useTableStore = create<TableStore>()(
       tablesByEventId: {},
 
       setActiveEvent: (eventId) => {
-        const tablesByEventId = get().tablesByEventId;
-
+        const state = get();
         set({
           activeEventId: eventId,
-          tables: tablesByEventId[eventId] ?? [],
+          tables: state.tablesByEventId[eventId] ?? [],
+        });
+      },
+
+      setTables: (eventId, tables) => {
+        set({
+          activeEventId: eventId,
+          tables,
+          tablesByEventId: {
+            ...get().tablesByEventId,
+            [eventId]: tables,
+          },
         });
       },
 
       addTables: (shape, seatCount, name) => {
         const state = get();
-        const tables = state.tables;
-
-        const maxNumber = tables.reduce(
+        const maxNumber = state.tables.reduce(
           (max, t) => Math.max(max, t.tableNumber ?? 0),
           0,
         );
         const tableNumber = maxNumber + 1;
-
         const newTable: SeatingTable = {
           shape,
           seatCount,
-          id: createTableId(tableNumber),
+          id: crypto.randomUUID(),
           name: name ?? createTableName(tableNumber),
           tableNumber,
           x: 0,
           y: 0,
           rotation: 0,
-          textureId: 'white-oak'
+          textureId: 'white-oak',
         };
-
         set(
           updateEventTables(state.activeEventId, state.tablesByEventId, [
-            ...tables,
+            ...state.tables,
             newTable,
           ]),
         );
@@ -151,100 +152,88 @@ export const useTableStore = create<TableStore>()(
           updateEventTables(
             state.activeEventId,
             state.tablesByEventId,
-            state.tables.map((table) =>
-            table.id === tableId ? { ...table, seatCount } : table,
-          ),
+            state.tables.map((t) =>
+              t.id === tableId ? { ...t, seatCount } : t,
+            ),
           ),
         );
       },
 
       updateTablePosition: (tableId, x, y) => {
         const state = get();
-
         set(
           updateEventTables(
             state.activeEventId,
             state.tablesByEventId,
-            state.tables.map((table) =>
-            table.id === tableId ? { ...table, x, y } : table,
-          ),
+            state.tables.map((t) => (t.id === tableId ? { ...t, x, y } : t)),
           ),
         );
       },
+
       updateTableRotation: (tableId, rotation) => {
         const state = get();
-
         set(
           updateEventTables(
             state.activeEventId,
             state.tablesByEventId,
-            state.tables.map((table) =>
-            table.id === tableId ? { ...table, rotation } : table,
-          ),
+            state.tables.map((t) =>
+              t.id === tableId ? { ...t, rotation } : t,
+            ),
           ),
         );
       },
 
       updateTableShape: (tableId, shape) => {
         const state = get();
-
         set(
           updateEventTables(
             state.activeEventId,
             state.tablesByEventId,
-            state.tables.map((table) =>
-            table.id === tableId ? { ...table, shape } : table,
-          ),
+            state.tables.map((t) => (t.id === tableId ? { ...t, shape } : t)),
           ),
         );
       },
 
       updateTableName: (tableId, name) => {
         const state = get();
-
         set(
           updateEventTables(
             state.activeEventId,
             state.tablesByEventId,
-            state.tables.map((table) =>
-            table.id === tableId ? { ...table, name } : table,
-          ),
+            state.tables.map((t) => (t.id === tableId ? { ...t, name } : t)),
           ),
         );
       },
 
       updateTableTexture: (tableId, textureId) => {
         const state = get();
-
         set(
           updateEventTables(
             state.activeEventId,
             state.tablesByEventId,
-            state.tables.map((table) =>
-            table.id === tableId ? { ...table, textureId } : table,
-          ),
+            state.tables.map((t) =>
+              t.id === tableId ? { ...t, textureId } : t,
+            ),
           ),
         );
       },
 
       removeTable: (tableId) => {
         const state = get();
-
         set(
           updateEventTables(
             state.activeEventId,
             state.tablesByEventId,
-            state.tables.filter((table) => table.id !== tableId),
+            state.tables.filter((t) => t.id !== tableId),
           ),
         );
       },
     }),
     {
       name: 'table-store',
-      version: 2,
+      version: 3,
       migrate: (persistedState) => {
         const state = persistedState as TableStore;
-
         return {
           ...state,
           activeEventId: state.activeEventId ?? null,

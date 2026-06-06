@@ -3,29 +3,31 @@ import { createJSONStorage, persist } from 'zustand/middleware';
 import type { StateStorage } from 'zustand/middleware';
 import localforage from 'localforage';
 
-type Guest = {
+export type Guest = {
   id: string;
-  Name: string;
-  Email: string;
-  Dietary: string[];
-  Comments: string;
-};
+  name: string;
+  email: string | null;
+  dietary: string[];
+  comments: string | null;
+  status: string;
+  seat: string | null;
+  tableId: string | null;
+  eventId: string;
+}
 
-type GuestInput = Omit<Guest, 'id'>;
-
-type SeatedGuest = {
-  guestId: string;
-  tableId: string;
-  seatId: string;
-};
+export type GuestInput = {
+  name: string;
+  email?: string | null;
+  dietary?: string[];
+  comments?: string | null;
+}
 
 type GuestStore = {
   activeEventId: string | null;
   guests: Guest[];
-  seatedGuests: SeatedGuest[];
   guestsByEventId: Record<string, Guest[]>;
-  seatedGuestsByEventId: Record<string, SeatedGuest[]>;
   setActiveEvent: (eventId: string) => void;
+  setGuests: (eventId: string, guests: Guest[]) => void;
   addGuest: (guest: GuestInput) => void;
   removeGuest: (guestId: string) => void;
   seatGuest: (guestId: string, tableId: string, seatId: string) => void;
@@ -36,157 +38,125 @@ type GuestStore = {
 const updateEventGuests = (
   activeEventId: string | null,
   guestsByEventId: Record<string, Guest[]>,
-  seatedGuestsByEventId: Record<string, SeatedGuest[]>,
   guests: Guest[],
-  seatedGuests: SeatedGuest[],
 ) => {
-  if (!activeEventId) {
-    return {
-      guests,
-      seatedGuests,
-    };
-  }
+  if (!activeEventId) return { guests }
 
   return {
     guests,
-    seatedGuests,
     guestsByEventId: {
       ...guestsByEventId,
       [activeEventId]: guests,
     },
-    seatedGuestsByEventId: {
-      ...seatedGuestsByEventId,
-      [activeEventId]: seatedGuests,
-    },
-  };
-};
+  }
+}
 
 export const useGuestStore = create<GuestStore>()(
   persist(
     (set, get) => ({
       activeEventId: null,
       guests: [],
-      seatedGuests: [],
       guestsByEventId: {},
-      seatedGuestsByEventId: {},
 
       setActiveEvent: (eventId) => {
-        const state = get();
-
+        const state = get()
         set({
           activeEventId: eventId,
           guests: state.guestsByEventId[eventId] ?? [],
-          seatedGuests: state.seatedGuestsByEventId[eventId] ?? [],
-        });
+        })
       },
 
-      addGuest: (guest) => {
-        const state = get();
-        const guests = [...state.guests, { ...guest, id: crypto.randomUUID() }];
+      setGuests: (eventId, guests) => {
+        set({
+          activeEventId: eventId,
+          guests,
+          guestsByEventId: {
+            ...get().guestsByEventId,
+            [eventId]: guests,
+          },
+        })
+      },
 
-        set(
-          updateEventGuests(
-            state.activeEventId,
-            state.guestsByEventId,
-            state.seatedGuestsByEventId,
-            guests,
-            state.seatedGuests,
-          ),
-        );
+      addGuest: (input) => {
+        const state = get()
+        const newGuest: Guest = {
+          id: crypto.randomUUID(),
+          name: input.name,
+          email: input.email ?? null,
+          dietary: input.dietary ?? [],
+          comments: input.comments ?? null,
+          status: 'pending',
+          seat: null,
+          tableId: null,
+          eventId: state.activeEventId ?? '',
+        }
+        const guests = [...state.guests, newGuest]
+        set(updateEventGuests(state.activeEventId, state.guestsByEventId, guests))
       },
 
       removeGuest: (guestId) => {
-        const state = get();
-        const guests = state.guests.filter((guest) => guest.id !== guestId);
-        const seatedGuests = state.seatedGuests.filter(
-          (seat) => seat.guestId !== guestId,
-        );
-
-        set(
-          updateEventGuests(
-            state.activeEventId,
-            state.guestsByEventId,
-            state.seatedGuestsByEventId,
-            guests,
-            seatedGuests,
-          ),
-        );
+        const state = get()
+        const guests = state.guests.filter((g) => g.id !== guestId)
+        set(updateEventGuests(state.activeEventId, state.guestsByEventId, guests))
       },
+
       seatGuest: (guestId, tableId, seatId) => {
-        const state = get();
-        const seatedGuests = [
-          ...state.seatedGuests.filter((seat) => seat.guestId !== guestId),
-          { guestId, tableId, seatId },
-        ];
-
-        set(
-          updateEventGuests(
-            state.activeEventId,
-            state.guestsByEventId,
-            state.seatedGuestsByEventId,
-            state.guests,
-            seatedGuests,
-          ),
-        );
+        const state = get()
+        const guests = state.guests.map((g) =>
+          g.id === guestId
+            ? { ...g, tableId, seat: seatId, status: 'confirmed' }
+            : g
+        )
+        set(updateEventGuests(state.activeEventId, state.guestsByEventId, guests))
       },
+
       unseatGuest: (guestId) => {
-        const state = get();
-        const seatedGuests = state.seatedGuests.filter(
-          (seat) => seat.guestId !== guestId,
-        );
-
-        set(
-          updateEventGuests(
-            state.activeEventId,
-            state.guestsByEventId,
-            state.seatedGuestsByEventId,
-            state.guests,
-            seatedGuests,
-          ),
-        );
+        const state = get()
+        const guests = state.guests.map((g) =>
+          g.id === guestId
+            ? { ...g, tableId: null, seat: null, status: 'pending' }
+            : g
+        )
+        set(updateEventGuests(state.activeEventId, state.guestsByEventId, guests))
       },
 
-      updateGuest: (guestId, updatedGuest) => {
-        const state = get();
-        const guests = state.guests.map((guest) =>
-            guest.id === guestId ? { ...guest, ...updatedGuest } : guest,
-          );
-
-        set(
-          updateEventGuests(
-            state.activeEventId,
-            state.guestsByEventId,
-            state.seatedGuestsByEventId,
-            guests,
-            state.seatedGuests,
-          ),
-        );
+      updateGuest: (guestId, input) => {
+        const state = get()
+        const guests = state.guests.map((g) =>
+          g.id === guestId
+            ? {
+                ...g,
+                name: input.name,
+                email: input.email ?? null,
+                dietary: input.dietary ?? [],
+                comments: input.comments ?? null,
+              }
+            : g
+        )
+        set(updateEventGuests(state.activeEventId, state.guestsByEventId, guests))
       },
     }),
     {
       name: 'guest-store',
-      version: 2,
+      version: 3,
       migrate: (persistedState) => {
-        const state = persistedState as GuestStore;
-
+        const state = persistedState as GuestStore
         return {
           ...state,
           activeEventId: state.activeEventId ?? null,
           guests: state.guests ?? [],
-          seatedGuests: state.seatedGuests ?? [],
           guestsByEventId: state.guestsByEventId ?? {},
-          seatedGuestsByEventId: state.seatedGuestsByEventId ?? {},
-        };
+        }
       },
       storage: createJSONStorage(
         (): StateStorage => ({
           getItem: (name) => localforage.getItem<string>(name),
           setItem: async (name, value) => {
-            await localforage.setItem(name, value);
+            await localforage.setItem(name, value)
           },
           removeItem: (name) => localforage.removeItem(name),
         }),
       ),
     },
   ),
-);
+)

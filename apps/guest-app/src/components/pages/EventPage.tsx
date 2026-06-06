@@ -1,9 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
-import type { EventResponse } from '@/types/event.types';
+import type { EventResponse } from '@app/shared/types/event.types';
 import { API_BASE_URL } from '@app/shared/utils/api';
-
 
 export const EventPage = () => {
   const { slug } = useParams();
@@ -19,9 +18,8 @@ export const EventPage = () => {
   function findSeat() {
     if (!event) return;
 
-    // Finding the guest =
     const guest = event.guests.find(
-      (guest) => guest.Name.toLowerCase() === name.toLowerCase(),
+      (g) => g.name.toLowerCase() === name.toLowerCase(),
     );
 
     if (!guest) {
@@ -29,30 +27,23 @@ export const EventPage = () => {
       return;
     }
 
-    // Find the guests seat
-    const seat = event.seatedGuests.find((seat) => seat.guestId=== guest.id);
-
-    if (!seat) {
-      alert(`No seat assigned to ${guest.Name}`);
+    if (!guest.tableId) {
+      alert(`No seat assigned to ${guest.name}`);
       return;
     }
 
-    // Find the guests table
-    const table = event.tables.find((table) => table.id === seat.tableId);
-
-    alert(`You are at ${table?.name}, seat ${seat.seatId}`);
+    const table = event.tables.find((t) => t.id === guest.tableId);
+    alert(`You are at ${table?.name}, seat ${guest.seat}`);
   }
 
   return (
     <div style={{ padding: 20 }}>
-      <h1>{event?.event?.name}</h1>
-
+      <h1>{event?.name}</h1>
       <input
         placeholder="Enter your name"
         value={name}
         onChange={(e) => setName(e.target.value)}
       />
-
       <button onClick={findSeat}>Find My Seat</button>
     </div>
   );

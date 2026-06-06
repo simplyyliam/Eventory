@@ -37,12 +37,16 @@ model Table {
   seatCount   Int
   shape       String
   textureId   String
+  x           Float   @default(0)
+  y           Float   @default(0)
+  rotation    Float   @default(0)
   eventId     String
   event       Event   @relation(fields: [eventId], references: [id], onDelete: Cascade)
   guests      Guest[]
 
   @@index([eventId])
 }
+
 
 model Guest {
   id       String      @id @default(uuid())

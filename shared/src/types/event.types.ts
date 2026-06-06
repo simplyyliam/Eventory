@@ -1,10 +1,14 @@
 export type Guest = {
   id: string;
-  Name: string;
-  Email: string;
-  Dietary: string[];
-  Comments: string;
-};
+  name: string;
+  email: string | null;
+  dietary: string[];
+  comments: string | null;
+  status: string;
+  seat: string | null;
+  tableId: string | null;
+  eventId: string;
+}
 
 export type SeatedGuest = {
   guestId: string;
@@ -31,13 +35,14 @@ export type EventMeta = {
 };
 
 export type EventResponse = {
+  id: string;
+  name: string;
   slug: string;
-
-  event: EventMeta;
-
-  guests: Guest[];
-
-  seatedGuests: SeatedGuest[];
-
+  status: 'draft' | 'published' | 'archived';
+  createdAt: string;
+  updatedAt: string;
+  metadata?: EventMeta;
+  // seatedGuests: SeatedGuest[];
   tables: Table[];
-};
+  guests: Guest[];
+}

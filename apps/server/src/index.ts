@@ -40,7 +40,7 @@ app.post('/events', async (req, res) => {
   const name = eventName.trim();
   const slug = eventData.slug ?? data.slug ?? createSlug(name);
 
-  // Remap slug-based table IDs to real UUIDs
+  // Remap frontend table IDs to real UUIDs
   const tableIdMap = new Map<string, string>();
   const tables = (data.tables ?? []).map((t: any) => {
     const newId = crypto.randomUUID();
@@ -52,10 +52,13 @@ app.post('/events', async (req, res) => {
       seatCount: t.seatCount,
       shape: t.shape,
       textureId: t.textureId,
+      x: t.x ?? 0,
+      y: t.y ?? 0,
+      rotation: t.rotation ?? 0,
     };
   });
 
-  // Merge seatedGuests back onto guests
+  // Merge seatedGuests back onto guests (legacy support)
   const seatedMap = new Map<string, { tableId: string; seatId: string }>();
   for (const s of data.seatedGuests ?? []) {
     seatedMap.set(s.guestId, { tableId: s.tableId, seatId: s.seatId });
@@ -63,21 +66,41 @@ app.post('/events', async (req, res) => {
 
   const guests = (data.guests ?? []).map((g: any) => {
     const seated = seatedMap.get(g.id);
-    const realTableId = seated ? tableIdMap.get(seated.tableId) : null;
+    const realTableId = g.tableId
+      ? tableIdMap.get(g.tableId) ?? null
+      : seated
+        ? tableIdMap.get(seated.tableId) ?? null
+        : null;
+
     return {
-      name: g.Name ?? g.name,
-      email: g.Email ?? g.email ?? null,
-      dietary: g.Dietary ?? g.dietary ?? [],
-      comments: g.Comments ?? g.comments ?? null,
-      status: seated ? 'confirmed' : 'pending',
-      seat: seated?.seatId ?? null,
-      tableId: realTableId ?? null,
+      name: g.name ?? g.Name,
+      email: g.email ?? g.Email ?? null,
+      dietary: g.dietary ?? g.Dietary ?? [],
+      comments: g.comments ?? g.Comments ?? null,
+      status: realTableId ? 'confirmed' : 'pending',
+      seat: g.seat ?? seated?.seatId ?? null,
+      tableId: realTableId,
     };
   });
 
   try {
-    const event = await prisma.event.create({
-      data: {
+    const event = await prisma.event.upsert({
+      where: { slug },
+      update: {
+        name,
+        status: eventData.status ?? 'draft',
+        metadata: data.metadata ?? eventData.metadata,
+        updatedAt: new Date(),
+        tables: {
+          deleteMany: {},
+          create: tables,
+        },
+        guests: {
+          deleteMany: {},
+          create: guests,
+        },
+      },
+      create: {
         id: eventData.id ?? crypto.randomUUID(),
         name,
         slug,
@@ -89,16 +112,11 @@ app.post('/events', async (req, res) => {
       include: { tables: true, guests: true },
     });
 
-    console.log('🚀 Created Event:');
+    console.log('🚀 Upserted Event:');
     console.dir(event, { depth: null });
 
     res.status(201).json(event);
   } catch (err: any) {
-    if (err.code === 'P2002') {
-      return res
-        .status(409)
-        .json({ error: 'Event with this slug already exists' });
-    }
     console.error(err);
     res.status(500).json({ error: 'Failed to create event' });
   }

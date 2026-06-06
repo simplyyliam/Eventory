@@ -1,4 +1,3 @@
-
 import { TablePreview } from '../TablePreview';
 import { TableSheetGroup } from './TableSheetGroup';
 import { useGuestStore } from '@/store/useGuestStore';
@@ -36,7 +35,6 @@ export const TableSheet = ({
   rotation,
 }: TableSheetProps) => {
   const guests = useGuestStore((s) => s.guests);
-  const seatedGuest = useGuestStore((s) => s.seatedGuests);
   const updateTableSeats = useTableStore((s) => s.updateTableSeats);
   const updateTableShape = useTableStore((s) => s.updateTableShape);
   const updateTableTexture = useTableStore((s) => s.updateTableTexture);
@@ -49,9 +47,7 @@ export const TableSheet = ({
 
   const tableLabel = table?.shape === 'circle' ? 'Round Table' : 'Long Table';
 
-  const AssignedGuests = seatedGuest.filter(
-    (seat) => seat.tableId === tableId,
-  ).length;
+  const assignedGuests = guests.filter((g) => g.tableId === tableId);
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
@@ -73,7 +69,7 @@ export const TableSheet = ({
             <EditTableName tableName={tableName} tableId={tableId} />
           </SheetTitle>
           <SheetDescription>
-            {`${seatCount} Seats • ${AssignedGuests} Guests Assigned`}
+            {`${seatCount} Seats • ${assignedGuests.length} Guests Assigned`}
           </SheetDescription>
         </SheetHeader>
 
@@ -107,28 +103,18 @@ export const TableSheet = ({
             </TableSheetGroup>
 
             <TableSheetGroup>
-              {seatedGuest.filter((seat) => seat.tableId === tableId).length >
-                0 && <Label className="py-3">Seated Guests</Label>}
+              {assignedGuests.length > 0 && <Label className="py-3">Seated Guests</Label>}
 
-              {seatedGuest.filter((seat) => seat.tableId === tableId).length >
-              0 ? (
-                seatedGuest
-                  .filter((seat) => seat.tableId === tableId)
-                  .map((seat) => {
-                    const guest = guests.find(
-                      (guest) => guest.id == seat.guestId,
-                    );
-
-                    return (
-                      <GuestCard
-                        key={guest?.id ?? ''}
-                        initials={getInitials(guest?.Name ?? '')}
-                        name={guest?.Name ?? ''}
-                        guestId={guest?.id ?? ''}
-                        showSeatedActions
-                      />
-                    );
-                  })
+              {assignedGuests.length > 0 ? (
+                assignedGuests.map((guest) => (
+                  <GuestCard
+                    key={guest.id}
+                    initials={getInitials(guest.name ?? '')}
+                    name={guest.name ?? ''}
+                    guestId={guest.id}
+                    showSeatedActions
+                  />
+                ))
               ) : (
                 <Empty>
                   <EmptyHeader>

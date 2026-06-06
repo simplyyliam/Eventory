@@ -25,11 +25,9 @@ export const Table = ({
   y,
   rotation,
 }: TableProps) => {
-  // modal store is used elsewhere; GuestInfo will be shown on hover instead
   const updateTablePosition = useTableStore((s) => s.updateTablePosition);
   const updateTableRotation = useTableStore((s) => s.updateTableRotation);
   const removeTable = useTableStore((s) => s.removeTable);
-  const seatedGuests = useGuestStore((s) => s.seatedGuests);
   const guests = useGuestStore((s) => s.guests);
   const [isRotating, setIsRotating] = useState(false);
   const DidDragRef = useRef(false);
@@ -39,7 +37,6 @@ export const Table = ({
     seatId: string;
   } | null>(null);
 
-  // Use TABLE_CONFIG values so seats/layout match the config
   const tableWidth =
     shape === 'circle'
       ? TABLE_CONFIG.circleRadius * 2
@@ -49,8 +46,7 @@ export const Table = ({
       ? TABLE_CONFIG.circleRadius * 2
       : TABLE_CONFIG.rectangleHeight;
 
-  // wrapper size includes padding for seats
-  const wrapperPadding = TABLE_CONFIG.seatGap + 24; // extra room for seat hit area
+  const wrapperPadding = TABLE_CONFIG.seatGap + 24;
   const wrapperWidth = tableWidth + wrapperPadding * 2;
   const wrapperHeight = tableHeight + wrapperPadding * 2;
 
@@ -59,7 +55,6 @@ export const Table = ({
   const isDragging = useRef(false);
   const offset = useRef({ x: 0, y: 0 });
   const wrapperRef = useRef<HTMLDivElement | null>(null);
-  // const isRotating = useRef(false);
   const rotateStart = useRef({ angle: 0, rotation: 0 });
   const rotatePointerId = useRef<number | null>(null);
   const [hovered, setHovered] = useState(false);
@@ -75,22 +70,15 @@ export const Table = ({
       : seatCount;
 
   const handleAssignSeat = (index: number) => {
-    const seat = seatedGuests.find(
-      (s) => s.seatId === `${id}-seat-${index + 1}`,
-    );
+    const seatId = `${id}-seat-${index + 1}`
+    const alreadySeated = guests.find((g) => g.seat === seatId)
 
-    if (!seat) {
-      setActiveSeat({
-        tableId: id,
-        seatId: `${id}-seat-${index + 1}`,
-      });
-
-      setAssignSeatOpen(true);
-      return;
+    if (!alreadySeated) {
+      setActiveSeat({ tableId: id, seatId })
+      setAssignSeatOpen(true)
     }
-  };
+  }
 
-  // Pointer moving logic
   useEffect(() => {
     const handleMove = (e: PointerEvent) => {
       if (!isDragging.current) return;
@@ -118,7 +106,6 @@ export const Table = ({
     };
   }, [updateTablePosition, tableId]);
 
-  // Rotation handlers (rectangle tables only)
   useEffect(() => {
     const handleMove = (e: PointerEvent) => {
       if (!isRotating || !wrapperRef.current) return;
@@ -131,7 +118,6 @@ export const Table = ({
       const delta = angle - rotateStart.current.angle;
       const newRotation = rotateStart.current.rotation + delta;
 
-      // If Shift is held, snap to 15° increments
       if (e.shiftKey) {
         const snapped = Math.round(newRotation / 15) * 15;
         updateTableRotation(tableId, snapped);
@@ -199,9 +185,8 @@ export const Table = ({
           const dy = centerY - y;
           const angle = (Math.atan2(dy, dx) * 180) / Math.PI - 90;
 
-          const seatId = `${id}-seat-${idx + 1}`;
-          const seat = seatedGuests.find((s) => s.seatId === seatId);
-          const guest = guests.find((g) => g.id === seat?.guestId);
+          const seatId = `${id}-seat-${idx + 1}`
+          const guest = guests.find((g) => g.seat === seatId)
 
           return (
             <div
@@ -209,13 +194,12 @@ export const Table = ({
               className="absolute"
               onClick={() => handleAssignSeat(idx)}
               onMouseEnter={() => {
-                if (!seat?.guestId || !guest) return;
-
+                if (!guest) return;
                 setHoverGuest({
                   tableId: id,
                   seatId,
                   guestId: guest.id,
-                  guestName: guest.Name,
+                  guestName: guest.name,
                   placement: getPopupPlacement(x, y, centerX, centerY),
                 });
               }}
@@ -230,13 +214,13 @@ export const Table = ({
             >
               <Chair idx={idx} />
 
-              {seat?.guestId && (
+              {guest && (
                 <div className="absolute top-1.75 inset-0 flex items-center justify-center pointer-events-none">
                   <span
                     className="flex items-center justify-center text-xs font-medium bg-background/80 w-7 h-7 rounded-md border border-input"
                     style={{ transform: `rotate(${-angle}deg)` }}
                   >
-                    {getInitials(guest?.Name ?? '')}
+                    {getInitials(guest.name ?? '')}
                   </span>
                 </div>
               )}
@@ -266,7 +250,6 @@ export const Table = ({
         )}
         <ContextMenu>
           <ContextMenuTrigger onPointerDown={(e) => e.stopPropagation()}>
-            {/* Table Shape */}
             <TableSurface
               x={x}
               y={y}
@@ -282,12 +265,10 @@ export const Table = ({
               }}
               tableId={tableId}
             />
-            {/* Rotate handle for rectangles */}
             {shape === 'rectangle' && (hovered || isRotating) && (
               <div
                 onPointerDown={(e) => {
                   e.stopPropagation();
-                  // start rotating
                   const node = wrapperRef.current;
                   if (!node) return;
                   rotatePointerId.current = e.pointerId;
@@ -311,8 +292,7 @@ export const Table = ({
               />
             )}
           </ContextMenuTrigger>
-          <ContextMenuContent >
-
+          <ContextMenuContent>
             <ContextMenuItem onClick={() => removeTable(tableId)}>
               Delete
             </ContextMenuItem>

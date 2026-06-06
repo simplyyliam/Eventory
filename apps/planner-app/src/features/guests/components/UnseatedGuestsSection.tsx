@@ -11,12 +11,9 @@ import { Button, SidebarGroup, SidebarGroupContent, SidebarGroupLabel } from '@a
 export const UnseatedGuestsSection = () => {
   const [isUnseatedOpen, setIsUnseatedOpen] = useState(true);
   const guests = useGuestStore((state) => state.guests);
-  const seatedGuests = useGuestStore((state) => state.seatedGuests);
   const { UnseatedGuestAmount } = useGuest();
 
-  const unseatedGuest = guests.filter(
-    (guest) => !seatedGuests.some((seat) => seat.guestId === guest.id),
-  );
+const unseatedGuest = guests.filter((guest) => !guest.tableId)
 
   return (
     <SidebarGroup>
@@ -50,8 +47,8 @@ export const UnseatedGuestsSection = () => {
             return (
               <GuestCard
                 key={guest.id}
-                name={guest.Name}
-                initials={getInitials(guest.Name)}
+                name={guest.name ?? ""}
+                initials={getInitials(guest.name ?? "")}
                 guestId={guest.id}
               />
             );

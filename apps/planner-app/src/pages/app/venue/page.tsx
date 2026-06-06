@@ -6,6 +6,9 @@ import { Table } from '../../../features/venue/components/table/Table';
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { World } from './world';
+import axios from 'axios';
+import { API_BASE_URL } from '@app/shared/utils/api';
+import { loadEvent } from '@/service/eventService';
 
 type Viewport = {
   x: number;
@@ -15,10 +18,11 @@ type Viewport = {
 
 export default function VenuePage() {
   const navigate = useNavigate();
-  const { eventId } = useParams();
+  const { eventSlug } = useParams();
   const openEvent = useEventStore((s) => s.openEvent);
   const setActiveGuestEvent = useGuestStore((s) => s.setActiveEvent);
   const setActiveTableEvent = useTableStore((s) => s.setActiveEvent);
+  const setActiveEvent = useEventStore((s) => s.setActiveEvent);
   const tables = useTableStore((s) => s.tables);
   const [viewport, setViewport] = useState<Viewport>({
     x: 0,
@@ -30,18 +34,29 @@ export default function VenuePage() {
   const last = useRef({ x: 0, y: 0 });
 
   useEffect(() => {
-    if (!eventId) return;
+    if (!eventSlug) return;
 
-    const event = openEvent(eventId);
+    const localEvent = openEvent(eventSlug);
 
-    if (!event) {
-      navigate('/', { replace: true });
+    if (localEvent) {
+      setActiveGuestEvent(localEvent.id);
+      setActiveTableEvent(localEvent.id);
       return;
     }
 
-    setActiveGuestEvent(event.id);
-    setActiveTableEvent(event.id);
-  }, [eventId, navigate, openEvent, setActiveGuestEvent, setActiveTableEvent]);
+    // Fall back to server
+    axios.get(`${API_BASE_URL}/events/${eventSlug}`).then((res) => {
+      const event = res.data;
+      setActiveEvent(event);
+      setActiveGuestEvent(event.id);
+      setActiveTableEvent(event.id);
+
+      // ALso load guest and tables into their stores
+      loadEvent(eventSlug)
+    }).catch(() => {
+      navigate('/', { replace: true })
+    })
+  }, [eventSlug]);
 
   useEffect(() => {
     const move = (e: PointerEvent) => {

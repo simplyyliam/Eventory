@@ -1,5 +1,3 @@
-// Event service
-
 import { useEventStore } from '@/store/useEventStore';
 import { useGuestStore } from '@/store/useGuestStore';
 import { useTableStore } from '@/store/useTableStore';
@@ -8,28 +6,20 @@ import axios from 'axios';
 
 export async function loadEvent(slug: string) {
   try {
-    const { data: event } = await axios.get(
-      `${API_BASE_URL}/events/${slug}`,
-    );
+    const { data: event } = await axios.get(`${API_BASE_URL}/events/${slug}`);
 
-    // Clear previous state
     useEventStore.getState().reset();
-    useGuestStore.setState({ guests: [], seatedGuests: [] });
-    useTableStore.setState({ tables: [] });
-
-    // Giving the event an identity
     useEventStore.getState().setActiveEvent(event);
 
-    // Load guests into the store
-    useGuestStore.setState({
-      guests: event.guests ?? [],
-      seatedGuests: event.seatedGuests ?? [],
-    });
+    useGuestStore.getState().setGuests(event.id, event.guests ?? []);
 
-    // Load tables into the store
-    useTableStore.setState({
-      tables: event.tables ?? [],
-    });
+    useTableStore.getState().setTables(event.id, event.tables?.map((t: any) => ({
+      ...t,
+      x: t.x ?? 0,
+      y: t.y ?? 0,
+      rotation: t.rotation ?? 0,
+      textureId: t.textureId ?? 'white-oak',
+    })) ?? []);
 
     return event;
   } catch (error) {

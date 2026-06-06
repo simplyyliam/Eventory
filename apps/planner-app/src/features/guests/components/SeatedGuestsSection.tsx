@@ -11,10 +11,11 @@ import { Button, SidebarGroup, SidebarGroupContent, SidebarGroupLabel } from '@a
 
 export const SeatedGuestsSection = () => {
   const [isUnseatedOpen, setIsUnseatedOpen] = useState(true);
-  const seatedGuest = useGuestStore((s) => s.seatedGuests);
   const guests = useGuestStore((s) => s.guests);
   const tables = useTableStore((s) => s.tables);
   const { SeatedGuestAmount } = useGuest();
+
+  const seatedGuests = guests.filter((g) => g.tableId !== null);
 
   return (
     <SidebarGroup>
@@ -44,19 +45,14 @@ export const SeatedGuestsSection = () => {
       </div>
       {isUnseatedOpen && (
         <SidebarGroupContent className="px-2">
-          {seatedGuest.map((seat) => {
-            const guest = guests.find((guest) => guest.id === seat.guestId);
-            const table = tables.find((t) => t.id === seat.tableId);
-            const seatNumber = seat.seatId.split('-').pop();
-
-            if (!guest) return null;
-
-
+          {seatedGuests.map((guest) => {
+            const table = tables.find((t) => t.id === guest.tableId);
+            const seatNumber = guest.seat?.split('-').pop();
             return (
               <GuestCard
-                key={seat.guestId}
-                name={guest.Name}
-                initials={getInitials(guest.Name)}
+                key={guest.id}
+                name={guest.name ?? ''}
+                initials={getInitials(guest.name ?? '')}
                 table={table?.name}
                 seat={seatNumber}
                 guestId={guest.id}
@@ -69,4 +65,3 @@ export const SeatedGuestsSection = () => {
     </SidebarGroup>
   );
 };
-

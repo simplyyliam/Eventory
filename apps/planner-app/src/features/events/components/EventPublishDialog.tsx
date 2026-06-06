@@ -69,23 +69,17 @@ export const EventPublishDialog = () => {
 
       setPublishState({ status: 'uploading', progress: 0 });
 
-      const res = await axios.post<Event>(
-        `${API_BASE_URL}/events`,
-        payload,
-        {
-          onUploadProgress(progressEvent) {
-            const total = progressEvent.total ?? 1;
+      const res = await axios.post<Event>(`${API_BASE_URL}/events`, payload, {
+        onUploadProgress(progressEvent) {
+          const total = progressEvent.total ?? 1;
 
-            const percent = Math.round((progressEvent.loaded * 100) / total);
+          const percent = Math.round((progressEvent.loaded * 100) / total);
 
-            setPublishState((prev) =>
-              prev.status === 'uploading'
-                ? { ...prev, progress: percent }
-                : prev,
-            );
-          },
+          setPublishState((prev) =>
+            prev.status === 'uploading' ? { ...prev, progress: percent } : prev,
+          );
         },
-      );
+      });
 
       await wait(400);
 
@@ -95,6 +89,10 @@ export const EventPublishDialog = () => {
       });
     } catch (error) {
       console.error('Failed to publish event', error);
+      if (axios.isAxiosError(error)) {
+        console.error('Response:', error.response?.data);
+        console.error('Status:', error.response?.status);
+      }
       setPublishState({ status: 'error' });
     }
   };

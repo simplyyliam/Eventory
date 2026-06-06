@@ -64,7 +64,7 @@ for (const [path, module] of Object.entries(pages)) {
 
     if (normalizePath === "/venue") {
       appRoutes.push({
-        path: "/venue/:eventId",
+        path: "/venue/:eventSlug",
         element: <Component />,
       });
     }
