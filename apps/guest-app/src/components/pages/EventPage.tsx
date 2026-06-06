@@ -17,7 +17,7 @@ export const EventPage = () => {
 
   function findSeat() {
     if (!event) return;
-
+    console.log('Guests:', event.guests)
     const guest = event.guests.find(
       (g) => g.name.toLowerCase() === name.toLowerCase(),
     );

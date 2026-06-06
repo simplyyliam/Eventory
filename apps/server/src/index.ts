@@ -64,25 +64,27 @@ app.post('/events', async (req, res) => {
     seatedMap.set(s.guestId, { tableId: s.tableId, seatId: s.seatId });
   }
 
-  const guests = (data.guests ?? []).map((g: any) => {
-    const seated = seatedMap.get(g.id);
-    const realTableId = g.tableId
-      ? tableIdMap.get(g.tableId) ?? null
-      : seated
-        ? tableIdMap.get(seated.tableId) ?? null
-        : null;
+const guests = (data.guests ?? []).map((g: any) => {
+  const seated = seatedMap.get(g.id);
+  const oldTableId = g.tableId ?? seated?.tableId ?? null;
+  const realTableId = oldTableId ? tableIdMap.get(oldTableId) ?? null : null;
 
-    return {
-      name: g.name ?? g.Name,
-      email: g.email ?? g.Email ?? null,
-      dietary: g.dietary ?? g.Dietary ?? [],
-      comments: g.comments ?? g.Comments ?? null,
-      status: realTableId ? 'confirmed' : 'pending',
-      seat: g.seat ?? seated?.seatId ?? null,
-      tableId: realTableId,
-    };
-  });
+  // Remap seat string from old table ID to new UUID
+  let seat = g.seat ?? seated?.seatId ?? null;
+  if (seat && oldTableId && realTableId) {
+    seat = seat.replace(oldTableId, realTableId);
+  }
 
+  return {
+    name: g.name ?? g.Name,
+    email: g.email ?? g.Email ?? null,
+    dietary: g.dietary ?? g.Dietary ?? [],
+    comments: g.comments ?? g.Comments ?? null,
+    status: realTableId ? 'confirmed' : 'pending',
+    seat,
+    tableId: realTableId,
+  };
+});
   try {
     const event = await prisma.event.upsert({
       where: { slug },
