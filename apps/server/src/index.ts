@@ -12,7 +12,7 @@ app.use(
     origin: [
       'http://localhost:5173',
       'http://localhost:5174',
-      'https://eventory-guest-app.vercel.app/',
+      'https://eventory-guest-app.vercel.app',
       'https://eventory-planner-app.vercel.app',
       'https://eventory-tan.vercel.app',
     ],
