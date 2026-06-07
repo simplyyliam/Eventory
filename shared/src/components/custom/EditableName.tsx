@@ -40,6 +40,13 @@ export const EditableName = forwardRef<EditableNameHandle, EditableNameProps>(({
     }
   }, [isEditing]);
 
+  useEffect(() => {
+    if (inputRef.current) {
+      inputRef.current.style.width = '0px'
+      inputRef.current.style.width = `${inputRef.current.scrollWidth}px`
+    }
+  }, [value])
+
   const save = () => {
     const trimmed = value.trim() || name;
     setValue(trimmed);
@@ -47,13 +54,19 @@ export const EditableName = forwardRef<EditableNameHandle, EditableNameProps>(({
     setIsEditing(false);
   };
 
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setValue(e.target.value)
+    e.target.style.width = '0px'
+    e.target.style.width = `${e.target.scrollWidth}px`
+  }
+
   return (
     <input
       ref={inputRef}
       placeholder={placeholder ?? name}
-      className={className ?? 'border-none focus:outline-none bg-transparent'}
+      className={className ?? 'border-none focus:outline-none bg-transparent min-w-10'}
       value={value}
-      onChange={(e) => setValue(e.target.value)}
+      onChange={handleChange}
       onDoubleClick={() => setIsEditing(true)}
       onBlur={save}
       onKeyDown={(e) => {

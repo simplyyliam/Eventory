@@ -15,7 +15,7 @@ export const EventLink = ({ event }: { event: EventResponse }) => {
 
   return (
     <div
-      onClick={() => navigate(`/venue/${event.slug}`)}
+      onClick={() => navigate('/loading', { state: { destination: `/venue/${event.slug}`, eventName: event.name } })}
       className="flex items-center justify-between rounded-md border bg-background px-4 py-3 text-sm transition-colors hover:bg-accent cursor-pointer"
     >
       <div onClick={(e) => e.stopPropagation()}>
