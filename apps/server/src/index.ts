@@ -26,106 +26,9 @@ app.get('/', (_, res) => {
   res.json({ status: 'server running' });
 });
 
-// Publishes the event to server through the payload
-app.post('/events', async (req, res) => {
-  const data = req.body;
-  const eventData = data.event ?? data.events ?? {};
-  const eventName =
-    eventData.name ?? eventData.eventName ?? data.eventName ?? data.name;
+// ─── Events ───────────────────────────────────────────────────────────────────
 
-  if (typeof eventName !== 'string' || eventName.trim().length === 0) {
-    return res.status(400).json({ error: 'Event name is required' });
-  }
-
-  const name = eventName.trim();
-  const slug = eventData.slug ?? data.slug ?? createSlug(name);
-
-  // Remap frontend table IDs to real UUIDs
-  const tableIdMap = new Map<string, string>();
-  const tables = (data.tables ?? []).map((t: any) => {
-    const newId = crypto.randomUUID();
-    tableIdMap.set(t.id, newId);
-    return {
-      id: newId,
-      name: t.name,
-      tableNumber: t.tableNumber,
-      seatCount: t.seatCount,
-      shape: t.shape,
-      textureId: t.textureId,
-      x: t.x ?? 0,
-      y: t.y ?? 0,
-      rotation: t.rotation ?? 0,
-    };
-  });
-
-  // Merge seatedGuests back onto guests (legacy support)
-  const seatedMap = new Map<string, { tableId: string; seatId: string }>();
-  for (const s of data.seatedGuests ?? []) {
-    seatedMap.set(s.guestId, { tableId: s.tableId, seatId: s.seatId });
-  }
-
-const guests = (data.guests ?? []).map((g: any) => {
-  const seated = seatedMap.get(g.id);
-  const oldTableId = g.tableId ?? seated?.tableId ?? null;
-  const realTableId = oldTableId ? tableIdMap.get(oldTableId) ?? null : null;
-
-  // Remap seat string from old table ID to new UUID
-  let seat = g.seat ?? seated?.seatId ?? null;
-  if (seat && oldTableId && realTableId) {
-    seat = seat.replace(oldTableId, realTableId);
-  }
-
-  return {
-    name: g.name ?? g.Name,
-    email: g.email ?? g.Email ?? null,
-    dietary: g.dietary ?? g.Dietary ?? [],
-    comments: g.comments ?? g.Comments ?? null,
-    status: realTableId ? 'confirmed' : 'pending',
-    seat,
-    tableId: realTableId,
-  };
-});
-  try {
-    const event = await prisma.event.upsert({
-      where: { slug },
-      update: {
-        name,
-        status: eventData.status ?? 'draft',
-        metadata: data.metadata ?? eventData.metadata,
-        updatedAt: new Date(),
-        tables: {
-          deleteMany: {},
-          create: tables,
-        },
-        guests: {
-          deleteMany: {},
-          create: guests,
-        },
-      },
-      create: {
-        id: eventData.id ?? crypto.randomUUID(),
-        name,
-        slug,
-        status: eventData.status ?? 'draft',
-        metadata: data.metadata ?? eventData.metadata,
-        tables: { create: tables },
-        guests: { create: guests },
-      },
-      include: { tables: true, guests: true },
-    });
-
-    console.log('🚀 Upserted Event:');
-    console.dir(event, { depth: null });
-
-    res.status(201).json(event);
-  } catch (err: any) {
-    console.error(err);
-    res.status(500).json({ error: 'Failed to create event' });
-  }
-});
-
-
-// Create event to Server
+// Create empty event
 app.post('/events/create', async (req, res) => {
   const { name } = req.body
   if (!name?.trim()) {
@@ -149,6 +52,96 @@ app.post('/events/create', async (req, res) => {
   }
 })
 
+// Publish event (full upsert with tables and guests)
+app.post('/events', async (req, res) => {
+  const data = req.body;
+  const eventData = data.event ?? data.events ?? {};
+  const eventName =
+    eventData.name ?? eventData.eventName ?? data.eventName ?? data.name;
+
+  if (typeof eventName !== 'string' || eventName.trim().length === 0) {
+    return res.status(400).json({ error: 'Event name is required' });
+  }
+
+  const name = eventName.trim();
+  const slug = eventData.slug ?? data.slug ?? createSlug(name);
+
+  const tableIdMap = new Map<string, string>();
+  const tables = (data.tables ?? []).map((t: any) => {
+    const newId = crypto.randomUUID();
+    tableIdMap.set(t.id, newId);
+    return {
+      id: newId,
+      name: t.name,
+      tableNumber: t.tableNumber,
+      seatCount: t.seatCount,
+      shape: t.shape,
+      textureId: t.textureId,
+      x: t.x ?? 0,
+      y: t.y ?? 0,
+      rotation: t.rotation ?? 0,
+    };
+  });
+
+  const seatedMap = new Map<string, { tableId: string; seatId: string }>();
+  for (const s of data.seatedGuests ?? []) {
+    seatedMap.set(s.guestId, { tableId: s.tableId, seatId: s.seatId });
+  }
+
+  const guests = (data.guests ?? []).map((g: any) => {
+    const seated = seatedMap.get(g.id);
+    const oldTableId = g.tableId ?? seated?.tableId ?? null;
+    const realTableId = oldTableId ? tableIdMap.get(oldTableId) ?? null : null;
+
+    let seat = g.seat ?? seated?.seatId ?? null;
+    if (seat && oldTableId && realTableId) {
+      seat = seat.replace(oldTableId, realTableId);
+    }
+
+    return {
+      name: g.name ?? g.Name,
+      email: g.email ?? g.Email ?? null,
+      dietary: g.dietary ?? g.Dietary ?? [],
+      comments: g.comments ?? g.Comments ?? null,
+      status: realTableId ? 'confirmed' : 'pending',
+      seat,
+      tableId: realTableId,
+    };
+  });
+
+  try {
+    const event = await prisma.event.upsert({
+      where: { slug },
+      update: {
+        name,
+        status: eventData.status ?? 'draft',
+        metadata: data.metadata ?? eventData.metadata,
+        updatedAt: new Date(),
+        tables: { deleteMany: {}, create: tables },
+        guests: { deleteMany: {}, create: guests },
+      },
+      create: {
+        id: eventData.id ?? crypto.randomUUID(),
+        name,
+        slug,
+        status: eventData.status ?? 'draft',
+        metadata: data.metadata ?? eventData.metadata,
+        tables: { create: tables },
+        guests: { create: guests },
+      },
+      include: { tables: true, guests: true },
+    });
+
+    console.log('🚀 Upserted Event:');
+    console.dir(event, { depth: null });
+
+    res.status(201).json(event);
+  } catch (err: any) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to create event' });
+  }
+});
+
 // List events
 app.get('/events', async (_, res) => {
   try {
@@ -161,39 +154,24 @@ app.get('/events', async (_, res) => {
   }
 });
 
-// Update Table name
-app.patch('/tables/:tableId', async (req, res) => {
-  const { tableId } = req.params
-  const { name } = req.body
-  try {
-    const table = await prisma.table.update({
-      where: { id: tableId },
-      data: { ...(name && { name }) },
-    })
-    res.json(table)
-  } catch (err) {
-    res.status(500).json({ error: 'Failed to update table' })
-  }
-})
-
-// Edit Events
+// Update event
 app.patch('/events/:slug', async (req, res) => {
   const { slug } = req.params
   const { name, status, metadata } = req.body
-
+  console.log('PATCH /events/:slug', slug, req.body)
   try {
     const event = await prisma.event.update({
       where: { slug },
       data: {
         ...(name && { name, slug: createSlug(name) }),
-        ...(status && {status}),
-        ...(metadata && {metadata}),
-        updatedAt: new Date()
+        ...(status && { status }),
+        ...(metadata && { metadata }),
+        updatedAt: new Date(),
       }
     })
     res.json(event)
-  } catch (error) {
-    res.status(500).json({ error: "Failed to update event" })
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to update event' })
   }
 })
 
@@ -212,17 +190,32 @@ app.get('/events/:slug', async (req, res) => {
   }
 });
 
-
-
-
-// Delete Events
+// Delete event
 app.delete('/events/:slug', async (req, res) => {
   const { slug } = req.params
   try {
-    await prisma.event.delete({ where: { slug }}) 
+    await prisma.event.delete({ where: { slug } })
     res.status(204).send()
-  } catch (error) {
-    res.status(500).json({ error: "Failed to delete event" })
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to delete event' })
+  }
+})
+
+// ─── Tables ───────────────────────────────────────────────────────────────────
+
+// Update table
+app.patch('/tables/:tableId', async (req, res) => {
+  const { tableId } = req.params
+  const { name } = req.body
+  console.log('PATCH /tables/:tableId', tableId, req.body)
+  try {
+    const table = await prisma.table.update({
+      where: { id: tableId },
+      data: { ...(name && { name }) },
+    })
+    res.json(table)
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to update table' })
   }
 })
 
