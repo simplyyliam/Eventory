@@ -26,7 +26,7 @@ app.get('/', (_, res) => {
   res.json({ status: 'server running' });
 });
 
-// Create event
+// Publishes the event to server through the payload
 app.post('/events', async (req, res) => {
   const data = req.body;
   const eventData = data.event ?? data.events ?? {};
@@ -123,6 +123,31 @@ const guests = (data.guests ?? []).map((g: any) => {
     res.status(500).json({ error: 'Failed to create event' });
   }
 });
+
+
+// Create event to Server
+app.post('/events/create', async (req, res) => {
+  const { name } = req.body
+  if (!name?.trim()) {
+    return res.status(400).json({ error: 'Event name is required' })
+  }
+  const slug = createSlug(name.trim())
+  try {
+    const event = await prisma.event.create({
+      data: {
+        name: name.trim(),
+        slug,
+        status: 'draft',
+      }
+    })
+    res.status(201).json(event)
+  } catch (err: any) {
+    if (err.code === 'P2002') {
+      return res.status(409).json({ error: 'Event with this slug already exists' })
+    }
+    res.status(500).json({ error: 'Failed to create event' })
+  }
+})
 
 // List events
 app.get('/events', async (_, res) => {

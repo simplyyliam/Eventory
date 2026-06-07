@@ -6,19 +6,20 @@ interface IconButtonProps {
   Icon?: IconSvgElement;
   onClick?: () => void;
   stretch?: boolean;
-  className?: string
+  className?: string;
+  disabled?: boolean;
 }
-export const IconButton = ({ Label, Icon, onClick, stretch = false, className}: IconButtonProps) => {
-  const icon = Icon;
 
+export const IconButton = ({ Label, Icon, onClick, stretch = false, className, disabled }: IconButtonProps) => {
   return (
     <Button
       size={!Label ? 'icon' : undefined}
       variant="outline"
       className={`flex items-center ${className} ${stretch ? "flex-1" : ""}`}
       onClick={onClick}
+      disabled={disabled}
     >
-      {icon ? <HugeiconsIcon icon={icon} /> : null}
+      {Icon ? <HugeiconsIcon icon={Icon} /> : null}
       {Label && <span>{Label}</span>}
     </Button>
   );
