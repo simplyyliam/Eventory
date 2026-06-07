@@ -1,3 +1,5 @@
+export { EditableName } from './components/custom/EditableName';
+
 // Utilities
 export { createSlug } from './utils/createSlug';
 export * from "./lib/utils";

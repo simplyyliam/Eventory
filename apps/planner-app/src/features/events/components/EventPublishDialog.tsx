@@ -33,6 +33,7 @@ export const EventPublishDialog = () => {
   });
 
   const activeEvent = useEventStore((s) => s.activeEvent);
+  const setStatus = useEventStore((s) => s.setStatus)
 
   const wait = (ms: number) =>
     new Promise((resolve) => setTimeout(resolve, ms));
@@ -60,6 +61,8 @@ export const EventPublishDialog = () => {
 
       await wait(2200);
 
+
+      setStatus('published')
       const payload = buildEventPayload();
 
       console.log('Frontend Payload:', payload);

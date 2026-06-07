@@ -136,6 +136,42 @@ app.get('/events', async (_, res) => {
   }
 });
 
+// Update Table name
+app.patch('/tables/:tableId', async (req, res) => {
+  const { tableId } = req.params
+  const { name } = req.body
+  try {
+    const table = await prisma.table.update({
+      where: { id: tableId },
+      data: { ...(name && { name }) },
+    })
+    res.json(table)
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to update table' })
+  }
+})
+
+// Edit Events
+app.patch('/events/:slug', async (req, res) => {
+  const { slug } = req.params
+  const { name, status, metadata } = req.body
+
+  try {
+    const event = await prisma.event.update({
+      where: { slug },
+      data: {
+        ...(name && { name, slug: createSlug(name) }),
+        ...(status && {status}),
+        ...(metadata && {metadata}),
+        updatedAt: new Date()
+      }
+    })
+    res.json(event)
+  } catch (error) {
+    res.status(500).json({ error: "Failed to update event" })
+  }
+})
+
 // Get event by slug
 app.get('/events/:slug', async (req, res) => {
   const { slug } = req.params;
@@ -150,6 +186,20 @@ app.get('/events/:slug', async (req, res) => {
     res.status(500).json({ error: 'Failed to fetch event' });
   }
 });
+
+
+
+
+// Delete Events
+app.delete('/events/:slug', async (req, res) => {
+  const { slug } = req.params
+  try {
+    await prisma.event.delete({ where: { slug }}) 
+    res.status(204).send()
+  } catch (error) {
+    res.status(500).json({ error: "Failed to delete event" })
+  }
+})
 
 app.listen(Number(PORT), '0.0.0.0', () => {
   console.log(`Server running on ${PORT}`);

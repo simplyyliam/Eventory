@@ -20,12 +20,14 @@ import {
 import { IconButton, ThemeToggle } from '@/shared/components';
 import { useEventStore } from '@/store/useEventStore';
 import { useModalStore } from '@/store/useModalStore';
+import { useNavigate } from 'react-router-dom';
 
 export function AppSidebar() {
+  const navigate = useNavigate();
   const open = useModalStore((s) => s.addGuestOpen);
-const setOpen = useModalStore((s) => s.setAddGuestOpen);
+  const setOpen = useModalStore((s) => s.setAddGuestOpen);
   const activeEvent = useEventStore((s) => s.activeEvent);
-  
+
   return (
     <>
       <Sidebar variant="floating">
@@ -34,7 +36,7 @@ const setOpen = useModalStore((s) => s.setAddGuestOpen);
             <SidebarMenuItem className="flex w-full items-center justify-between gap-2">
               {activeEvent ? (
                 <div className="flex items-center gap-2.5">
-                  <IconButton Icon={ArrowLeft01Icon}/>
+                  <IconButton Icon={ArrowLeft01Icon} onClick={() => navigate('/')}/>
                   <div className="flex items-center">
                     <span className="font-medium text-sm">
                       {activeEvent.name}

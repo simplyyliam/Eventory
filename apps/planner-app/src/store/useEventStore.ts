@@ -7,6 +7,8 @@ import {
   type StateStorage,
 } from 'zustand/middleware';
 import { createSlug } from '@app/shared';
+import axios from 'axios';
+import { API_BASE_URL } from '@app/shared/utils/api';
 
 type EventStatus = 'draft' | 'published' | 'archived';
 
@@ -19,6 +21,8 @@ type EventStore = {
   updateEvent: (data: Partial<Event>) => void;
   setStatus: (status: EventStatus) => void;
   updateMetadata: (metadata: Partial<EventMetadata>) => void;
+  deleteEvent: (eventId: string, slug: string) => Promise<void>
+  renameEvent: (eventId: string, slug: string, name: string) => Promise<void>
   reset: () => void;
 };
 
@@ -104,6 +108,22 @@ export const useEventStore = create<EventStore>()(
           },
         });
       },
+
+      deleteEvent: async (eventId, slug) => {
+        await axios.delete(`${API_BASE_URL}/events/${slug}`)
+        set((state) => ({
+          events: state.events.filter((event) => event.id !== eventId),
+          activeEvent: state.activeEvent?.id === eventId ? null : state.activeEvent
+        }))
+      },
+      
+      renameEvent: async (eventId, slug, name) => {
+        const { data } = await axios.patch(`${API_BASE_URL}/events/${slug}`, {name})
+        set((state) => ({
+          events: state.events.map((event) => event.id === eventId ? { ...event, ...data } : event),
+          activeEvent: state.activeEvent?.id === eventId ? { ...state.activeEvent, ...data } : state.activeEvent,
+        }))
+      }, 
 
       reset: () =>
         set({

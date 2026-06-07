@@ -7,13 +7,12 @@ import { HugeiconsIcon } from '@hugeicons/react';
 import { GuestCard, IconButton } from '@/shared/components';
 import { useTableStore } from '@/store/useTableStore';
 import { useTableSeatCount } from '../utils';
-import { EditTableName } from './EditTableName';
 import { TEXTURE_LOADER } from '@/config';
 import { TextureSwatch } from './TextureSwatch';
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@app/shared/components/ui/sheet';
 import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from '@app/shared/components/ui/empty';
 import { Item, ItemContent, ItemTitle } from '@app/shared/components/ui/item';
-import { Label, DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem } from '@app/shared';
+import { Label, DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, EditableName } from '@app/shared';
 
 type TableSheetProps = {
   open: boolean;
@@ -38,6 +37,7 @@ export const TableSheet = ({
   const updateTableSeats = useTableStore((s) => s.updateTableSeats);
   const updateTableShape = useTableStore((s) => s.updateTableShape);
   const updateTableTexture = useTableStore((s) => s.updateTableTexture);
+  const updateTableName = useTableStore((s) => s.updateTableName);
   const table = useTableStore((s) =>
     s.tables.find((table) => table.id === tableId),
   );
@@ -66,7 +66,7 @@ export const TableSheet = ({
       >
         <SheetHeader>
           <SheetTitle>
-            <EditTableName tableName={tableName} tableId={tableId} />
+            <EditableName name={tableName} onSave={(newName) => updateTableName(tableId, newName)} />
           </SheetTitle>
           <SheetDescription>
             {`${seatCount} Seats • ${assignedGuests.length} Guests Assigned`}

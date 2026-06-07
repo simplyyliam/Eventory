@@ -1,11 +1,16 @@
 import { IconButton, PageContainer } from '@/shared/components';
 import { useEventStore } from '@/store/useEventStore';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@app/shared/components/ui/dropdown-menu';
+import { Button } from "@app/shared/components/ui/button"
 import type { EventResponse } from '@app/shared/types/event.types';
 import { API_BASE_URL } from '@app/shared/utils/api';
-import { Plus } from '@hugeicons/core-free-icons';
+import { MoreHorizontalIcon, Plus } from '@hugeicons/core-free-icons';
+import { HugeiconsIcon } from '@hugeicons/react';
 import axios from 'axios';
-import { useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useEffect, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { EditableName, type EditableNameHandle } from '@app/shared/components/custom/EditableName';
+import { EventLink } from './EventLink';
 
 export const entry = true;
 
@@ -13,6 +18,10 @@ export default function DashboardPage() {
   const [events, setEvent] = useState<EventResponse[]>([]);
   const navigate = useNavigate();
   const createEvent = useEventStore((s) => s.createEvent);
+  const deleteEvent = useEventStore((s) => s.deleteEvent)
+  const renameEvent = useEventStore((s) => s.renameEvent)
+
+  const nameRef = useRef<EditableNameHandle>(null)
 
   const handleCreateEvent = () => {
     const name = window.prompt('Event name')?.trim() || 'Untitled Event';
@@ -20,6 +29,8 @@ export default function DashboardPage() {
 
     navigate(`/venue/${event.id}`);
   };
+
+  
 
 useEffect(() => {
   console.log('API_BASE_URL:', API_BASE_URL)
@@ -52,14 +63,7 @@ useEffect(() => {
         <div className="flex flex-col gap-2">
           {events && events.length > 0 ? (
             events.map((event) => (
-              <Link
-                key={event.id}
-                to={`/venue/${event.slug}`}
-                className="flex items-center justify-between rounded-md border bg-background px-4 py-3 text-sm transition-colors hover:bg-accent"
-              >
-                <span className="font-medium">{event.name}</span>
-                <span className="text-muted-foreground">{event.status}</span>
-              </Link>
+              <EventLink key={event.id} event={event}/>
             ))
           ) : (
             <div className="rounded-md border border-dashed px-4 py-6 text-sm text-muted-foreground">

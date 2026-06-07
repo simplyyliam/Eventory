@@ -6,6 +6,8 @@ import {
 import { create } from 'zustand';
 import localforage from 'localforage';
 import type { TextureId } from '@/config/textureLoader';
+import axios from 'axios';
+import { API_BASE_URL } from '@app/shared/utils/api';
 
 export type SeatingTable = {
   shape: 'circle' | 'rectangle';
@@ -34,7 +36,7 @@ type TableStore = {
   updateTablePosition: (tableId: string, x: number, y: number) => void;
   updateTableRotation: (tableId: string, rotation: number) => void;
   updateTableShape: (tableId: string, shape: SeatingTable['shape']) => void;
-  updateTableName: (tableId: string, name: string) => void;
+updateTableName: (tableId: string, name: string) => Promise<void>;
   updateTableTexture: (tableId: string, textureId: TextureId) => void;
   removeTable: (tableId: string) => void;
 };
@@ -194,16 +196,23 @@ export const useTableStore = create<TableStore>()(
         );
       },
 
-      updateTableName: (tableId, name) => {
-        const state = get();
-        set(
-          updateEventTables(
-            state.activeEventId,
-            state.tablesByEventId,
-            state.tables.map((t) => (t.id === tableId ? { ...t, name } : t)),
-          ),
-        );
-      },
+updateTableName: async (tableId, name) => {
+  const state = get();
+  // Optimistic update
+  set(
+    updateEventTables(
+      state.activeEventId,
+      state.tablesByEventId,
+      state.tables.map((t) => (t.id === tableId ? { ...t, name } : t)),
+    ),
+  );
+  // Sync to server
+  try {
+    await axios.patch(`${API_BASE_URL}/tables/${tableId}`, { name })
+  } catch (err) {
+    console.error('Failed to update table name', err)
+  }
+},
 
       updateTableTexture: (tableId, textureId) => {
         const state = get();
