@@ -1,1 +1,2 @@
-export * from "./pages/EventPage"
+export { GuestListContainer } from "./shared/GuestListContainer";
+

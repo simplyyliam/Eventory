@@ -3,6 +3,7 @@ import { createSlug } from '@app/shared';
 import express from 'express';
 import cors from 'cors';
 import { prisma } from '@app/database';
+import guestRoutes from "./routes/guests"
 
 const PORT = process.env.PORT || 3001;
 const app = express();
@@ -21,6 +22,10 @@ app.use(
   }),
 );
 app.use(express.json());
+
+
+// Get guest
+app.get('/guests', guestRoutes)
 
 app.get('/', (_, res) => {
   res.json({ status: 'server running' });
@@ -189,6 +194,7 @@ app.get('/events/:slug', async (req, res) => {
     res.status(500).json({ error: 'Failed to fetch event' });
   }
 });
+
 
 // Delete event
 app.delete('/events/:slug', async (req, res) => {

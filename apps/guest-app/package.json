@@ -12,9 +12,13 @@
   "dependencies": {
     "@app/database": "workspace:*",
     "@app/shared": "workspace:*",
+    "@fontsource-variable/dm-sans": "^5.2.8",
+    "@hugeicons/core-free-icons": "^4.1.4",
+    "@hugeicons/react": "^1.1.6",
     "@tailwindcss/postcss": "^4.3.0",
     "@tailwindcss/vite": "^4.3.0",
     "axios": "^1.16.1",
+    "lucide-react": "^1.17.0",
     "react": "^19.2.6",
     "react-dom": "^19.2.6",
     "react-router-dom": "^7.16.0",
