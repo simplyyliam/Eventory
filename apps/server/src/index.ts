@@ -3,7 +3,6 @@ import { createSlug } from '@app/shared';
 import express from 'express';
 import cors from 'cors';
 import { prisma } from '@app/database';
-import guestRoutes from "./routes/guests"
 
 const PORT = process.env.PORT || 3001;
 const app = express();
@@ -25,7 +24,20 @@ app.use(express.json());
 
 
 // Get guest
-app.use('/guests', guestRoutes)
+app.get('/events/:slug/guests/:guestId', async (req, res) => {
+    const { guestId } = req.params
+
+    try {
+        const guest = await prisma.guest.findUnique({
+            where: { id: guestId }
+        })
+        if(!guest) return res.status(404).json({ error: "Guest not found" })
+
+        res.json(guest)
+    } catch (error) {
+        res.status(500).json({ error: "Failed to fetch guest" })
+    }
+})
 
 app.get('/', (_, res) => {
   res.json({ status: 'server running' });
