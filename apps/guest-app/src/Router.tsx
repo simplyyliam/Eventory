@@ -7,7 +7,7 @@ export const Router = () => {
     <BrowserRouter>
       <Routes>
         <Route path="/events/:slug" element={<GuestListPage />} />
-          <Route path="guests/:guestId" element={<WelcomeScreen />} />
+          <Route path="/guests/:guestId" element={<WelcomeScreen />} />
       </Routes>
     </BrowserRouter>
   );

@@ -4,7 +4,7 @@ import { prisma } from "@app/database"
 const router = express.Router()
 
 router.get('/:guestId', async (req, res) => {
-    const { guestId } = req.body
+    const { guestId } = req.params
 
     try {
         const guest = await prisma.guest.findUnique({

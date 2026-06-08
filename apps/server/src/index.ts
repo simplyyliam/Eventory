@@ -25,7 +25,7 @@ app.use(express.json());
 
 
 // Get guest
-app.get('/guests', guestRoutes)
+app.use('/guests', guestRoutes)
 
 app.get('/', (_, res) => {
   res.json({ status: 'server running' });
