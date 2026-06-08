@@ -3,18 +3,14 @@ import { prisma } from "@app/database"
 
 const router = express.Router()
 
-router.get('/:guestId', async (req, res) => {
+router.get('/events/:slug/guests/:guestId', async (req, res) => {
     const { guestId } = req.params
 
     try {
         const guest = await prisma.guest.findUnique({
-            where: {
-                id: guestId
-            }
+            where: { id: guestId }
         })
-        if(!guest) {
-            return res.status(404).json({ error: "Guest not found" })
-        }
+        if(!guest) return res.status(404).json({ error: "Guest not found" })
 
         res.json(guest)
     } catch (error) {

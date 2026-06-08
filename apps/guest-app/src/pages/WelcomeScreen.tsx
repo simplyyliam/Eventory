@@ -6,14 +6,14 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 
 export const WelcomeScreen = () => {
-  const { guestId } = useParams();
+  const { slug, guestId } = useParams();
   const [guest, setGuest] = useState<Guest | null>(null);
 
   useEffect(() => {
     if (!guestId) return;
 
     axios
-      .get(`${API_BASE_URL}/guests/${guestId}`)
+      .get(`${API_BASE_URL}/events/${slug}/guests/${guestId}`)
       .then((res) => {
         console.log('API RESPONSE:', res.data);
         setGuest(res.data);
@@ -21,14 +21,18 @@ export const WelcomeScreen = () => {
       .catch((err) => {
         console.error('API ERROR:', err);
       });
-  }, [guestId]);
+  }, [slug, guestId]);
   
   return (
     <GuestListContainer className="items-center justify-center">
       {!guest ? (
         <div className="">Loading...</div>
       ) : (
-        <div className="">{guest.name}</div>
+        <div className="flex flex-col gap-2.5 items-center justify-center ">
+          <span>{guest.name}</span>
+          <span>{guest.seat}</span>
+          <span>{guest.tableId}</span>
+        </div>
       )}
     </GuestListContainer>
   );

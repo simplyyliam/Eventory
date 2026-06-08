@@ -51,7 +51,7 @@ export const GuestListPage = () => {
           return (
             <GuestCard
               name={guest.name}
-              onClick={() => navigate(`/guests/${guest.id}`)}
+              onClick={() => navigate(`/events/${slug}/guests/${guest.id}`)}
             />
           );
         })}
