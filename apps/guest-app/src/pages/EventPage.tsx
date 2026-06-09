@@ -51,7 +51,11 @@ export const GuestListPage = () => {
           return (
             <GuestCard
               name={guest.name}
-              onClick={() => navigate(`/events/${slug}/guests/${guest.id}`)}
+             onClick={() => {
+                setTimeout(() => {
+                  navigate(`/events/${slug}/guests/${guest.id}`);
+                }, 300); 
+              }}
             />
           );
         })}

@@ -1,6 +1,6 @@
 import { ArrowRight } from 'lucide-react';
 import { GuestAvatar } from './GuestAvatar';
-import { Button } from '@app/shared';
+import { motion } from 'motion/react';
 
 interface GuestCardProps {
   name: string;
@@ -9,16 +9,17 @@ interface GuestCardProps {
 
 export const GuestCard = ({ name, onClick }: GuestCardProps) => {
   return (
-    <Button
+    <motion.button
+    whileTap={{scale: 0.97, y: 1, backgroundColor: "#E7E7E7"}}
+    transition={{type: "spring", stiffness: 200, damping: 25 }}
       onClick={onClick}
-      variant="link"
-      className="flex items-center justify-between p-2.5 font-dmSans"
+      className="flex items-center justify-between px-2.5 py-3.5 font-dmSans rounded-[10px]"
     >
       <div className="flex items-center gap-2.5">
         <GuestAvatar />
         <span className="text-muted-foreground text-sm">{name}</span>
       </div>
       <ArrowRight size={20}/>
-    </Button>
+    </motion.button>
   );
 };
