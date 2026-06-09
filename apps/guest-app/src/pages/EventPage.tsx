@@ -4,18 +4,46 @@ import { HugeiconsIcon } from '@hugeicons/react';
 import { Search01Icon } from '@hugeicons/core-free-icons';
 import { GuestCard } from '@/features/guests-list';
 import { useNavigate, useParams } from 'react-router-dom';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import type { EventResponse } from '@app/shared/types/event.types';
 import axios from 'axios';
 import { API_BASE_URL } from '@app/shared/utils/api';
 import { ListFilter } from 'lucide-react';
-import { motion, AnimatePresence } from 'motion/react'; // Added AnimatePresence for filter smoothness
+import { motion, AnimatePresence, useScroll, useTransform } from 'motion/react';
+
+// This handles the window-level viewport fadeout natively
+const ScrollFadeItem = ({ children, isLast }: { children: React.ReactNode; isLast: boolean }) => {
+  const itemRef = useRef<HTMLDivElement>(null);
+  
+  const { scrollYProgress } = useScroll({
+    target: itemRef,
+    offset: ["start end", "end start"]
+  });
+
+  // If it's the last item, make it snap to fully visible instantly at 0.01 
+  // Otherwise, use your gorgeous 0.12 fade/blur transition for everyone else!
+  const startThreshold = isLast ? 0.01 : 0.12;
+
+  const opacity = useTransform(scrollYProgress, [0, startThreshold, 0.88, 1], [0, 1, 1, 0]);
+  const scale = useTransform(scrollYProgress, [0, startThreshold, 0.88, 1], [0.97, 1, 1, 0.96]);
+  const filter = useTransform(
+    scrollYProgress, 
+    [0, startThreshold, 0.88, 1], 
+    ['blur(4px)', 'blur(0px)', 'blur(0px)', 'blur(4px)']
+  );
+
+  return (
+    <motion.div ref={itemRef} style={{ opacity, scale, filter }}>
+      {children}
+    </motion.div>
+  );
+};
 
 export const GuestListPage = () => {
   const { slug } = useParams();
   const [event, setEvent] = useState<EventResponse | null>(null);
   const [query, setQuery] = useState('');
-  const [isLoading, setIsLoading] = useState(true); // 1. Added loading state
+  const [isLoading, setIsLoading] = useState(true);
 
   const navigate = useNavigate();
 
@@ -24,7 +52,7 @@ export const GuestListPage = () => {
       .get(`${API_BASE_URL}/events/${slug}`)
       .then((res) => {
         setEvent(res.data);
-        setIsLoading(false); // 2. Stop loading when data arrives
+        setIsLoading(false);
       })
       .catch(() => setIsLoading(false));
   }, [slug]);
@@ -35,13 +63,14 @@ export const GuestListPage = () => {
     return name.startsWith(qry);
   });
 
+  // Your original pristine cascade rules unchanged
   const container = {
     hidden: { opacity: 0 },
     show: {
       opacity: 1,
       transition: {
-        delayChildren: 0.1, // Slightly reduced since we already waited for fetch
-        staggerChildren: 0.06, // Snappy but noticeable stagger
+        delayChildren: 0.1, 
+        staggerChildren: 0.06, 
         ease: "easeOut" as const,
       },
     },
@@ -69,7 +98,7 @@ export const GuestListPage = () => {
         },
       },
     },
-    exit: { // Added an exit state for when users filter names out
+    exit: { 
       opacity: 0,
       y: -20,
       filter: 'blur(4px)',
@@ -95,35 +124,39 @@ export const GuestListPage = () => {
         <ListFilter size={20}/>
       </div>
 
-      {/* 3. Only animate the block once loading is complete */}
       {!isLoading && (
         <motion.div 
           variants={container}
           initial="hidden"
           animate="show"
-          className="flex flex-col gap-2.5 w-full h-full"
+          // Added 'pb-28' to give the last item plenty of room to breathe and animate completely
+          className="flex flex-col gap-2.5 w-full h-full pb-28" 
         >
           <AnimatePresence mode="popLayout">
-            {filteredGuests?.map((guest) => (
-              <motion.div 
+            {filteredGuests?.map((guest, index) => {
+              const isLastItem = index === (filteredGuests.length - 1)
+              return (
+                              <motion.div 
                 key={guest.id} 
                 variants={item}
-                layout // Smoothly slide items up/down when others are filtered out
+                layout 
               >
-                <GuestCard
-                  name={guest.name}
-                  onClick={() => {
-                    setTimeout(() => {
-                      navigate(`/events/${slug}/guests/${guest.id}`);
-                    }, 300); 
-                  }}
-                />
+                <ScrollFadeItem isLast={isLastItem}>
+                  <GuestCard
+                    name={guest.name}
+                    onClick={() => {
+                      setTimeout(() => {
+                        navigate(`/events/${slug}/guests/${guest.id}`);
+                      }, 300); 
+                    }}
+                  />
+                </ScrollFadeItem>
               </motion.div>
-            ))}
+              )
+            })}
           </AnimatePresence>
         </motion.div>
       )}
-      
     </GuestListContainer>
   );
 };
