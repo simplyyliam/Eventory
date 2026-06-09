@@ -18,7 +18,7 @@ export const GuestCard = ({ name, onClick }: GuestCardProps) => {
         <GuestAvatar />
         <span className="text-muted-foreground text-sm">{name}</span>
       </div>
-      <ArrowRight />
+      <ArrowRight size={20}/>
     </Button>
   );
 };

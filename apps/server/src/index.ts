@@ -12,6 +12,7 @@ app.use(
     origin: [
       'http://localhost:5173',
       'http://localhost:5174',
+      'http://192.168.0.145:5173',
       'https://eventory-guest-app.vercel.app',
       'https://eventory-planner-app.vercel.app',
       'https://eventory-tan.vercel.app',
@@ -29,7 +30,8 @@ app.get('/events/:slug/guests/:guestId', async (req, res) => {
 
     try {
         const guest = await prisma.guest.findUnique({
-            where: { id: guestId }
+            where: { id: guestId },
+            include: { table: true }
         })
         if(!guest) return res.status(404).json({ error: "Guest not found" })
 

@@ -8,6 +8,11 @@ export type Guest = {
   seat: string | null;
   tableId: string | null;
   eventId: string;
+  table?: {
+    id: string
+    name: string,
+    tableNumber: number
+  } | null
 }
 
 export type SeatedGuest = {

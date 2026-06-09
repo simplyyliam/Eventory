@@ -22,6 +22,8 @@ export const WelcomeScreen = () => {
         console.error('API ERROR:', err);
       });
   }, [slug, guestId]);
+
+  const seatNumber = guest?.seat?.split('-').pop()
   
   return (
     <GuestListContainer className="items-center justify-center">
@@ -30,8 +32,8 @@ export const WelcomeScreen = () => {
       ) : (
         <div className="flex flex-col gap-2.5 items-center justify-center ">
           <span>{guest.name}</span>
-          <span>{guest.seat}</span>
-          <span>{guest.tableId}</span>
+          <span>Seat {seatNumber}</span>
+          <span>Table 7</span>
         </div>
       )}
     </GuestListContainer>
