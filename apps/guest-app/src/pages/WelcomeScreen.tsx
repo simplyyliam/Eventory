@@ -1,4 +1,5 @@
 import { GuestListContainer } from '@/components';
+import { PostCard } from '@/features/welcome-screen';
 import type { Guest } from '@app/shared/types/event.types';
 import { API_BASE_URL } from '@app/shared/utils/api';
 import axios from 'axios';
@@ -26,16 +27,25 @@ export const WelcomeScreen = () => {
   const seatNumber = guest?.seat?.split('-').pop()
   
   return (
-    <GuestListContainer className="items-center justify-center">
+    <GuestListContainer className="items-center justify-center mesh-gradient font-dmSans">
       {!guest ? (
         <div className="">Loading...</div>
       ) : (
-        <div className="flex flex-col gap-2.5 items-center justify-center ">
-          <span>{guest.name}</span>
-          <span>Seat {seatNumber}</span>
-          <span>Table 7</span>
+        <div className="flex flex-col gap-2.5 p-2.5 items-center justify-between w-full h-full">
+          <div className="flex flex-col text-center text-accent">
+            <span className='text-3xl'>Welcome</span>
+            <span className='text-xl font-instrumentSerif italic'>{guest.name}</span>
+          </div>
+          <PostCard
+          name={guest.name}
+          seat={seatNumber ?? ""}
+          table={guest.table?.tableNumber ?? 0}
+          />
+          <span className='text-[10px] font-medium text-accent/50'>powered by eventory</span>
         </div>
       )}
     </GuestListContainer>
   );
 };
+
+
