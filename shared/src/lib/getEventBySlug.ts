@@ -1,5 +1,5 @@
 import axios from "axios";
-import { EventResponse } from "src/types/event.types";
+import { EventResponse } from "../types/event.types";
 import { API_BASE_URL } from "../utils/api";
 
 export const getEventBySlug = async (slug: string) => {
