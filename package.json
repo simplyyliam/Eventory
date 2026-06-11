@@ -7,6 +7,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "planner-app": "pnpm --filter planner-app",
     "guest-app": "pnpm --filter guest-app",
+    "display-app": "pnpm --filter display-app",
     "database": "pnpm --filter @app/database",
     "db:push": "pnpm --filter @app/database db:push",
     "db:generate": "pnpm --filter @app/database db:generate",
