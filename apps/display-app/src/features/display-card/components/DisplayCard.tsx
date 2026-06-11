@@ -2,8 +2,8 @@ import { useParams } from "react-router-dom";
 import { QRCode } from "./QRCode";
 import { useEffect, useState } from "react";
 import type { EventResponse } from "@app/shared/types/event.types";
-import { getEventBySlug } from "@app/shared/lib/getEventBySlug";
 import { motion } from "motion/react";
+import { getEventBySlug } from "@app/shared/utils/getEventBySlug";
 
 export const DisplayCard = () => {
   const { slug } = useParams<{ slug: string }>();

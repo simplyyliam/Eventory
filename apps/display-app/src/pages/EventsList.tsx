@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import type { EventResponse } from "@app/shared/types/event.types";
-import { getEvents } from "@app/shared/lib/getEvents";
 import { Input } from "@app/shared";
+import { getEvents } from "@app/shared/utils/getEvents";
 
 export const EventsList = () => {
   const [events, setEvents] = useState<EventResponse[]>([]);
