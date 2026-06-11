@@ -1,4 +1,4 @@
-import { EventResponse } from "../types/event.types";
+import { type EventResponse } from "../types/event.types";
 import { API_BASE_URL } from "./api";
 import axios from "axios";
 
