@@ -2,7 +2,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@app/shared/components/ui/a
 
 export const GuestAvatar = () => {
   return (
-    <Avatar className="w-6">
+    <Avatar className="w-6 h-6">
       <AvatarImage
         src="/favcon.png"
         alt="@shadcn"

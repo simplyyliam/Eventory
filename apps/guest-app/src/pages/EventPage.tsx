@@ -136,7 +136,7 @@ export const GuestListPage = () => {
             {filteredGuests?.map((guest, index) => {
               const isLastItem = index === (filteredGuests.length - 1)
               return (
-                              <motion.div 
+              <motion.div 
                 key={guest.id} 
                 variants={item}
                 layout 

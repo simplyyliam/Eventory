@@ -1,13 +1,13 @@
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import { GuestListPage } from './pages/EventPage';
-import { WelcomeScreen } from './pages/WelcomeScreen';
+import { GuestDetailsScreen } from './pages/GuestDetailsScreen';
 
 export const Router = () => {
   return (
     <BrowserRouter>
       <Routes>
         <Route path="/events/:slug" element={<GuestListPage />} />
-          <Route path="/events/:slug/guests/:guestId" element={<WelcomeScreen />} />
+          <Route path="/events/:slug/guests/:guestId" element={<GuestDetailsScreen />} />
       </Routes>
     </BrowserRouter>
   );
