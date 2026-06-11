@@ -1,3 +1,5 @@
+export { LoadingBar } from './components/custom/LoadingBar';
+
 export { EditableName } from './components/custom/EditableName';
 
 // Utilities

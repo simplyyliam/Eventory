@@ -146,8 +146,12 @@ export const GuestListPage = () => {
                     name={guest.name}
                     onClick={() => {
                       setTimeout(() => {
-                        navigate(`/events/${slug}/guests/${guest.id}`);
-                      }, 300); 
+                        navigate('/loading', { state: {
+                           destination: `/events/${slug}/guests/${guest.id}`,
+                           slug,
+                           guestId: guest.id
+                          }});
+                      }); 
                     }}
                   />
                 </ScrollFadeItem>
