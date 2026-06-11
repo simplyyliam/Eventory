@@ -1,6 +1,6 @@
+import { EventResponse } from '../types/event.types';
 import axios from "axios";
-import { EventResponse } from "../types/event.types";
-import { API_BASE_URL } from "../utils/api";
+import { API_BASE_URL } from "./api";
 
 export const getEventBySlug = async (slug: string) => {
   const res = await axios.get<EventResponse>(

@@ -1,5 +1,5 @@
 import { EventResponse } from "../types/event.types";
-import { API_BASE_URL } from "../utils/api";
+import { API_BASE_URL } from "./api";
 import axios from "axios";
 
 export const getEvents = async () => {
