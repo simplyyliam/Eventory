@@ -16,6 +16,7 @@ app.use(
       'https://eventory-guest-app.vercel.app',
       'https://eventory-planner-app.vercel.app',
       'https://eventory-tan.vercel.app',
+      'https://eventory-display-app.vercel.app/'
     ],
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],

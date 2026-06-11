@@ -3,14 +3,13 @@ import { EventsList } from "./pages/EventsList";
 import { DisplayScreen } from "./pages/DisplayScreen";
 import { AppLayout } from "./pages/AppLayout";
 
-
 export const Router = () => {
   return (
     <BrowserRouter>
       <Routes>
-        <Route element={<AppLayout />}>
-          <Route index path="/events" element={<EventsList />} />
-          <Route path="/events/:slug" element={<DisplayScreen />} />
+        <Route path="/events" element={<AppLayout />}>
+          <Route index element={<EventsList />} />
+          <Route path=":slug" element={<DisplayScreen />} />
         </Route>
       </Routes>
     </BrowserRouter>
