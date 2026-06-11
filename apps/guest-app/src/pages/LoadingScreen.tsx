@@ -36,7 +36,7 @@ export const LoadingScreen = () => {
     }, [dataReady, animationReady, guest, destination, navigate])
 
     return (
-        <div className="flex flex-col gap-2.5 text-center items-center justify-center w-full h-screen Dotted">
+        <div className="flex flex-col gap-2.5 text-center font-dmSans font-medium items-center justify-center w-full h-screen Dotted">
             <span>Generating your ticket</span>
             <LoadingBar onComplete={() => setAnimationReady(true)}/>
         </div>
