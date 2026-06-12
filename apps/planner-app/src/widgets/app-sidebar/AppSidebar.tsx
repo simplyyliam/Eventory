@@ -14,6 +14,7 @@ import {
 } from '@app/shared/components/ui/sidebar';
 import {
   AddGuestDialog,
+  ImportGuestDialog,
   SeatedGuestsSection,
   UnseatedGuestsSection,
 } from '@/features/guests';
@@ -24,8 +25,10 @@ import { useNavigate } from 'react-router-dom';
 
 export function AppSidebar() {
   const navigate = useNavigate();
-  const open = useModalStore((s) => s.addGuestOpen);
-  const setOpen = useModalStore((s) => s.setAddGuestOpen);
+  const openAddGuest = useModalStore((s) => s.addGuestOpen);
+  const setOpenAddGuest = useModalStore((s) => s.setAddGuestOpen);
+  const importGuests = useModalStore((s) => s.importGuestsOpen);
+  const setImportGuestOpen = useModalStore((s) => s.setImportGuestOpen);
   const activeEvent = useEventStore((s) => s.activeEvent);
 
   return (
@@ -56,9 +59,9 @@ export function AppSidebar() {
                 stretch
                 Label="Add Guest"
                 Icon={Plus}
-                onClick={() => setOpen(true)}
+                onClick={() => setOpenAddGuest(true)}
               />
-              <IconButton stretch Label="Import" Icon={Upload06Icon} />
+              <IconButton stretch Label="Import" Icon={Upload06Icon} onClick={() => setImportGuestOpen(true)}/>
             </div>
           </SidebarGroup>
         </SidebarHeader>
@@ -67,7 +70,8 @@ export function AppSidebar() {
           <SeatedGuestsSection />
         </SidebarContent>
       </Sidebar>
-      <AddGuestDialog open={open} onOpenChange={setOpen} />
+      <AddGuestDialog open={openAddGuest} onOpenChange={setOpenAddGuest} />
+      <ImportGuestDialog open={importGuests} onOpenChange={setImportGuestOpen}/>
     </>
   );
 }

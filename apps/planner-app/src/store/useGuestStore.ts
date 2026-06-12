@@ -29,6 +29,7 @@ type GuestStore = {
   setActiveEvent: (eventId: string) => void;
   setGuests: (eventId: string, guests: Guest[]) => void;
   addGuest: (guest: GuestInput) => void;
+  addBulkGuests: (guest: GuestInput[]) => void;
   removeGuest: (guestId: string) => void;
   seatGuest: (guestId: string, tableId: string, seatId: string) => void;
   unseatGuest: (guestId: string) => void;
@@ -94,6 +95,30 @@ export const useGuestStore = create<GuestStore>()(
         set(updateEventGuests(state.activeEventId, state.guestsByEventId, guests))
       },
 
+      addBulkGuests: (inputs) => {
+        const state = get()
+
+        const newGuests: Guest[] = inputs.map((input) => ({
+          id: crypto.randomUUID(),
+          name: input.name,
+          email: input.email ?? null,
+          dietary: input.dietary ?? [],
+          comments: input.comments ?? null,
+          status: 'pending',
+          seat: null,
+          tableId: null,
+          eventId: state.activeEventId ?? '',
+        }));
+
+        const guests = [...state.guests, ...newGuests]
+
+        set(updateEventGuests(
+          state.activeEventId,
+          state.guestsByEventId,
+          guests
+        ))
+      },
+      
       removeGuest: (guestId) => {
         const state = get()
         const guests = state.guests.filter((g) => g.id !== guestId)

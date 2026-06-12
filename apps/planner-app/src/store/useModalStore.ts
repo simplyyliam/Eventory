@@ -4,8 +4,10 @@ type ModalStore = {
   modalId: string | null;
   modalData: unknown;
   addGuestOpen: boolean;
+  importGuestsOpen: boolean; // This is the state variable name
   editingGuestId: string | null;
   setAddGuestOpen: (open: boolean) => void;
+  setImportGuestOpen: (open: boolean) => void;
   setEditingGuestId: (guestId: string | null) => void;
   openModal: (id: string, data?: unknown) => void;
   closeModal: () => void;
@@ -15,13 +17,21 @@ export const useModalStore = create<ModalStore>((set) => ({
   modalId: null,
   modalData: null,
   addGuestOpen: false,
+  importGuestsOpen: false,
   editingGuestId: null,
-  setAddGuestOpen: (open) => set({addGuestOpen: open}),
+  setAddGuestOpen: (open) => set({ addGuestOpen: open }),
+  setImportGuestOpen: (open) => set({ importGuestsOpen: open }), 
   openModal: (id, data = null) => {
     set({ modalId: id, modalData: data });
   },
   closeModal: () => {
-    set({ modalId: null, modalData: null, addGuestOpen: false, editingGuestId: null });
+    set({ 
+      modalId: null, 
+      modalData: null, 
+      addGuestOpen: false, 
+      importGuestsOpen: false, 
+      editingGuestId: null 
+    });
   },
   setEditingGuestId: (guestId) => {
     set({
