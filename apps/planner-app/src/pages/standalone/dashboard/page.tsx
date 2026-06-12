@@ -13,30 +13,35 @@ export const entry = true;
 
 export default function DashboardPage() {
   const [events, setEvent] = useState<EventResponse[]>([]);
-  const [open, setOpen] = useState(false)
+  const [open, setOpen] = useState(false);
+
   const navigate = useNavigate();
   const createEvent = useEventStore((s) => s.createEvent);
 
-const handleCreateEvent = async (name: string): Promise<void> => {
-  try {
-    const event = await createEvent(name)
-    setOpen(false)
-    navigate('/loading', {
-      state: {
-        destination: `/venue/${event.slug}`,
-        eventName: event.name,
-      }
-    })
-  } catch (err) {
-    console.error('Failed to create event', err)
-  }
-}
+  const handleCreateEvent = async (name: string): Promise<void> => {
+    try {
+      const event = await createEvent(name);
+
+      setOpen(false);
+
+      navigate('/loading', {
+        state: {
+          destination: `/venue/${event.slug}`,
+          eventName: event.name,
+        },
+      });
+    } catch (err) {
+      console.error('Failed to create event', err);
+    }
+  };
 
   useEffect(() => {
     axios
-      .get(`${API_BASE_URL}/events`)
+      .get(`${API_BASE_URL}/internal/events`)
       .then((res) => setEvent(res.data))
-      .catch((err) => console.error('Failed to retrieve events:', err));
+      .catch((err) =>
+        console.error('Failed to retrieve events:', err),
+      );
   }, []);
 
   return (
@@ -47,12 +52,14 @@ const handleCreateEvent = async (name: string): Promise<void> => {
             <span className="text-2xl">Eventory</span>
             <p className="text-sm">Manage your event experience</p>
           </div>
+
           <IconButton
             Icon={Plus}
             Label="Create Event"
             onClick={() => setOpen(true)}
           />
         </div>
+
         <div className="flex flex-col gap-2">
           {events && events.length > 0 ? (
             events.map((event) => (
@@ -65,6 +72,7 @@ const handleCreateEvent = async (name: string): Promise<void> => {
           )}
         </div>
       </div>
+
       <CreateEventDialog
         open={open}
         onOpenChange={setOpen}

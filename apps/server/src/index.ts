@@ -71,6 +71,81 @@ app.get('/internal/events/:slug', async (req, res) => {
   }
 });
 
+// Get all internal events
+app.get('/internal/events', async (_, res) => {
+  try {
+    const events = await prisma.event.findMany({
+      include: {
+        tables: true,
+        guests: true,
+      },
+      orderBy: {
+        updatedAt: 'desc',
+      },
+    });
+
+    res.json(events);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch internal events' });
+  }
+});
+
+// Auto-save endpoint for the internal endpoint
+app.patch('/internal/events/:slug', async (req, res) => {
+  const { slug } = req.params;
+  const data = req.body;
+
+  try {
+    const event = await prisma.event.update({
+      where: { slug },
+      data: {
+        name: data.name,
+        metadata: data.metadata,
+        updatedAt: new Date(),
+
+        tables: data.tables
+          ? {
+              deleteMany: {},
+              create: data.tables.map((t: any) => ({
+                name: t.name,
+                tableNumber: t.tableNumber,
+                seatCount: t.seatCount,
+                shape: t.shape,
+                textureId: t.textureId,
+                x: t.x ?? 0,
+                y: t.y ?? 0,
+                rotation: t.rotation ?? 0,
+              })),
+            }
+          : undefined,
+
+        guests: data.guests
+          ? {
+              deleteMany: {},
+              create: data.guests.map((g: any) => ({
+                name: g.name,
+                email: g.email ?? null,
+                dietary: g.dietary ?? [],
+                comments: g.comments ?? null,
+                status: g.status ?? 'pending',
+                seat: g.seat ?? null,
+                tableId: g.tableId ?? null,
+              })),
+            }
+          : undefined,
+      },
+      include: {
+        tables: true,
+        guests: true,
+      },
+    });
+
+    res.json(event);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to autosave event' });
+  }
+});
+
 // shows only events that are published (for Display + Guest app)
 app.get('/public/events/:slug', async (req, res) => {
   const { slug } = req.params;

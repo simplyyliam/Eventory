@@ -9,6 +9,7 @@ import { World } from './world';
 import axios from 'axios';
 import { API_BASE_URL } from '@app/shared/utils/api';
 import { loadEvent } from '@/service/eventService';
+import { useAutoSaveEvent } from '@/lib/useAutoSaveEvent';
 
 type Viewport = {
   x: number;
@@ -19,11 +20,16 @@ type Viewport = {
 export default function VenuePage() {
   const navigate = useNavigate();
   const { eventSlug } = useParams();
+  
+  useAutoSaveEvent(eventSlug)
+
   const openEvent = useEventStore((s) => s.openEvent);
   const setActiveGuestEvent = useGuestStore((s) => s.setActiveEvent);
   const setActiveTableEvent = useTableStore((s) => s.setActiveEvent);
   const setActiveEvent = useEventStore((s) => s.setActiveEvent);
+
   const tables = useTableStore((s) => s.tables);
+
   const [viewport, setViewport] = useState<Viewport>({
     x: 0,
     y: 0,
@@ -44,18 +50,22 @@ export default function VenuePage() {
       return;
     }
 
-    // Fall back to server
-    axios.get(`${API_BASE_URL}/events/${eventSlug}`).then((res) => {
-      const event = res.data;
-      setActiveEvent(event);
-      setActiveGuestEvent(event.id);
-      setActiveTableEvent(event.id);
+    // ✅ INTERNAL endpoint (NOT public)
+    axios
+      .get(`${API_BASE_URL}/internal/events/${eventSlug}`)
+      .then((res) => {
+        const event = res.data;
 
-      // ALso load guest and tables into their stores
-      loadEvent(eventSlug)
-    }).catch(() => {
-      navigate('/', { replace: true })
-    })
+        setActiveEvent(event);
+        setActiveGuestEvent(event.id);
+        setActiveTableEvent(event.id);
+
+        // hydrate stores
+        loadEvent(eventSlug);
+      })
+      .catch(() => {
+        navigate('/', { replace: true });
+      });
   }, [eventSlug]);
 
   useEffect(() => {
@@ -87,33 +97,31 @@ export default function VenuePage() {
     };
   }, []);
 
-  // wheel zoom centered on cursor
   const handleWheel = (e: React.WheelEvent) => {
-    // Prevent page scroll
     e.preventDefault();
 
-    const delta = -e.deltaY; // wheel up -> positive
-    const zoomFactor = 1 + delta * 0.0015; // tuned
+    const delta = -e.deltaY;
+    const zoomFactor = 1 + delta * 0.0015;
 
     setViewport((prev) => {
       const minScale = 0.2;
       const maxScale = 4;
+
       const oldScale = prev.scale;
       let newScale = oldScale * zoomFactor;
+
       if (newScale < minScale) newScale = minScale;
       if (newScale > maxScale) newScale = maxScale;
 
-      // pointer position relative to screen center
       const cx = window.innerWidth / 2;
       const cy = window.innerHeight / 2;
+
       const pointerX = e.clientX - cx;
       const pointerY = e.clientY - cy;
 
-      // world coordinates under pointer before zoom
       const worldX = (pointerX - prev.x) / oldScale;
       const worldY = (pointerY - prev.y) / oldScale;
 
-      // compute new viewport.x/y so the same world point stays under the cursor
       const newX = pointerX - worldX * newScale;
       const newY = pointerY - worldY * newScale;
 
