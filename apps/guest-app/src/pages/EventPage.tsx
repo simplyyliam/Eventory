@@ -6,10 +6,9 @@ import { GuestCard } from '@/features/guests-list';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useEffect, useState, useRef } from 'react';
 import type { EventResponse } from '@app/shared/types/event.types';
-import axios from 'axios';
-import { API_BASE_URL } from '@app/shared/utils/api';
 import { ListFilter, X } from 'lucide-react';
 import { motion, AnimatePresence, useInView } from 'motion/react';
+import { getPublicEventBySlug } from '@app/shared/utils/publicEvent';
 
 const container = {
   hidden: { opacity: 0 },
@@ -88,12 +87,13 @@ export const GuestListPage = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    axios
-      .get(`${API_BASE_URL}/events/${slug}`)
-      .then((res) => {
-        setEvent(res.data);
-        setIsLoading(false);
-      })
+  if (!slug) return;
+
+  getPublicEventBySlug(slug)
+    .then((res) => {
+      setEvent(res);
+      setIsLoading(false);
+    })
       .catch(() => setIsLoading(false));
   }, [slug]);
 
@@ -104,9 +104,7 @@ export const GuestListPage = () => {
       return name.startsWith(qry);
     })
     .sort((a, b) =>
-      sortAZ
-        ? a.name.localeCompare(b.name)
-        : b.name.localeCompare(a.name)
+      sortAZ ? a.name.localeCompare(b.name) : b.name.localeCompare(a.name)
     );
 
   const handleSearchOpen = () => {
@@ -121,6 +119,7 @@ export const GuestListPage = () => {
 
   return (
     <GuestListContainer className="font-dmSans">
+      {/* UI unchanged */}
       <div className="flex items-center justify-between h-12">
 
         <AnimatePresence mode="popLayout">
@@ -213,11 +212,9 @@ export const GuestListPage = () => {
           <AnimatePresence mode="popLayout">
             {filteredGuests?.map((guest, index) => {
               const isLastItem = index === (filteredGuests.length - 1);
+
               return (
-                <motion.div
-                  key={guest.id}
-                  variants={item}
-                >
+                <motion.div key={guest.id} variants={item}>
                   <ScrollFadeItem key={`${guest.id}-${query}`} isLast={isLastItem}>
                     <GuestCard
                       name={guest.name}

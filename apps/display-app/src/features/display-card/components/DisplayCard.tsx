@@ -3,7 +3,7 @@ import { QRCode } from "./QRCode";
 import { useEffect, useState } from "react";
 import type { EventResponse } from "@app/shared/types/event.types";
 import { motion } from "motion/react";
-import { getEventBySlug } from "@app/shared/utils/getEventBySlug";
+import { getPublicEventBySlug } from "@app/shared/utils/publicEvent";
 
 export const DisplayCard = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -20,7 +20,7 @@ export const DisplayCard = () => {
 
     const loadEvent = async () => {
       try {
-        const data = await getEventBySlug(slug);
+        const data = await getPublicEventBySlug(slug);
 
         if (!cancelled) {
           setEvent(data);
@@ -29,7 +29,7 @@ export const DisplayCard = () => {
         if (!cancelled) {
           setError(true);
         }
-        console.error(err)
+        console.error(err);
       }
     };
 

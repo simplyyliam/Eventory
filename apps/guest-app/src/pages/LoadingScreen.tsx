@@ -1,54 +1,56 @@
-import { LoadingBar } from "@app/shared"
-import type { EventResponse } from "@app/shared/types/event.types"
-import { API_BASE_URL } from "@app/shared/utils/api"
-import axios from "axios"
-import { useEffect, useState } from "react"
-import { useLocation, useNavigate } from "react-router-dom"
-
+import { LoadingBar } from "@app/shared";
+import type { Guest, EventResponse } from "@app/shared/types/event.types";
+import { getPublicGuest, getPublicEventBySlug } from "@app/shared/utils/publicEvent";
+import { useEffect, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 
 export const LoadingScreen = () => {
-    const location = useLocation()
-    const navigate = useNavigate()
+  const location = useLocation();
+  const navigate = useNavigate();
 
-    const { destination, slug, guestId } = location.state ?? {}
+  const { destination, slug, guestId } = location.state ?? {};
 
-    const [guest, setGuest] = useState<EventResponse | null>(null)
-    const [event, setEvent] = useState<EventResponse | null>(null)
-    const [dataReady, setDataReady] = useState(false)
-    const [animationReady, setAnimationReady] = useState(false)
+  const [guest, setGuest] = useState<Guest | null>(null);
+  const [event, setEvent] = useState<EventResponse | null>(null);
 
-    useEffect(() => {
-        if(!guestId || !slug) return
+  const [dataReady, setDataReady] = useState(false);
+  const [animationReady, setAnimationReady] = useState(false);
 
-        Promise.all([
-            axios.get(`${API_BASE_URL}/events/${slug}/guests/${guestId}`),
-            axios.get(`${API_BASE_URL}/events/${slug}`)
-        ])
-        .then(([guestRes, eventRes]) => {
-            setGuest(guestRes.data)
-            setEvent(eventRes.data)
+  useEffect(() => {
+    if (!guestId || !slug || !destination) {
+    navigate("/", { replace: true });
+    return;
+  }
+
+    Promise.all([
+        getPublicGuest(slug, guestId),
+        getPublicEventBySlug(slug)
+    ])
+        .then(([guestData, eventData]) => {
+        setGuest(guestData);
+        setEvent(eventData);
         })
-        .finally(() => {
-            setDataReady(true)
-        })
-    }, [slug, guestId])
+      .finally(() => {
+        setDataReady(true);
+      });
+  }, [slug, guestId]);
 
-    useEffect(() => {
-        if(!dataReady || !animationReady) return
+  useEffect(() => {
+    if (!dataReady || !animationReady) return;
 
-        navigate(destination, {
-            replace: true,
-            state: {
-                guest,
-                event
-            }
-        })
-    }, [dataReady, animationReady, guest, destination, navigate])
+    navigate(destination, {
+      replace: true,
+      state: {
+        guest,
+        event
+      }
+    });
+  }, [dataReady, animationReady, guest, destination, navigate]);
 
-    return (
-        <div className="flex flex-col gap-2.5 text-center font-dmSans font-medium items-center justify-center w-full h-screen Dotted">
-            <span>Generating your ticket</span>
-            <LoadingBar onComplete={() => setAnimationReady(true)}/>
-        </div>
-    )
-}
+  return (
+    <div className="flex flex-col gap-2.5 text-center font-dmSans font-medium items-center justify-center w-full h-screen Dotted">
+      <span>Generating your ticket</span>
+      <LoadingBar onComplete={() => setAnimationReady(true)} />
+    </div>
+  );
+};
