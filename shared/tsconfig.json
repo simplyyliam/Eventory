@@ -4,7 +4,10 @@
     "ignoreDeprecations": "6.0",
     "baseUrl": ".",
     "rootDir": "./src",
-    "jsx": "react-jsx"
+    "jsx": "react-jsx",
+    "paths": {
+      "@/*": ["./src/*"]
+    }
   },
   "include": ["src"]
 }

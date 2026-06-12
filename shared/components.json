@@ -12,12 +12,12 @@
   },
   "iconLibrary": "hugeicons",
   "rtl": false,
-  "aliases": {
-    "components": "./src/components",
-    "utils": "./src/lib/utils",
-    "ui": "./src/components/ui",
-    "lib": "./src/lib",
-    "hooks": "./src/hooks"
+"aliases": {
+    "components": "@/components",
+    "ui": "@/components/ui",
+    "lib": "@/lib",
+    "hooks": "@/hooks",
+    "utils": "@/utils"
   },
   "menuColor": "default",
   "menuAccent": "subtle",

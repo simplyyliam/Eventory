@@ -5,7 +5,7 @@ export { EditableName } from './components/custom/EditableName';
 // Utilities
 export { createSlug } from './utils/createSlug';
 export * from "./lib/utils";
-
+export * from "sonner";
 // Core UI Components (From image_31c3c0.png)
 export * from "./components/ui/accordion";
 export * from "./components/ui/avatar";

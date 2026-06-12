@@ -8,6 +8,7 @@
     "planner-app": "pnpm --filter planner-app",
     "guest-app": "pnpm --filter guest-app",
     "display-app": "pnpm --filter display-app",
+    "@app/shared": "pnpm --filter @app/shared",
     "database": "pnpm --filter @app/database",
     "db:push": "pnpm --filter @app/database db:push",
     "db:generate": "pnpm --filter @app/database db:generate",
