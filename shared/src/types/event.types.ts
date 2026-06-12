@@ -34,12 +34,15 @@ export type Table = {
 };
 
 export type EventMeta = {
-  id: string;
-  name: string;
-  slug: string;
-  status: "draft" | "published" | "archived";
-  createdAt: string;
-  updatedAt: string;
+  // id: string;
+  // name: string;
+  // slug: string;
+  // status: "draft" | "published" | "archived";
+  // createdAt: string;
+  // updatedAt: string;
+  contactEmail: string;
+  comment: string;
+  dietary: string[];
 };
 
 export type EventResponse = {

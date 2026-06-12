@@ -1,4 +1,4 @@
-import type { Event, EventMetadata } from '@/types/event';
+import type { EventMetadata } from '@/types/event';
 import localforage from 'localforage';
 import { create } from 'zustand';
 import {
@@ -9,16 +9,18 @@ import {
 import { createSlug } from '@app/shared';
 import axios from 'axios';
 import { API_BASE_URL } from '@app/shared/utils/api';
+import type { EventResponse } from '@app/shared/types/event.types';
 
 type EventStatus = 'draft' | 'published' | 'archived';
 
 type EventStore = {
-  events: Event[];
-  activeEvent: Event | null;
-  createEvent: (name?: string) => Promise<Event>;
-  openEvent: (eventId: string) => Event | null;
-  setActiveEvent: (event: Event) => void;
-  updateEvent: (data: Partial<Event>) => void;
+  events: EventResponse[];
+  activeEvent: EventResponse | null;
+  createEvent: (name?: string) => Promise<EventResponse>;
+  setEvents: (events: EventResponse[]) => void,
+  openEvent: (eventId: string) => EventResponse | null;
+  setActiveEvent: (event: EventResponse) => void;
+  updateEvent: (data: Partial<EventResponse>) => void;
   setStatus: (status: EventStatus) => void;
   updateMetadata: (metadata: Partial<EventMetadata>) => void;
   deleteEvent: (eventId: string, slug: string) => Promise<void>;
@@ -73,15 +75,25 @@ export const useEventStore = create<EventStore>()(
       updateMetadata: (metadata) => {
         const current = get().activeEvent;
         if (!current) return;
-        get().updateEvent({
+
+        const updated: EventResponse = {
+          ...current,
           metadata: {
-            contactEmail: '',
-            comment: '',
-            dietary: [],
-            ...current.metadata,
+            ...(current.metadata ?? {
+              contactEmail: '',
+              comment: '',
+              dietary: [],
+            }),
             ...metadata,
           },
-        });
+        };
+
+        set((state) => ({
+          activeEvent: updated,
+          events: state.events.map((e) =>
+            e.id === updated.id ? updated : e,
+          ),
+        }));
       },
 
       deleteEvent: async (eventId, slug) => {
@@ -91,6 +103,8 @@ export const useEventStore = create<EventStore>()(
           activeEvent: state.activeEvent?.id === eventId ? null : state.activeEvent,
         }))
       },
+
+      setEvents: (events: EventResponse[]) => set({ events }),
 
       renameEvent: async (eventId, slug, name) => {
         const { data } = await axios.patch(`${API_BASE_URL}/events/${slug}`, { name })

@@ -1,6 +1,5 @@
 import { IconButton, PageContainer } from '@/shared/components';
 import { useEventStore } from '@/store/useEventStore';
-import type { EventResponse } from '@app/shared/types/event.types';
 import { API_BASE_URL } from '@app/shared/utils/api';
 import axios from 'axios';
 import { useEffect, useState } from 'react';
@@ -12,9 +11,9 @@ import { CreateEventDialog } from './CreateEventDialog';
 export const entry = true;
 
 export default function DashboardPage() {
-  const [events, setEvent] = useState<EventResponse[]>([]);
   const [open, setOpen] = useState(false);
-
+  const events = useEventStore((s) => s.events)
+  const setEvents = useEventStore((s) => s.setEvents)
   const navigate = useNavigate();
   const createEvent = useEventStore((s) => s.createEvent);
 
@@ -38,7 +37,7 @@ export default function DashboardPage() {
   useEffect(() => {
     axios
       .get(`${API_BASE_URL}/internal/events`)
-      .then((res) => setEvent(res.data))
+      .then((res) => setEvents(res.data))
       .catch((err) =>
         console.error('Failed to retrieve events:', err),
       );
