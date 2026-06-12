@@ -28,6 +28,9 @@ export type Table = {
   seatCount: number;
   shape: "circle" | "rectangle";
   textureId: string;
+  x?: number;       
+  y?: number;        
+  rotation?: number; 
 };
 
 export type EventMeta = {

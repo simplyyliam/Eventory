@@ -3,6 +3,7 @@ import { createSlug } from '@app/shared';
 import express from 'express';
 import cors from 'cors';
 import { prisma } from '@app/database';
+import type { Table, Guest } from "@app/shared/src/types/event.types"
 
 const PORT = process.env.PORT || 3001;
 const app = express();
@@ -93,9 +94,63 @@ app.get('/internal/events', async (_, res) => {
 // Auto-save endpoint for the internal endpoint
 app.patch('/internal/events/:slug', async (req, res) => {
   const { slug } = req.params;
-  const data = req.body;
+
+  const data = req.body as {
+    name?: string;
+    metadata?: any;
+    tables?: Table[];
+    guests?: Guest[];
+  };
 
   try {
+    // 1. TRUST the incoming table IDs instead of using randomUUID
+    // This stops the infinite update loop on the client side!
+    const tableIdMap = new Map<string, string>();
+    const tables = (data.tables ?? []).map((t: Table) => {
+      tableIdMap.set(t.id, t.id); // Maps frontend ID -> exact same ID
+      
+      return {
+        id: t.id, // Keep the frontend ID stable
+        name: t.name,
+        tableNumber: t.tableNumber,
+        seatCount: t.seatCount,
+        shape: t.shape,
+        textureId: t.textureId,
+        x: (t as any).x ?? 0,
+        y: (t as any).y ?? 0,
+        rotation: (t as any).rotation ?? 0,
+      };
+    });
+
+    // 2. Map guests using those same stable IDs
+    const guests = (data.guests ?? []).map((g: Guest) => {
+      const oldTableId = g.tableId ?? null;
+      const realTableId = oldTableId ? tableIdMap.get(oldTableId) ?? null : null;
+
+      let seat = g.seat ?? null;
+      if (seat && oldTableId && realTableId) {
+        seat = seat.replace(oldTableId, realTableId);
+      }
+
+      const incomingStatus = g.status as 'pending' | 'confirmed' | 'declined';
+      const validStatus: 'pending' | 'confirmed' | 'declined' = 
+        ['pending', 'confirmed', 'declined'].includes(incomingStatus)
+          ? incomingStatus
+          : 'pending';
+
+      return {
+        id: g.id, // Keep the guest ID stable too!
+        name: g.name,
+        email: g.email ?? null,
+        dietary: g.dietary ?? [],
+        comments: g.comments ?? null,
+        seat,
+        tableId: realTableId,
+        status: (realTableId ? 'confirmed' : validStatus) as 'pending' | 'confirmed' | 'declined',
+      };
+    });
+
+    // 3. Update database cleanly
     const event = await prisma.event.update({
       where: { slug },
       data: {
@@ -106,31 +161,14 @@ app.patch('/internal/events/:slug', async (req, res) => {
         tables: data.tables
           ? {
               deleteMany: {},
-              create: data.tables.map((t: any) => ({
-                name: t.name,
-                tableNumber: t.tableNumber,
-                seatCount: t.seatCount,
-                shape: t.shape,
-                textureId: t.textureId,
-                x: t.x ?? 0,
-                y: t.y ?? 0,
-                rotation: t.rotation ?? 0,
-              })),
+              create: tables,
             }
           : undefined,
 
         guests: data.guests
           ? {
               deleteMany: {},
-              create: data.guests.map((g: any) => ({
-                name: g.name,
-                email: g.email ?? null,
-                dietary: g.dietary ?? [],
-                comments: g.comments ?? null,
-                status: g.status ?? 'pending',
-                seat: g.seat ?? null,
-                tableId: g.tableId ?? null,
-              })),
+              create: guests,
             }
           : undefined,
       },
@@ -142,10 +180,10 @@ app.patch('/internal/events/:slug', async (req, res) => {
 
     res.json(event);
   } catch (err) {
-    res.status(500).json({ error: 'Failed to autosave event' });
+    console.error('❌ Autosave Execution Error:', err);
+    res.status(500).json({ error: 'Failed to autosave event data structure' });
   }
 });
-
 // shows only events that are published (for Display + Guest app)
 app.get('/public/events/:slug', async (req, res) => {
   const { slug } = req.params;
