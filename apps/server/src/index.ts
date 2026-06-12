@@ -48,6 +48,75 @@ app.get('/', (_, res) => {
 
 // ─── Events ───────────────────────────────────────────────────────────────────
 
+// Internal event fetcher (for planner-app). This fetches all events regardless if they're published or not. 
+app.get('/internal/events/:slug', async (req, res) => {
+  const { slug } = req.params;
+
+  try {
+    const event = await prisma.event.findFirst({
+      where: { slug },
+      include: {
+        tables: true,
+        guests: true,
+      },
+    });
+
+    if (!event) {
+      return res.status(404).json({ error: 'Event not found' });
+    }
+
+    res.json(event);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch event' });
+  }
+});
+
+// shows only events that are published (for Display + Guest app)
+app.get('/public/events/:slug', async (req, res) => {
+  const { slug } = req.params;
+
+  try {
+    const event = await prisma.event.findFirst({
+      where: {
+        slug,
+        status: 'published',
+      },
+      include: {
+        tables: true,
+        guests: true,
+      },
+    });
+
+    if (!event) {
+      return res.status(404).json({ error: 'Event not found' });
+    }
+
+    res.json(event);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch event' });
+  }
+});
+
+// Public guest fetch
+app.get('/public/events/:slug/guests/:guestId', async (req, res) => {
+  const { guestId } = req.params;
+
+  try {
+    const guest = await prisma.guest.findUnique({
+      where: { id: guestId },
+      include: { table: true },
+    });
+
+    if (!guest) {
+      return res.status(404).json({ error: 'Guest not found' });
+    }
+
+    res.json(guest);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to fetch guest' });
+  }
+});
+
 // Create empty event
 app.post('/events/create', async (req, res) => {
   const { name } = req.body

@@ -7,12 +7,54 @@ import { getEventBySlug } from "@app/shared/utils/getEventBySlug";
 
 export const DisplayCard = () => {
   const { slug } = useParams<{ slug: string }>();
+
   const [event, setEvent] = useState<EventResponse | null>(null);
+  const [error, setError] = useState(false);
+
+  const isLoading = !event && !error;
 
   useEffect(() => {
     if (!slug) return;
-    getEventBySlug(slug).then(setEvent);
+
+    let cancelled = false;
+
+    const loadEvent = async () => {
+      try {
+        const data = await getEventBySlug(slug);
+
+        if (!cancelled) {
+          setEvent(data);
+        }
+      } catch (err) {
+        if (!cancelled) {
+          setError(true);
+        }
+        console.error(err)
+      }
+    };
+
+    loadEvent();
+
+    return () => {
+      cancelled = true;
+    };
   }, [slug]);
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center w-240 h-120 font-dmSans">
+        Loading event...
+      </div>
+    );
+  }
+
+  if (error || !event) {
+    return (
+      <div className="flex items-center justify-center w-240 h-120 font-dmSans text-muted-foreground">
+        Event not found
+      </div>
+    );
+  }
 
   return (
     <motion.div
@@ -33,11 +75,7 @@ export const DisplayCard = () => {
       <motion.div
         className="flex flex-col text-center font-dmSans items-center justify-center w-200 h-full p-6.25 gap-2.5 bg-card"
         variants={{
-          hidden: {
-            opacity: 0,
-            y: 24,
-            filter: "blur(12px)",
-          },
+          hidden: { opacity: 0, y: 24, filter: "blur(12px)" },
           show: {
             opacity: 1,
             y: 0,
@@ -51,8 +89,9 @@ export const DisplayCard = () => {
         }}
       >
         <span className="text-[35px] font-semibold">
-          {`Welcome to ${event?.name}`}
+          Welcome to {event.name}
         </span>
+
         <span className="text-[25px] font-medium text-muted-foreground">
           Scan the QR code to find your seat and table number
         </span>
@@ -62,11 +101,7 @@ export const DisplayCard = () => {
       <motion.div
         className="flex items-center justify-center w-140 h-full bg-card"
         variants={{
-          hidden: {
-            opacity: 0,
-            y: 24,
-            filter: "blur(12px)",
-          },
+          hidden: { opacity: 0, y: 24, filter: "blur(12px)" },
           show: {
             opacity: 1,
             y: 0,
@@ -80,7 +115,7 @@ export const DisplayCard = () => {
         }}
       >
         <QRCode
-          value={`https://eventory-guest-app.vercel.app/events/${event?.slug}`}
+          value={`https://eventory-guest-app.vercel.app/events/${event.slug}`}
         />
       </motion.div>
     </motion.div>

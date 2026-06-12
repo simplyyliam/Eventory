@@ -1,31 +1,19 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import type { EventResponse } from "@app/shared/types/event.types";
 import { Input } from "@app/shared";
-import { getEvents } from "@app/shared/utils/getEvents";
 
 export const EventsList = () => {
-  const [events, setEvents] = useState<EventResponse[]>([]);
   const [slug, setSlug] = useState("");
-
   const navigate = useNavigate();
-
-  useEffect(() => {
-    getEvents().then(setEvents);
-  }, []);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    const matchedEvent = events.find(
-      (event) => event.slug.toLowerCase() === slug.toLowerCase()
-    );
+    const cleanSlug = slug.trim().toLowerCase();
 
-    if (matchedEvent) {
-      navigate(`/events/${matchedEvent.slug}`);
-    } else {
-      navigate(`/events/${slug}`);
-    }
+    if (!cleanSlug) return;
+
+    navigate(`/events/${cleanSlug}`);
   };
 
   return (
@@ -34,25 +22,23 @@ export const EventsList = () => {
         <div className="flex flex-col gap-2.5 text-center">
           <span className="text-[30px] font-semibold">Eventory</span>
           <span className="text-[15px] text-muted-foreground font-medium">
-            Please enter your event name below
+            Enter your event slug to continue
           </span>
         </div>
 
-        <form
-          onSubmit={handleSubmit}
-          className="flex items-center h-fit gap-2.5"
-        >
+        <form onSubmit={handleSubmit} className="flex items-center gap-2.5">
           <Input
-            placeholder="Event name"
+            placeholder="event-slug"
             value={slug}
             onChange={(e) => setSlug(e.target.value)}
-            className="text-center w-52.5 h-fit rounded-xl px-2.5 py-3.75 bg-[#E9E9E9]"
+            className="text-center w-52.5 rounded-xl px-2.5 py-3.75 bg-[#E9E9E9]"
           />
         </form>
       </div>
     </div>
   );
 };
+
     //   {events.map((event) => (
     //     <motion.button
     //         key={event.id}
