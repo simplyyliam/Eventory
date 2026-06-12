@@ -1,4 +1,5 @@
 import { LoadingBar } from "@app/shared"
+import type { EventResponse } from "@app/shared/types/event.types"
 import { API_BASE_URL } from "@app/shared/utils/api"
 import axios from "axios"
 import { useEffect, useState } from "react"
@@ -11,17 +12,25 @@ export const LoadingScreen = () => {
 
     const { destination, slug, guestId } = location.state ?? {}
 
-    const [guest, setGuest] = useState(null)
+    const [guest, setGuest] = useState<EventResponse | null>(null)
+    const [event, setEvent] = useState<EventResponse | null>(null)
     const [dataReady, setDataReady] = useState(false)
     const [animationReady, setAnimationReady] = useState(false)
 
     useEffect(() => {
         if(!guestId || !slug) return
 
-        axios
-            .get(`${API_BASE_URL}/events/${slug}/guests/${guestId}`)
-            .then((res) => setGuest(res.data))
-            .finally(() => {setDataReady(true)})
+        Promise.all([
+            axios.get(`${API_BASE_URL}/events/${slug}/guests/${guestId}`),
+            axios.get(`${API_BASE_URL}/events/${slug}`)
+        ])
+        .then(([guestRes, eventRes]) => {
+            setGuest(guestRes.data)
+            setEvent(eventRes.data)
+        })
+        .finally(() => {
+            setDataReady(true)
+        })
     }, [slug, guestId])
 
     useEffect(() => {
@@ -31,6 +40,7 @@ export const LoadingScreen = () => {
             replace: true,
             state: {
                 guest,
+                event
             }
         })
     }, [dataReady, animationReady, guest, destination, navigate])

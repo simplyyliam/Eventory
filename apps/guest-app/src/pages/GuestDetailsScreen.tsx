@@ -6,9 +6,11 @@ import { motion } from 'motion/react';
 export const GuestDetailsScreen = () => {
   const location = useLocation();
   const guest = location.state?.guest;
-
+  const event = location.state?.event;
+  
   if (!guest) return null;
-
+  if(!event) return null
+  console.log("EVENT:", event)
   const seatNumber = guest?.seat?.split('-').pop();
 
   const item = {
@@ -50,16 +52,16 @@ const container = {
         initial="hidden"
         animate="show"
       >
-        <motion.div className="w-full" variants={item}>
+        <motion.div className="w-full h-full" variants={item}>
           <TicketCard
-            eventName={guest.event?.name ?? 'No Event'}
+            eventName={event.name ?? 'No Event'}
             guestName={guest.name}
             seatNumber={seatNumber ?? '0'}
             tableNumber={guest.table?.tableNumber ?? 0}
           />
         </motion.div>
 
-        <motion.div className="w-full" variants={item}>
+        <motion.div className="w-full h-full" variants={item}>
           <MessageCard />
         </motion.div>
       </motion.div>

@@ -24,12 +24,12 @@ export const TicketCard = ({eventName, guestName, seatNumber, tableNumber}: Tick
                     <span className="text-[35px] font-semibold">{guestName}</span>
                 </div>
                 <div className="flex flex-col">
-                    <span className="text-[25px] font-medium text-muted-foreground">Seat</span>
-                    <span className="text-[35px] font-semibold">{seatNumber}</span>
-                </div>
-                <div className="flex flex-col">
                     <span className="text-[25px] font-medium text-muted-foreground">Table</span>
                     <span className="text-[35px] font-semibold">{tableNumber}</span>
+                </div>
+                <div className="flex flex-col">
+                    <span className="text-[25px] font-medium text-muted-foreground">Seat</span>
+                    <span className="text-[35px] font-semibold">{seatNumber}</span>
                 </div>
             </div>
         </GuestDetailsCard>
