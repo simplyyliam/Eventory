@@ -1,5 +1,5 @@
 import { cn } from "../../lib/utils"
-import { HugeiconsIcon, HugeiconsProps } from "@hugeicons/react"
+import { HugeiconsIcon, type HugeiconsProps } from "@hugeicons/react"
 import { Loading03Icon } from "@hugeicons/core-free-icons"
 
 function Spinner({ className, ...props }: HugeiconsProps) {
