@@ -15,6 +15,7 @@ import { getInitials } from '@/lib/getInitials';
 import { TableSheet } from './table-sheet/TableSheet';
 import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuTrigger } from '@app/shared/components/ui/context-menu';
 import { useHistoryStore } from '@/store/useHistorySnapshot';
+import type { EditableNameHandle } from '@app/shared/components/custom/EditableName';
 
 export const Table = ({
 shape,
@@ -28,6 +29,7 @@ rotation,
 }: TableProps) => {
 const updateTablePosition = useTableStore((s) => s.updateTablePosition);
 const updateTableRotation = useTableStore((s) => s.updateTableRotation);
+const updateTableName = useTableStore((s) => s.updateTableName);
 const removeTable = useTableStore((s) => s.removeTable);
 const guests = useGuestStore((s) => s.guests);
 const [isRotating, setIsRotating] = useState(false);
@@ -64,6 +66,7 @@ const WORLD_HALF = WORLD_SIZE / 2;
 
 const [hoverGuest, setHoverGuest] = useState<GuestInfoModalData | null>(null);
 const [open, setOpen] = useState(false);
+const editableNameRef = useRef<EditableNameHandle>(null);
 
 const visibleSeatCount =
   shape === 'rectangle'
@@ -281,6 +284,8 @@ return (
               setOpen(true);
             }}
             tableId={tableId}
+             editableNameRef={editableNameRef}
+            onSaveName={(newName) => updateTableName(tableId, newName)}
           />
           {shape === 'rectangle' && (hovered || isRotating) && (
             <div
@@ -313,6 +318,11 @@ return (
           <ContextMenuItem onClick={() => removeTable(tableId)}>
             Delete
           </ContextMenuItem>
+        <ContextMenuItem
+          onClick={() => setTimeout(() => editableNameRef.current?.startEditing(), 50)}
+        >
+          Rename
+        </ContextMenuItem>
         </ContextMenuContent>
       </ContextMenu>
     </div>

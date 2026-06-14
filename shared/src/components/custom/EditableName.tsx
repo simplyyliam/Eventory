@@ -64,7 +64,7 @@ export const EditableName = forwardRef<EditableNameHandle, EditableNameProps>(({
     <input
       ref={inputRef}
       placeholder={placeholder ?? name}
-      className={className ?? 'border-none focus:outline-none bg-transparent min-w-10'}
+      className={className ?? 'border-none focus:outline-none bg-transparent w-fit'}
       value={value}
       onChange={handleChange}
       onDoubleClick={() => setIsEditing(true)}

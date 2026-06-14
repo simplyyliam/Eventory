@@ -1,5 +1,6 @@
 import { useTableTexture } from '@/lib/useTableTexture';
-import type { RefObject } from 'react';
+import { EditableName, type EditableNameHandle } from '@app/shared/components/custom/EditableName';
+import { type RefObject } from 'react';
 
 type TableProps = {
   x: number;
@@ -18,6 +19,8 @@ type TableProps = {
   }>;
   onClick: () => void;
   tableId: string
+  editableNameRef: RefObject<EditableNameHandle | null>;
+  onSaveName: (name: string) => void;
 };
 export const TableSurface = ({
   x,
@@ -29,10 +32,12 @@ export const TableSurface = ({
   isDraggingRef,
   offsetRef,
   onClick,
-  tableId
+  tableId,
+  editableNameRef,
+  onSaveName
 }: TableProps) => {
     const texture = useTableTexture(tableId);
-  
+      
   return (
     <div
       onClick={onClick}
@@ -54,7 +59,13 @@ export const TableSurface = ({
         backgroundSize: 'cover',
       }}
     >
-      {name}
+      <div className="flex items-center justify-center bg-accent max-w-33 text-wrap px-3 py-1.5 rounded-lg">
+          <EditableName
+          ref={editableNameRef}
+          name={name}
+          onSave={onSaveName}
+        />
+      </div>
     </div>
   );
 };

@@ -36,7 +36,7 @@ type TableStore = {
   updateTablePosition: (tableId: string, x: number, y: number) => void;
   updateTableRotation: (tableId: string, rotation: number) => void;
   updateTableShape: (tableId: string, shape: SeatingTable['shape']) => void;
-updateTableName: (tableId: string, name: string) => Promise<void>;
+  updateTableName: (tableId: string, name: string) => Promise<void>;
   updateTableTexture: (tableId: string, textureId: TextureId) => void;
   removeTable: (tableId: string) => void;
 };
@@ -196,23 +196,23 @@ export const useTableStore = create<TableStore>()(
         );
       },
 
-updateTableName: async (tableId, name) => {
-  const state = get();
-  // Optimistic update
-  set(
-    updateEventTables(
-      state.activeEventId,
-      state.tablesByEventId,
-      state.tables.map((t) => (t.id === tableId ? { ...t, name } : t)),
-    ),
-  );
-  // Sync to server
-  try {
-    await axios.patch(`${API_BASE_URL}/tables/${tableId}`, { name })
-  } catch (err) {
-    console.error('Failed to update table name', err)
-  }
-},
+      updateTableName: async (tableId, name) => {
+        const state = get();
+        // Optimistic update
+        set(
+          updateEventTables(
+            state.activeEventId,
+            state.tablesByEventId,
+            state.tables.map((t) => (t.id === tableId ? { ...t, name } : t)),
+          ),
+        );
+        // Sync to server
+        try {
+          await axios.patch(`${API_BASE_URL}/tables/${tableId}`, { name })
+        } catch (err) {
+          console.error('Failed to update table name', err)
+        }
+      },
 
       updateTableTexture: (tableId, textureId) => {
         const state = get();
