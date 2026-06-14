@@ -120,11 +120,6 @@ export const useHistoryStore = create<HistoryStore>((set, get) => ({
 
     const next = state.future[0];
 
-    const current = {
-      tables: structuredClone(tableState.tables),
-      guests: structuredClone(guestState.guests),
-    };
-
     useTableStore.setState((s) => ({
       ...s,
       tablesByEventId: {
