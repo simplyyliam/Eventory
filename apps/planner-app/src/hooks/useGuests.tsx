@@ -1,6 +1,7 @@
 import { useGuestStore } from '@/store/useGuestStore';
 import { useModalStore } from '@/store/useModalStore';
 import { useFormStore } from '@/store/useFormStore';
+import { useHistoryStore } from '@/store/useHistorySnapshot';
 
 export const useGuest = () => {
   const addGuest = useGuestStore((s) => s.addGuest);
@@ -21,6 +22,7 @@ export const useGuest = () => {
         dietary,
         comments: comment,
       });
+      useHistoryStore.getState().save()
     } else {
       addGuest({
         name,
@@ -28,6 +30,7 @@ export const useGuest = () => {
         dietary,
         comments: comment,
       });
+      useHistoryStore.getState().save()
     }
     closeModal();
     reset();

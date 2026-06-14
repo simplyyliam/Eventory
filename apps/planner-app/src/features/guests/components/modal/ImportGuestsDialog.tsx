@@ -1,5 +1,6 @@
 import { IconButton } from "@/shared/components"
 import { useGuestStore } from "@/store/useGuestStore"
+import { useHistoryStore } from "@/store/useHistorySnapshot"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@app/shared/components/ui/dialog"
 import { useState, useRef } from "react"
 import * as XLSX from "xlsx"
@@ -175,7 +176,9 @@ export const ImportGuestDialog = ({ open, onOpenChange }: ImportGuestsProps) => 
         <IconButton 
           onClick={() => {
             const guests = normalizeRows(rows)
+            useHistoryStore.getState().save()
             addBulkGuests(guests)
+            useHistoryStore.getState().save()
             setRows([])
             setFileName(null)
             onOpenChange(false)

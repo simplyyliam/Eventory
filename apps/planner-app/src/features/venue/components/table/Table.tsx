@@ -14,6 +14,7 @@ import { Chair, TableSurface } from '../assets';
 import { getInitials } from '@/lib/getInitials';
 import { TableSheet } from './table-sheet/TableSheet';
 import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuTrigger } from '@app/shared/components/ui/context-menu';
+import { useHistoryStore } from '@/store/useHistorySnapshot';
 
 export const Table = ({
   shape,
@@ -92,6 +93,11 @@ export const Table = ({
 
     const handleUp = () => {
       isDragging.current = false;
+
+      if(DidDragRef.current) {
+        useHistoryStore.getState().save();
+      }
+      
       setTimeout(() => {
         DidDragRef.current = false;
       }, 0);
@@ -129,6 +135,9 @@ export const Table = ({
     const handleUp = () => {
       if (isRotating) {
         setIsRotating(false);
+
+        useHistoryStore.getState().save();
+
         if (rotatePointerId.current != null && wrapperRef.current) {
           try {
             wrapperRef.current.releasePointerCapture(rotatePointerId.current);
@@ -136,6 +145,7 @@ export const Table = ({
             console.error(err);
           }
         }
+
         rotatePointerId.current = null;
       }
     };

@@ -8,8 +8,11 @@ import {
 import { IconButton } from '@/shared/components';
 import { useTableStore } from '@/store/useTableStore';
 import { Download01Icon } from '@hugeicons/core-free-icons';
-import { MenubarGroup } from './MenubarGroup';
+import { MenubarGroup } from './components/MenubarGroup';
 import { EventPublishDialog } from '@/features/events/components';
+import { TableProperties } from './components/TableProperties';
+import { HistoryControls } from './components/HistoryControls';
+import { withHistory } from '@/lib/withHistory';
 
 export const AppMenubar = () => {
   const addTable = useTableStore((s) => s.addTables);
@@ -19,31 +22,8 @@ export const AppMenubar = () => {
   return (
     <div className="flex items-center justify-between h-fit w-full shrink-0 p-2.5 z-10 absolute">
       <MenubarGroup>
-        <DropdownMenu>
-          <DropdownMenuTrigger
-            render={<IconButton Label="Table Properties" />}
-          />
-          <DropdownMenuContent className="w-fit">
-            <DropdownMenuGroup>
-              <div className=" p-3 text-sm backdrop-blur-md">
-                {tables.length > 0 ? (
-                  <ul className="space-y-1">
-                    {tables.map((table) => (
-                      <li key={table.id} className="flex gap-2">
-                        <span>{table.name}</span>
-                        <span className="text-muted-foreground">
-                          {table.id} - {table.seatCount} seats
-                        </span>
-                      </li>
-                    ))}
-                  </ul>
-                ) : (
-                  <p className="text-muted-foreground">No tables yet</p>
-                )}
-              </div>
-            </DropdownMenuGroup>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <TableProperties tables={tables}/>
+        <HistoryControls/>
       </MenubarGroup>
 
       <MenubarGroup>
@@ -51,10 +31,10 @@ export const AppMenubar = () => {
           <DropdownMenuTrigger render={<IconButton Label="Add table" />} />
           <DropdownMenuContent>
             <DropdownMenuGroup>
-              <DropdownMenuItem onClick={() => addTable('rectangle', 8)}>
+              <DropdownMenuItem onClick={() => withHistory(() => addTable('rectangle', 8))}>
                 Long Table
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => addTable('circle', 8)}>
+              <DropdownMenuItem onClick={() => withHistory(() => addTable('circle', 8))}>
                 Round Table
               </DropdownMenuItem>
             </DropdownMenuGroup>

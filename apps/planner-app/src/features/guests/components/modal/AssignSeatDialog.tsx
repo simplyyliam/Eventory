@@ -1,3 +1,4 @@
+import { withHistory } from '@/lib/withHistory';
 import { GuestCard } from '@/shared/components';
 import { useGuestStore } from '@/store/useGuestStore';
 import { useTableStore } from '@/store/useTableStore';
@@ -53,7 +54,7 @@ export const AssignSeatDialog = ({
                   key={guest.id}
                   name={guest.name ?? ''}
                   initials={initials}
-                  onClick={() => handleSeatGuest(guest.id)}
+                  onClick={() => withHistory(() => handleSeatGuest(guest.id))}
                   guestId={guest.id}
                 />
               );

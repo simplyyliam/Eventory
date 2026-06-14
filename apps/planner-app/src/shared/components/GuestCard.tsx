@@ -11,6 +11,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@app/shared/components/ui/dropdown-menu';
+import { withHistory } from '@/lib/withHistory';
 
 interface GuestCardProps {
   key: string;
@@ -88,9 +89,9 @@ export const GuestCard = ({
             <DropdownMenuItem
               onClick={() => {
                 if (showSeatedActions && isSeated) {
-                  unseatGuest(guestId);
+                   withHistory(() => unseatGuest(guestId))
                 } else {
-                  removeGuest(guestId);
+                  withHistory(() => removeGuest(guestId))
                 }
               }}
             >

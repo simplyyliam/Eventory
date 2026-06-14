@@ -10,6 +10,7 @@ import axios from 'axios';
 import { API_BASE_URL } from '@app/shared/utils/api';
 import { loadEvent } from '@/service/eventService';
 import { useAutoSaveEvent } from '@/lib/useAutoSaveEvent';
+import { useHistoryStore } from '@/store/useHistorySnapshot';
 
 type Viewport = {
   x: number;
@@ -47,10 +48,12 @@ export default function VenuePage() {
     if (localEvent) {
       setActiveGuestEvent(localEvent.id);
       setActiveTableEvent(localEvent.id);
+
+      useHistoryStore.getState().init()
+      
       return;
     }
 
-    // ✅ INTERNAL endpoint (NOT public)
     axios
       .get(`${API_BASE_URL}/internal/events/${eventSlug}`)
       .then((res) => {
@@ -62,6 +65,8 @@ export default function VenuePage() {
 
         // hydrate stores
         loadEvent(eventSlug);
+
+        useHistoryStore.getState().init()
       })
       .catch(() => {
         navigate('/', { replace: true });
