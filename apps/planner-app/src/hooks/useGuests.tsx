@@ -1,6 +1,5 @@
 import { useGuestStore } from '@/store/useGuestStore';
 import { useModalStore } from '@/store/useModalStore';
-import { useFormStore } from '@/store/useFormStore';
 import { useHistoryStore } from '@/store/useHistorySnapshot';
 
 export const useGuest = () => {
@@ -9,31 +8,42 @@ export const useGuest = () => {
   const editingGuestId = useModalStore((s) => s.editingGuestId);
   const closeModal = useModalStore((s) => s.closeModal);
   const updateGuest = useGuestStore((s) => s.updateGuest);
-  const { name, email, comment, dietary, reset } = useFormStore();
 
   const UnseatedGuestAmount = guests.filter((g) => !g.tableId).length;
   const SeatedGuestAmount = guests.filter((g) => !!g.tableId).length;
 
-  const handleAddGuest = () => {
+  const handleAddGuest = ({
+    name,
+    email,
+    dietary,
+    comment,
+  }: {
+    name: string;
+    email: string;
+    dietary: string[];
+    comment: string;
+  }) => {
     if (editingGuestId) {
-      updateGuest(editingGuestId, {
-        name,
-        email,
-        dietary,
-        comments: comment,
-      });
-      useHistoryStore.getState().save()
-    } else {
-      addGuest({
-        name,
-        email,
-        dietary,
-        comments: comment,
-      });
-      useHistoryStore.getState().save()
+      updateGuest(editingGuestId, { name, email, dietary, comments: comment });
+      useHistoryStore.getState().save();
+      closeModal();
+      return useGuestStore.getState().guests.find((g) => g.id === editingGuestId);
     }
+
+    const id = crypto.randomUUID(); 
+
+    const newGuest = {
+      id,
+      name,
+      email,
+      dietary,
+      comments: comment,
+    };
+
+    addGuest(newGuest);
+    useHistoryStore.getState().save();
     closeModal();
-    reset();
+    return newGuest; 
   };
 
   return {

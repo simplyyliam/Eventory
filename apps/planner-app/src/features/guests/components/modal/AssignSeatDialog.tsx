@@ -26,10 +26,11 @@ export const AssignSeatDialog = ({
   const table = tables.find((t) => t.id === tableId);
   const seatNumber = seatId.split('-').pop();
 
-  const handleSeatGuest = (guestId: string) => {
-    seatGuest(guestId, tableId, seatId);
-    onOpenChange(false);
-  };
+const handleSeatGuest = (guestId: string) => {
+  withHistory(() => seatGuest(guestId, tableId, seatId));
+  onOpenChange(false);
+};;
+  
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -54,7 +55,10 @@ export const AssignSeatDialog = ({
                   key={guest.id}
                   name={guest.name ?? ''}
                   initials={initials}
-                  onClick={() => withHistory(() => handleSeatGuest(guest.id))}
+                  onClick={() => {
+                    handleSeatGuest(guest.id)
+                    console.log('click fired', { guestId: guest.id, tableId, seatId })
+                  }}
                   guestId={guest.id}
                 />
               );

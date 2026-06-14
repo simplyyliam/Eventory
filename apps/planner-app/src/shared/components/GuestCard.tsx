@@ -45,17 +45,19 @@ export const GuestCard = ({
 
   const isSeated = !!guest?.tableId;
 
-  const handleEdit = () => {
-    if (!guest) return;
-    setForm({
-      name: guest.name,
-      email: guest.email ?? undefined,
-      comment: guest.comments ?? undefined,
-      dietary: guest.dietary ?? undefined,
-    });
-    setEditingGuestId(guestId);
-    setAddGuestOpen(true);
-  };
+const handleEdit = () => {
+  if (!guest) return;
+  setForm({
+    name: guest.name,
+    email: guest.email ?? undefined,
+    comment: guest.comments ?? undefined,
+    dietary: guest.dietary ?? undefined,
+    tableId: guest.tableId ?? null, 
+    seatId: guest.seat ?? null,       
+  });
+  setEditingGuestId(guestId);
+  setAddGuestOpen(true);
+};
 
   return (
     <div
@@ -79,6 +81,8 @@ export const GuestCard = ({
       <DropdownMenu>
         <DropdownMenuTrigger
           render={<IconButton Icon={MoreHorizontalIcon} />}
+          onPointerDown={(e) => e.stopPropagation()}
+          onClick={(e) => e.stopPropagation()}
         />
         <DropdownMenuContent>
           <DropdownMenuGroup>

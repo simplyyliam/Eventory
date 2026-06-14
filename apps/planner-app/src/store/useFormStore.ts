@@ -6,6 +6,9 @@ type FormState = {
   comment: string;
   dietary: string[];
 
+  tableId: string | null;
+  seatId: string | null;
+
   setField: <K extends keyof Omit<FormState, "setField" | "reset">>(
     key: K,
     value: FormState[K]
@@ -21,6 +24,9 @@ const initialState = {
   email: "",
   comment: "",
   dietary: [],
+
+  tableId: null,
+  seatId: null,
 };
 
 export const useFormStore = create<FormState>((set) => ({

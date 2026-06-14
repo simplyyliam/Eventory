@@ -17,7 +17,7 @@ type HistoryStore = {
   init: () => void;
 };
 
-const MAX = 50;
+const MAX = 100;
 
 export const useHistoryStore = create<HistoryStore>((set, get) => ({
   past: [],

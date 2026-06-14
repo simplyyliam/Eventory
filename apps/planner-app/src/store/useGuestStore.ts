@@ -16,6 +16,7 @@ export type Guest = {
 }
 
 export type GuestInput = {
+  id?: string
   name: string;
   email?: string | null;
   dietary?: string[];
@@ -81,7 +82,7 @@ export const useGuestStore = create<GuestStore>()(
       addGuest: (input) => {
         const state = get()
         const newGuest: Guest = {
-          id: crypto.randomUUID(),
+         id: input.id ?? crypto.randomUUID(),
           name: input.name,
           email: input.email ?? null,
           dietary: input.dietary ?? [],
@@ -126,6 +127,7 @@ export const useGuestStore = create<GuestStore>()(
       },
 
       seatGuest: (guestId, tableId, seatId) => {
+        console.log('seatGuest called', { guestId, tableId, seatId });
         const state = get()
         const guests = state.guests.map((g) =>
           g.id === guestId
