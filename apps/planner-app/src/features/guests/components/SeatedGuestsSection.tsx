@@ -7,14 +7,13 @@ import { useGuestStore } from '@/store/useGuestStore';
 import { useTableStore } from '@/store/useTableStore';
 import { useGuest } from '@/hooks/useGuests';
 import { getInitials } from '@/lib/getInitials';
-import { Button, SidebarGroup, SidebarGroupContent, SidebarGroupLabel } from '@app/shared';
+import { SidebarGroup, SidebarGroupContent, SidebarGroupLabel, Button } from '@app/shared';
 
 export const SeatedGuestsSection = () => {
-  const [isUnseatedOpen, setIsUnseatedOpen] = useState(true);
+  const [isSeatedOpen, setIsSeatedOpen] = useState(true);
   const guests = useGuestStore((s) => s.guests);
   const tables = useTableStore((s) => s.tables);
   const { SeatedGuestAmount } = useGuest();
-
   const seatedGuests = guests.filter((g) => g.tableId !== null);
 
   return (
@@ -29,22 +28,22 @@ export const SeatedGuestsSection = () => {
           variant="outline"
           size="icon"
           className="shrink-0"
-          aria-expanded={isUnseatedOpen}
-          aria-label="Toggle unseated guests"
-          onClick={() => setIsUnseatedOpen((open) => !open)}
+          aria-expanded={isSeatedOpen}
+          aria-label="Toggle seated guests"
+          onClick={() => setIsSeatedOpen((open) => !open)}
         >
           <HugeiconsIcon
             icon={ArrowDown01Icon}
             className={cn(
               'transition-transform duration-200',
-              isUnseatedOpen && 'rotate-180',
+              isSeatedOpen && 'rotate-180',
             )}
           />
         </Button>
         <IconButton Label={SeatedGuestAmount} />
       </div>
-      {isUnseatedOpen && (
-        <SidebarGroupContent className="px-2">
+      {isSeatedOpen && (
+        <SidebarGroupContent className="flex flex-col mt-1.5 px-2 gap-2.5">
           {seatedGuests.map((guest) => {
             const table = tables.find((t) => t.id === guest.tableId);
             const seatNumber = guest.seat?.split('-').pop();

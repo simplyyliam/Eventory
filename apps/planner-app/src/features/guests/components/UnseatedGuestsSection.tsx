@@ -10,10 +10,9 @@ import { Button, SidebarGroup, SidebarGroupContent, SidebarGroupLabel } from '@a
 
 export const UnseatedGuestsSection = () => {
   const [isUnseatedOpen, setIsUnseatedOpen] = useState(true);
-  const guests = useGuestStore((state) => state.guests);
+  const guests = useGuestStore((s) => s.guests);
   const { UnseatedGuestAmount } = useGuest();
-
-const unseatedGuest = guests.filter((guest) => !guest.tableId)
+  const unseatedGuests = guests.filter((g) => !g.tableId);
 
   return (
     <SidebarGroup>
@@ -42,17 +41,15 @@ const unseatedGuest = guests.filter((guest) => !guest.tableId)
         <IconButton Label={UnseatedGuestAmount} />
       </div>
       {isUnseatedOpen && (
-        <SidebarGroupContent className="px-2">
-          {unseatedGuest.map((guest) => {
-            return (
-              <GuestCard
-                key={guest.id}
-                name={guest.name ?? ""}
-                initials={getInitials(guest.name ?? "")}
-                guestId={guest.id}
-              />
-            );
-          })}
+        <SidebarGroupContent className="flex flex-col mt-1.5 px-2 gap-2.5">
+          {unseatedGuests.map((guest) => (
+            <GuestCard
+              key={guest.id}
+              name={guest.name ?? ''}
+              initials={getInitials(guest.name ?? '')}
+              guestId={guest.id}
+            />
+          ))}
         </SidebarGroupContent>
       )}
     </SidebarGroup>
