@@ -159,6 +159,9 @@ export default function VenuePage() {
             x={table.x}
             y={table.y}
             rotation={table.rotation}
+            height={table.height}
+            hiddenSeats={table.hiddenSeats}
+            linkedTableId={table.linkedTableId}
           />
         ))}
       </World>

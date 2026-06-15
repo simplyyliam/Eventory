@@ -59,7 +59,7 @@ export const useHistoryStore = create<HistoryStore>((set, get) => ({
 
   undo: () => {
     const state = get();
-    if (state.past.length <= 1) return; 
+    if (state.past.length < 1) return; 
 
     const tableState = useTableStore.getState();
     const guestState = useGuestStore.getState();
