@@ -25,6 +25,7 @@ import {
 import { useTableStore } from '@/store/useTableStore';
 import { useGuestStore } from '@/store/useGuestStore';
 import { useModalStore } from '@/store/useModalStore';
+import { getTableSeatCount } from '@/features/venue/components/table/table.metrics';
 
 type Props = {
   open: boolean;
@@ -51,9 +52,16 @@ export function AddGuestDialog({ open, onOpenChange }: Props) {
 
   const { handleAddGuest } = useGuest();
 
+  const handleClose = () => {
+    resetForm();
+    onOpenChange(false);
+  };
+
   const getFirstAvailableSeat = (tableId: string, excludeGuestId?: string): string | null => {
     const table = tables.find((t) => t.id === tableId);
     if (!table) return null;
+
+    const seatCount = getTableSeatCount(table);
 
     const occupiedSeats = new Set(
       guests
@@ -61,7 +69,7 @@ export function AddGuestDialog({ open, onOpenChange }: Props) {
         .map((g) => g.seat)
     );
 
-    for (let i = 1; i <= table.seatCount; i++) {
+    for (let i = 1; i <= seatCount; i++) {
       const seat = `${tableId}-seat-${i}`;
       if (!occupiedSeats.has(seat)) return seat;
     }
@@ -69,33 +77,28 @@ export function AddGuestDialog({ open, onOpenChange }: Props) {
     return null;
   };
 
-  const handleClose = () => {
-    resetForm();
-    onOpenChange(false);
-  };
+  const handleSave = () => {
+    const currentTableId = tableId;
+    const currentSeatId = seatId;
+    const guest = handleAddGuest({ name, email, dietary, comment });
 
-    const handleSave = () => {
-      const currentTableId = tableId;
-      const currentSeatId = seatId;
-      const guest = handleAddGuest({ name, email, dietary, comment });
+    if (!guest) return;
 
-      if (!guest) return;
-
-      if (isEditing) {
-        if (currentTableId && currentSeatId) {
-          seatGuest(guest.id, currentTableId, currentSeatId);
-        } else if (!currentTableId) {
-          unseatGuest(guest.id);
-        }
-      } else {
-        if (currentTableId) {
-          const autoSeat = currentSeatId ?? getFirstAvailableSeat(currentTableId);
-          if (autoSeat) seatGuest(guest.id, currentTableId, autoSeat);
-        }
+    if (isEditing) {
+      if (currentTableId && currentSeatId) {
+        seatGuest(guest.id, currentTableId, currentSeatId);
+      } else if (!currentTableId) {
+        unseatGuest(guest.id);
       }
+    } else {
+      if (currentTableId) {
+        const autoSeat = currentSeatId ?? getFirstAvailableSeat(currentTableId);
+        if (autoSeat) seatGuest(guest.id, currentTableId, autoSeat);
+      }
+    }
 
-      resetForm();
-    };
+    resetForm();
+  };
 
   const handleOpenChange = (newOpen: boolean) => {
     if (!newOpen) resetForm();
@@ -104,13 +107,15 @@ export function AddGuestDialog({ open, onOpenChange }: Props) {
 
   const selectedTable = tables.find((t) => t.id === tableId);
 
-  // Seats for the selected table, marking occupied ones (exclude current guest when editing)
+  const seatCount = selectedTable ? getTableSeatCount(selectedTable) : 0;
+
   const seatOptions = selectedTable
-    ? Array.from({ length: selectedTable.seatCount }).map((_, i) => {
+    ? Array.from({ length: seatCount }).map((_, i) => {
         const id = `${selectedTable.id}-seat-${i + 1}`;
         const occupiedBy = guests.find(
           (g) => g.seat === id && g.id !== editingGuestId
         );
+
         return {
           id,
           label: `Seat ${i + 1}`,
@@ -120,7 +125,9 @@ export function AddGuestDialog({ open, onOpenChange }: Props) {
     : [];
 
   const availableSeats = selectedTable
-    ? selectedTable.seatCount - guests.filter((g) => g.tableId === tableId && g.id !== editingGuestId).length
+    ? seatCount -
+      guests.filter((g) => g.tableId === tableId && g.id !== editingGuestId)
+        .length
     : null;
 
   return (
@@ -177,10 +184,16 @@ export function AddGuestDialog({ open, onOpenChange }: Props) {
                     const taken = guests.filter(
                       (g) => g.tableId === table.id && g.id !== editingGuestId
                     ).length;
-                    const free = table.seatCount - taken;
+
+                    const free = getTableSeatCount(table) - taken;
                     const full = free === 0;
+
                     return (
-                      <SelectItem key={table.id} value={table.id} disabled={full}>
+                      <SelectItem
+                        key={table.id}
+                        value={table.id}
+                        disabled={full}
+                      >
                         {table.name} {full ? '(full)' : `· ${free} seats left`}
                       </SelectItem>
                     );
@@ -198,23 +211,34 @@ export function AddGuestDialog({ open, onOpenChange }: Props) {
                 onValueChange={(value) => setField('seatId', value || null)}
               >
                 <SelectTrigger className="w-full">
-                    <SelectValue placeholder={isEditing ? 'Change seat' : 'Auto-assign'}>
-                      {seatId ? `Seat ${seatId.split('-seat-').pop()}` : undefined}
-                    </SelectValue>
+                  <SelectValue
+                    placeholder={isEditing ? 'Change seat' : 'Auto-assign'}
+                  >
+                    {seatId
+                      ? `Seat ${seatId.split('-seat-').pop()}`
+                      : undefined}
+                  </SelectValue>
                 </SelectTrigger>
+
                 <SelectContent>
                   <SelectGroup>
                     {!isEditing && (
                       <SelectItem value="">Auto-assign</SelectItem>
                     )}
+
                     {seatOptions.map((seat) => (
-                      <SelectItem key={seat.id} value={seat.id} disabled={seat.disabled}>
+                      <SelectItem
+                        key={seat.id}
+                        value={seat.id}
+                        disabled={seat.disabled}
+                      >
                         {seat.label} {seat.disabled ? '(taken)' : ''}
                       </SelectItem>
                     ))}
                   </SelectGroup>
                 </SelectContent>
               </Select>
+
               {!isEditing && !seatId && availableSeats !== null && availableSeats > 0 && (
                 <p className="text-xs text-muted-foreground">
                   Will be assigned to the next available seat
