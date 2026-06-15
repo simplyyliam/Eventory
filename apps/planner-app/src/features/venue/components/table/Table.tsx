@@ -114,7 +114,7 @@ export const Table = ({
       }
     };
 
-    const handleUp = (e: PointerEvent) => {
+    const handleUp = (_e: PointerEvent) => {
       if (!isDragging.current) return;
       isDragging.current = false;
 
