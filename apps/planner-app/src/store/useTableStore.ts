@@ -31,6 +31,7 @@ export type SeatingTable = {
   textureId: TextureId;
   // --- NEW FIELDS ---
   height?: number;           // Dynamic height for rectangle tables (px)
+  width?: number;
   hiddenSeats?: string[];    // Seat IDs toggled off by user e.g. ['uuid-seat-1']
   linkedTableId?: string;    // ID of the table this one is snapped/joined to
 };
@@ -91,6 +92,8 @@ const normalizeTables = (tables: SeatingTable[]) =>
       id: table.id,
       name: table.name ?? createTableName(tableNumber),
       tableNumber,
+      width: table.width ?? 150,
+      height: table.height ?? 320,
       x,
       y,
       rotation: table.rotation ?? 0,
@@ -156,6 +159,8 @@ export const useTableStore = create<TableStore>()(
           tableNumber,
           x: 0,
           y: 0,
+          width: 150,
+          height: 320,
           rotation: 0,
           textureId: 'white-oak',
           hiddenSeats: [],
