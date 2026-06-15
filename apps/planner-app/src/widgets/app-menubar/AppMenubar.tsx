@@ -13,6 +13,7 @@ import { EventPublishDialog } from '@/features/events/components';
 import { TableProperties } from './components/TableProperties';
 import { HistoryControls } from './components/HistoryControls';
 import { withHistory } from '@/lib/withHistory';
+import { SnapToGrid } from './components/snapToGrid';
 
 export const AppMenubar = () => {
   const addTable = useTableStore((s) => s.addTables);
@@ -24,6 +25,7 @@ export const AppMenubar = () => {
       <MenubarGroup>
         <TableProperties tables={tables}/>
         <HistoryControls/>
+        <SnapToGrid/>
       </MenubarGroup>
 
       <MenubarGroup>

@@ -2,6 +2,13 @@ import { useTableTexture } from '@/lib/useTableTexture';
 import { EditableName, type EditableNameHandle } from '@app/shared/components/custom/EditableName';
 import { type RefObject } from 'react';
 
+type DragState = {
+  worldX: number;
+  worldY: number;
+  screenX: number;
+  screenY: number;
+};
+
 type TableProps = {
   x: number;
   y: number;
@@ -13,15 +20,13 @@ type TableProps = {
     rectangleHeight: number;
   };
   isDraggingRef: RefObject<boolean>;
-  offsetRef: RefObject<{
-    x: number;
-    y: number;
-  }>;
+  dragStateRef: RefObject<DragState>;  // replaces offsetRef
   onClick: () => void;
-  tableId: string
+  tableId: string;
   editableNameRef: RefObject<EditableNameHandle | null>;
   onSaveName: (name: string) => void;
 };
+
 export const TableSurface = ({
   x,
   y,
@@ -30,23 +35,31 @@ export const TableSurface = ({
   shapeStyle,
   TABLE_CONFIG,
   isDraggingRef,
-  offsetRef,
+  dragStateRef,
   onClick,
   tableId,
   editableNameRef,
-  onSaveName
+  onSaveName,
 }: TableProps) => {
-    const texture = useTableTexture(tableId);
-      
+  const texture = useTableTexture(tableId);
+
   return (
     <div
       onClick={onClick}
       onPointerDown={(e) => {
+        // Capture the pointer so pointermove keeps firing even if the cursor
+        // moves outside this element or faster than a paint frame.
+        e.currentTarget.setPointerCapture(e.pointerId);
+
         isDraggingRef.current = true;
 
-        offsetRef.current = {
-          x: e.clientX - x,
-          y: e.clientY - y,
+        // Store world-space anchor (where the table is right now) and the
+        // screen-space starting point so handleMove can compute deltas.
+        dragStateRef.current = {
+          worldX:  x,
+          worldY:  y,
+          screenX: e.clientX,
+          screenY: e.clientY,
         };
       }}
       className={`absolute left-1/2 top-1/2 flex -translate-x-1/2 -translate-y-1/2 items-center justify-center border border-input bg-muted ${shapeStyle[shape]}`}
@@ -57,10 +70,11 @@ export const TableSurface = ({
         backgroundRepeat: 'no-repeat',
         backgroundPosition: 'center',
         backgroundSize: 'cover',
+        cursor: 'grab',
       }}
     >
       <div className="flex items-center justify-center bg-accent max-w-33 text-wrap px-3 py-1.5 rounded-lg">
-          <EditableName
+        <EditableName
           ref={editableNameRef}
           name={name}
           onSave={onSaveName}

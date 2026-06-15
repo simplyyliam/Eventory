@@ -21,9 +21,10 @@ import {
 } from '@app/shared/components/ui/context-menu';
 import { useHistoryStore } from '@/store/useHistorySnapshot';
 import type { EditableNameHandle } from '@app/shared/components/custom/EditableName';
+import { useViewportScale } from '@/pages/app/venue/world';
+import { useEditorStore } from '@/store/useEditor';
 
-// ─── Snap config ────────────────────────────────────────────────────────────
-// How close (in canvas px) two table edges need to be to snap together
+// ─── Snap config ─────────────────────────────────────────────────────────────
 const SNAP_THRESHOLD = 40;
 
 interface PremiumTableProps extends TableProps {
@@ -55,8 +56,11 @@ export const Table = ({
   const unlinkTable           = useTableStore((s) => s.unlinkTable);
   const removeTable           = useTableStore((s) => s.removeTable);
   const allTables             = useTableStore((s) => s.tables);
-
+  const snapToGrid            = useEditorStore((s) => s.snapToGrid);
   const guests = useGuestStore((s) => s.guests);
+
+  // ─── Viewport scale (from World context) ─────────────────────────────────
+  const scale = useViewportScale();
 
   // ─── UI State ────────────────────────────────────────────────────────────
   const [isRotating, setIsRotating]           = useState(false);
@@ -66,17 +70,19 @@ export const Table = ({
   const [hovered, setHovered]                 = useState(false);
   const [hoverGuest, setHoverGuest]           = useState<GuestInfoModalData | null>(null);
   const [open, setOpen]                       = useState(false);
-  const [snapCandidate, setSnapCandidate]     = useState<string | null>(null); // tableId of nearby table
+  const [snapCandidate, setSnapCandidate]     = useState<string | null>(null);
 
   // ─── Refs ────────────────────────────────────────────────────────────────
-  const isDragging        = useRef(false);
-  const DidDragRef        = useRef(false);
-  const offset            = useRef({ x: 0, y: 0 });
-  const wrapperRef        = useRef<HTMLDivElement | null>(null);
-  const rotateStart       = useRef({ angle: 0, rotation: 0 });
-  const rotatePointerId   = useRef<number | null>(null);
-  const resizeStart       = useRef({ y: 0, initialHeight: 0, initialY: 0 });
-  const editableNameRef   = useRef<EditableNameHandle>(null);
+  const isDragging      = useRef(false);
+  const DidDragRef      = useRef(false);
+  // Replaces the old `offset` ref. Stores world-space anchor + screen-space
+  // starting point so we can compute scale-aware deltas each frame.
+  const dragState       = useRef({ worldX: 0, worldY: 0, screenX: 0, screenY: 0 });
+  const wrapperRef      = useRef<HTMLDivElement | null>(null);
+  const rotateStart     = useRef({ angle: 0, rotation: 0 });
+  const rotatePointerId = useRef<number | null>(null);
+  const resizeStart     = useRef({ y: 0, initialHeight: 0, initialY: 0 });
+  const editableNameRef = useRef<EditableNameHandle>(null);
 
   // ─── Layout ──────────────────────────────────────────────────────────────
   const tableWidth    = shape === 'circle' ? TABLE_CONFIG.circleRadius * 2 : TABLE_CONFIG.rectangleWidth;
@@ -91,23 +97,38 @@ export const Table = ({
   const WORLD_SIZE = 10000;
   const WORLD_HALF = WORLD_SIZE / 2;
 
-  // Auto-calculate seat count from height for rectangles
   const calculatedSeatCount =
     shape === 'rectangle'
       ? 2 + Math.floor(currentHeight / 75) * 2
       : seatCount;
 
   // ─── Drag ────────────────────────────────────────────────────────────────
+  // Key fix: screen-space deltas are divided by `scale` before being applied
+  // to world-space coordinates. Without this division, tables feel "heavy"
+  // when zoomed out (delta too small) and "fly" when zoomed in (delta too large).
   useEffect(() => {
     const handleMove = (e: PointerEvent) => {
       if (!isDragging.current) return;
       DidDragRef.current = true;
 
-      const newX = e.clientX - offset.current.x;
-      const newY = e.clientY - offset.current.y;
+      const screenDx = e.clientX - dragState.current.screenX;
+      const screenDy = e.clientY - dragState.current.screenY;
+      dragState.current.screenX = e.clientX;
+      dragState.current.screenY = e.clientY;
+
+      dragState.current.worldX += screenDx / scale;
+      dragState.current.worldY += screenDy / scale;
+
+      // Snap live during drag
+      const newX = snapToGrid
+        ? Math.round(dragState.current.worldX / 24) * 24
+        : dragState.current.worldX;
+      const newY = snapToGrid
+        ? Math.round(dragState.current.worldY / 24) * 24
+        : dragState.current.worldY;
+
       updateTablePosition(tableId, newX, newY);
 
-      // ── Snap detection ──────────────────────────────────────────────────
       if (shape === 'rectangle') {
         const candidate = findSnapCandidate(newX, newY, tableId, allTables, currentHeight, tableWidth);
         setSnapCandidate(candidate);
@@ -119,11 +140,9 @@ export const Table = ({
       isDragging.current = false;
 
       if (DidDragRef.current) {
-        // Commit snap if we have a candidate
         if (snapCandidate) {
           const partner = allTables.find((t) => t.id === snapCandidate);
           if (partner && !linkedTableId) {
-            // Align positions: snap current table foot-to-head with partner
             const snappedPos = calcSnapPosition(partner, currentHeight, tableWidth);
             updateTablePosition(tableId, snappedPos.x, snappedPos.y);
             linkTables(tableId, snapCandidate);
@@ -141,7 +160,7 @@ export const Table = ({
       window.removeEventListener('pointermove', handleMove);
       window.removeEventListener('pointerup', handleUp);
     };
-  }, [updateTablePosition, tableId, allTables, shape, currentHeight, tableWidth, snapCandidate, linkedTableId, linkTables]);
+  }, [updateTablePosition, tableId, allTables, shape, currentHeight, tableWidth, snapCandidate, linkedTableId, linkTables, scale]);
 
   // ─── Rotation ────────────────────────────────────────────────────────────
   useEffect(() => {
@@ -255,8 +274,7 @@ export const Table = ({
           const angle = (Math.atan2(dy, dx) * 180) / Math.PI - 90;
           const guest = guests.find((g) => g.seat === seatId);
 
-          // Determine seat type for context menu label
-          const isHeadSeat = idx === 0 || idx === 1; // top / bottom head
+          const isHeadSeat = idx === 0 || idx === 1;
           const seatLabel  = isHeadSeat ? 'Remove Head Seat' : 'Remove Chair';
 
           return (
@@ -266,7 +284,7 @@ export const Table = ({
                   className="absolute cursor-pointer transition-transform duration-150 hover:scale-110 active:scale-95"
                   onClick={() => {
                     if (guests.find((g) => g.seat === seatId)) return;
-                    console.log({ id, tableId, seatId })
+                    console.log({ id, tableId, seatId });
                     setActiveSeat({ tableId: id, seatId });
                     setAssignSeatOpen(true);
                   }}
@@ -305,7 +323,7 @@ export const Table = ({
               <ContextMenuContent>
                 <ContextMenuItem
                   onClick={() => {
-                    toggleSeatVisibility(tableId, seatId)
+                    toggleSeatVisibility(tableId, seatId);
                     console.log('hiddenSeats after:', useTableStore.getState().tables.find(t => t.id === tableId)?.hiddenSeats);
                   }}
                 >
@@ -347,7 +365,7 @@ export const Table = ({
               shapeStyle={shapeStyle}
               TABLE_CONFIG={{ ...TABLE_CONFIG, rectangleHeight: currentHeight }}
               isDraggingRef={isDragging}
-              offsetRef={offset}
+              dragStateRef={dragState}
               onClick={() => {
                 if (DidDragRef.current) return;
                 setOpen(true);
@@ -451,10 +469,6 @@ export const Table = ({
 
 // ─── Snap helpers ─────────────────────────────────────────────────────────────
 
-/**
- * Returns the ID of a nearby rectangle table that this table's foot
- * edge is close enough to snap onto, or null if none.
- */
 function findSnapCandidate(
   x: number,
   y: number,
@@ -466,9 +480,7 @@ function findSnapCandidate(
   for (const t of allTables) {
     if (t.id === selfId || t.shape !== 'rectangle' || t.linkedTableId) continue;
 
-    // Foot edge of self (bottom centre in local space)
-    const selfFootY = y + selfHeight / 2;
-    // Head edge of candidate (top centre)
+    const selfFootY      = y + selfHeight / 2;
     const candidateHeadY = t.y - (t.height ?? 300) / 2;
 
     const xDiff = Math.abs(x - t.x);
@@ -481,17 +493,12 @@ function findSnapCandidate(
   return null;
 }
 
-/**
- * Returns the x/y this table should jump to when snapping foot-to-head
- * with a partner table.
- */
 function calcSnapPosition(
   partner: import('@/store/useTableStore').SeatingTable,
   selfHeight: number,
   _selfWidth: number,
 ): { x: number; y: number } {
   const partnerHeight = partner.height ?? 300;
-  // Align x centres, place foot of self flush with head of partner
   return {
     x: partner.x,
     y: partner.y - partnerHeight / 2 - selfHeight / 2,
