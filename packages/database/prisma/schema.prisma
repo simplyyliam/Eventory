@@ -37,6 +37,8 @@ model Table {
   seatCount   Int
   shape       String
   textureId   String
+  width       Float? @default(150)
+  height      Float? @default(320)
   x           Float   @default(0)
   y           Float   @default(0)
   rotation    Float   @default(0)
