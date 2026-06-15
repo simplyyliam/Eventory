@@ -2,17 +2,31 @@ import { GuestCard, IconButton } from '@/shared/components';
 import { cn } from '@app/shared/lib/utils';
 import { ArrowDown01Icon, ArrowUpDown } from '@hugeicons/core-free-icons';
 import { HugeiconsIcon } from '@hugeicons/react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useGuestStore } from '@/store/useGuestStore';
 import { useGuest } from '@/hooks/useGuests';
 import { getInitials } from '@/lib/getInitials';
 import { Button, SidebarGroup, SidebarGroupContent, SidebarGroupLabel } from '@app/shared';
+import { useSelectionStore } from '@/store/useSelectionStore';
 
 export const UnseatedGuestsSection = () => {
   const [isUnseatedOpen, setIsUnseatedOpen] = useState(true);
   const guests = useGuestStore((s) => s.guests);
   const { UnseatedGuestAmount } = useGuest();
   const unseatedGuests = guests.filter((g) => !g.tableId);
+
+    useEffect(() => {
+      const stopDrag = () => {
+        useSelectionStore.getState().stopDrag();
+      };
+  
+      window.addEventListener('pointerup', stopDrag);
+  
+      return () => {
+        window.removeEventListener('pointerup', stopDrag);
+      };
+    }, []);
+
 
   return (
     <SidebarGroup>

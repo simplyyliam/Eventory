@@ -2,12 +2,13 @@ import { GuestCard, IconButton } from '@/shared/components';
 import { cn } from '@app/shared/lib/utils';
 import { ArrowDown01Icon, ArrowUpDown } from '@hugeicons/core-free-icons';
 import { HugeiconsIcon } from '@hugeicons/react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useGuestStore } from '@/store/useGuestStore';
 import { useTableStore } from '@/store/useTableStore';
 import { useGuest } from '@/hooks/useGuests';
 import { getInitials } from '@/lib/getInitials';
 import { SidebarGroup, SidebarGroupContent, SidebarGroupLabel, Button } from '@app/shared';
+import { useSelectionStore } from '@/store/useSelectionStore';
 
 export const SeatedGuestsSection = () => {
   const [isSeatedOpen, setIsSeatedOpen] = useState(true);
@@ -15,6 +16,18 @@ export const SeatedGuestsSection = () => {
   const tables = useTableStore((s) => s.tables);
   const { SeatedGuestAmount } = useGuest();
   const seatedGuests = guests.filter((g) => g.tableId !== null);
+
+  useEffect(() => {
+    const stopDrag = () => {
+      useSelectionStore.getState().stopDrag();
+    };
+
+    window.addEventListener('pointerup', stopDrag);
+
+    return () => {
+      window.removeEventListener('pointerup', stopDrag);
+    };
+  }, []);
 
   return (
     <SidebarGroup>
@@ -55,7 +68,7 @@ export const SeatedGuestsSection = () => {
                 table={table?.name}
                 seat={seatNumber}
                 guestId={guest.id}
-                showSeatedActions
+                // showSeatedActions
               />
             );
           })}

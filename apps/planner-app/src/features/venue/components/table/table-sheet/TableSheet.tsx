@@ -67,7 +67,9 @@ export const TableSheet = ({
   const updateTableTexture = useTableStore((s) => s.updateTableTexture);
   const updateTableName    = useTableStore((s) => s.updateTableName);
   const updateTableHeight = useTableStore((s) => s.updateTableHeight)
+  const updateTableSeats = useTableStore((s) => s.updateTableSeats);
   const table = useTableStore((s) => s.tables.find((t) => t.id === tableId));
+  
 
 
 const storeSeats =
@@ -75,7 +77,7 @@ const storeSeats =
     ? 2 + Math.floor((table.height ?? 300) / 75) * 2
     : table?.seatCount ?? 0;
 
-  if (!storeSeats) return;
+  if (!storeSeats) return null;
 
   const tableLabel     = table?.shape === 'circle' ? 'Round Table' : 'Long Table';
   const assignedGuests = guests.filter((g) => g.tableId === tableId);
@@ -89,19 +91,22 @@ const storeSeats =
 
   const currentHeight = table?.height ?? 300;
 
-const getSeatCountFromHeight = (h: number) =>
-  2 + Math.floor(h / 75) * 2;
+    const increaseSeats = () => {
+      if (shape === 'rectangle') {
+        updateTableHeight(tableId, currentHeight + 75);
+      } else {
+        updateTableSeats(tableId, Math.min(10, storeSeats + 1));
+      }
+    };
 
-const increaseSeats = () => {
-  const newHeight = currentHeight + 75;
-  updateTableHeight(tableId, newHeight);
-};
-
-const decreaseSeats = () => {
-  const newHeight = Math.max(120, currentHeight - 75);
-  updateTableHeight(tableId, newHeight);
-};
-  
+    const decreaseSeats = () => {
+      if (shape === 'rectangle') {
+        const newHeight = Math.max(120, currentHeight - 75);
+        updateTableHeight(tableId, newHeight);
+      } else {
+        updateTableSeats(tableId, Math.max(8, storeSeats - 1));
+      }
+    };
 
   for (let idx = 2; idx < seatCount; idx++) {
     const sideIndex = idx - 2;
@@ -288,7 +293,7 @@ const decreaseSeats = () => {
                 >
                 <IconButton Icon={Minus} onClick={decreaseSeats} />
                   <div className="flex h-7 w-7 items-center justify-center rounded-md border border-input px-2 text-sm font-medium">
-                    {getSeatCountFromHeight(currentHeight)}
+                    {storeSeats}
                   </div>
                   <IconButton Icon={Plus} onClick={increaseSeats} />
                 </div>

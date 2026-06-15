@@ -38,17 +38,23 @@ export const GuestCard = ({
   const setEditingGuestId = useModalStore((s) => s.setEditingGuestId);
   const setAddGuestOpen = useModalStore((s) => s.setAddGuestOpen);
   const setForm = useFormStore((s) => s.setForm);
+
   const unseatGuest = useGuestStore((s) => s.unseatGuest);
   const removeGuest = useGuestStore((s) => s.removeGuest);
   const guest = useGuestStore((s) => s.guests.find((g) => g.id === guestId));
+
   const isSeated = !!guest?.tableId;
 
   const isSelected = useSelectionStore((s) => s.selectedIds.has(guestId));
   const isSelecting = useSelectionStore((s) => s.selectedIds.size > 0);
-  const toggle = useSelectionStore((s) => s.toggle);
+
+  const startDrag = useSelectionStore((s) => s.startDrag);
+  const setSelected = useSelectionStore((s) => s.setSelected);
+  const stopDrag = useSelectionStore((s) => s.stopDrag);
 
   const handleEdit = () => {
     if (!guest) return;
+
     setForm({
       name: guest.name,
       email: guest.email ?? undefined,
@@ -57,6 +63,7 @@ export const GuestCard = ({
       tableId: guest.tableId ?? null,
       seatId: guest.seat ?? null,
     });
+
     setEditingGuestId(guestId);
     setAddGuestOpen(true);
   };
@@ -64,6 +71,14 @@ export const GuestCard = ({
   return (
     <div
       onClick={onClick}
+      onPointerEnter={() => {
+        const { isDragging, dragMode } = useSelectionStore.getState();
+
+        if (!isDragging || !dragMode) return;
+
+        setSelected(guestId, dragMode === 'select');
+      }}
+      onPointerUp={stopDrag}
       className={cn(
         'flex items-center justify-between px-2.5 py-2 rounded-lg w-full',
         'transition-colors duration-100 ease-linear cursor-pointer border',
@@ -73,7 +88,14 @@ export const GuestCard = ({
         <div className="shrink-0">
           <Checkbox
             checked={isSelected}
-            onCheckedChange={() => toggle(guestId)}
+            onPointerDown={(e) => {
+              e.stopPropagation();
+
+              const mode = isSelected ? 'deselect' : 'select';
+
+              startDrag(mode);
+              setSelected(guestId, mode === 'select');
+            }}
             onClick={(e) => e.stopPropagation()}
           />
         </div>
@@ -83,7 +105,10 @@ export const GuestCard = ({
         </div>
 
         <div className="flex flex-col min-w-0">
-          <span className="text-sm font-medium truncate leading-tight">{name}</span>
+          <span className="text-sm font-medium truncate leading-tight">
+            {name}
+          </span>
+
           {table && seat ? (
             <span className="text-xs text-muted-foreground truncate leading-tight">
               {table} · Seat {seat}
@@ -103,16 +128,22 @@ export const GuestCard = ({
             onPointerDown={(e) => e.stopPropagation()}
             onClick={(e) => e.stopPropagation()}
           />
+
           <DropdownMenuContent align="end">
             <DropdownMenuGroup>
-              <DropdownMenuItem onClick={handleEdit}>Edit guest</DropdownMenuItem>
+              <DropdownMenuItem onClick={handleEdit}>
+                Edit guest
+              </DropdownMenuItem>
             </DropdownMenuGroup>
+
             <DropdownMenuSeparator />
+
             <DropdownMenuGroup>
               <DropdownMenuItem
                 className="text-destructive focus:text-destructive"
                 onClick={(e) => {
                   e.stopPropagation();
+
                   if (showSeatedActions && isSeated) {
                     withHistory(() => unseatGuest(guestId));
                   } else {
@@ -120,7 +151,9 @@ export const GuestCard = ({
                   }
                 }}
               >
-                {showSeatedActions && isSeated ? 'Unassign guest' : 'Remove guest'}
+                {showSeatedActions && isSeated
+                  ? 'Unassign guest'
+                  : 'Remove guest'}
               </DropdownMenuItem>
             </DropdownMenuGroup>
           </DropdownMenuContent>

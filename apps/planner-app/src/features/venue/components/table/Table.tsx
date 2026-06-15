@@ -34,7 +34,7 @@ interface PremiumTableProps extends TableProps {
 
 export const Table = ({
   shape,
-  seatCount = 8,
+  seatCount = 10,
   id,
   name,
   tableId,
