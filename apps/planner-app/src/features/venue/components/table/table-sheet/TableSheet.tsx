@@ -6,7 +6,6 @@ import { Minus, Plus, UserSearch01Icon, Link02Icon } from '@hugeicons/core-free-
 import { HugeiconsIcon } from '@hugeicons/react';
 import { GuestCard, IconButton } from '@/shared/components';
 import { useTableStore } from '@/store/useTableStore';
-import { useTableSeatCount } from '../utils';
 import { TEXTURE_LOADER } from '@/config';
 import { TextureSwatch } from './TextureSwatch';
 import {
@@ -64,13 +63,18 @@ export const TableSheet = ({
   onUnlink,
 }: TableSheetProps) => {
   const guests = useGuestStore((s) => s.guests);
-  const updateTableSeats   = useTableStore((s) => s.updateTableSeats);
   const updateTableShape   = useTableStore((s) => s.updateTableShape);
   const updateTableTexture = useTableStore((s) => s.updateTableTexture);
   const updateTableName    = useTableStore((s) => s.updateTableName);
+  const updateTableHeight = useTableStore((s) => s.updateTableHeight)
   const table = useTableStore((s) => s.tables.find((t) => t.id === tableId));
 
-  const storeSeats = useTableSeatCount(tableId);
+
+const storeSeats =
+  table?.shape === 'rectangle'
+    ? 2 + Math.floor((table.height ?? 300) / 75) * 2
+    : table?.seatCount ?? 0;
+
   if (!storeSeats) return;
 
   const tableLabel     = table?.shape === 'circle' ? 'Round Table' : 'Long Table';
@@ -82,6 +86,22 @@ export const TableSheet = ({
   // We build seat IDs the same way Table.tsx does: `${tableId}-seat-${idx + 1}`
   const leftSeatIds: string[]  = [];
   const rightSeatIds: string[] = [];
+
+  const currentHeight = table?.height ?? 300;
+
+const getSeatCountFromHeight = (h: number) =>
+  2 + Math.floor(h / 75) * 2;
+
+const increaseSeats = () => {
+  const newHeight = currentHeight + 75;
+  updateTableHeight(tableId, newHeight);
+};
+
+const decreaseSeats = () => {
+  const newHeight = Math.max(120, currentHeight - 75);
+  updateTableHeight(tableId, newHeight);
+};
+  
 
   for (let idx = 2; idx < seatCount; idx++) {
     const sideIndex = idx - 2;
@@ -266,17 +286,11 @@ export const TableSheet = ({
                   className="flex items-center gap-1.5"
                   onPointerDown={(e) => e.stopPropagation()}
                 >
-                  <IconButton
-                    Icon={Minus}
-                    onClick={() => updateTableSeats(tableId, Math.max(1, storeSeats - 1))}
-                  />
+                <IconButton Icon={Minus} onClick={decreaseSeats} />
                   <div className="flex h-7 w-7 items-center justify-center rounded-md border border-input px-2 text-sm font-medium">
-                    {storeSeats}
+                    {getSeatCountFromHeight(currentHeight)}
                   </div>
-                  <IconButton
-                    Icon={Plus}
-                    onClick={() => updateTableSeats(tableId, storeSeats + 1)}
-                  />
+                  <IconButton Icon={Plus} onClick={increaseSeats} />
                 </div>
               </Item>
               <Item>
