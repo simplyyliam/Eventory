@@ -57,7 +57,7 @@ export const useAutoSaveEvent = (slug?: string) => {
   // FORCE SAVE KEYBOARD SHORTCUT (Ctrl + S / Cmd + S)
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      const isSaveKey = (e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "s";
+      const isSaveKey = (e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "s" && !e.shiftKey;
       
       if (isSaveKey) {
         e.preventDefault(); 
