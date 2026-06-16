@@ -31,20 +31,22 @@ model Event {
 }
 
 model Table {
-  id          String  @id @default(uuid())
-  name        String
-  tableNumber Int
-  seatCount   Int
-  shape       String
-  textureId   String
-  width       Float? @default(150)
-  height      Float? @default(320)
-  x           Float   @default(0)
-  y           Float   @default(0)
-  rotation    Float   @default(0)
-  eventId     String
-  event       Event   @relation(fields: [eventId], references: [id], onDelete: Cascade)
-  guests      Guest[]
+  id            String  @id @default(uuid())
+  name          String
+  tableNumber   Int
+  seatCount     Int
+  shape         String
+  textureId     String
+  width         Float? @default(150)
+  height        Float? @default(320)
+  x             Float   @default(0)
+  y             Float   @default(0)
+  rotation      Float   @default(0)
+  hiddenSeats   String[] @default([])
+  linkedTableId String?              
+  eventId       String
+  event         Event   @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  guests        Guest[]
 
   @@index([eventId])
 }

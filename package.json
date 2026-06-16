@@ -13,6 +13,7 @@
     "db:push": "pnpm --filter @app/database db:push",
     "db:generate": "pnpm --filter @app/database db:generate",
     "prisma:dev": "pnpm --filter @app/database exec npx prisma dev",
+    "prisma:migrate": "pnpm --filter @app/database exec npx prisma migrate dev --name",
     "prisma:init": "pnpm --filter @app/database exec npx prisma init",
     "db:seed": "pnpm --filter @app/database db:seed",
     "server": "pnpm --filter server",

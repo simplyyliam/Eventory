@@ -121,6 +121,8 @@ app.patch('/internal/events/:slug', async (req, res) => {
         x: (t as any).x ?? 0,
         y: (t as any).y ?? 0,
         rotation: (t as any).rotation ?? 0,
+        hiddenSeats: (t as any).hiddenSeats ?? [],
+        linkedTableId: (t as any).linkedTableId ?? null,
       };
     });
 
@@ -286,6 +288,8 @@ app.post('/events', async (req, res) => {
       x: t.x ?? 0,
       y: t.y ?? 0,
       rotation: t.rotation ?? 0,
+      hiddenSeats: t.hiddenSeats ?? [],
+      linkedTableId: t.linkedTableId ?? null,
     };
   });
 
