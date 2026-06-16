@@ -366,6 +366,7 @@ export const Table = ({
               TABLE_CONFIG={{ ...TABLE_CONFIG, rectangleHeight: currentHeight }}
               isDraggingRef={isDragging}
               dragStateRef={dragState}
+              rotation={rotation}
               onClick={() => {
                 if (DidDragRef.current) return;
                 setOpen(true);

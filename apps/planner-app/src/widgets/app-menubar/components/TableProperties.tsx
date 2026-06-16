@@ -19,10 +19,10 @@ export const TableProperties = ({tables}:TablePropertiesProps) => {
                 <ul className="space-y-1">
                 {tables.map((table) => (
                     <li key={table.id} className="flex gap-2">
-                    <span>{table.name}</span>
-                    <span className="text-muted-foreground">
-                        {table.id} - {table.seatCount} seats
-                    </span>
+                        <span>{table.name}</span>
+                        <span className="text-muted-foreground">
+                            {table.seatCount} seats
+                        </span>
                     </li>
                 ))}
                 </ul>

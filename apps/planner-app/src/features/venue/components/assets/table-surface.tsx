@@ -25,6 +25,7 @@ type TableProps = {
   tableId: string;
   editableNameRef: RefObject<EditableNameHandle | null>;
   onSaveName: (name: string) => void;
+  rotation?: number
 };
 
 export const TableSurface = ({
@@ -40,6 +41,7 @@ export const TableSurface = ({
   tableId,
   editableNameRef,
   onSaveName,
+  rotation = 0
 }: TableProps) => {
   const texture = useTableTexture(tableId);
 
@@ -73,7 +75,9 @@ export const TableSurface = ({
         cursor: 'grab',
       }}
     >
-      <div className="flex items-center justify-center bg-accent max-w-33 text-wrap px-3 py-1.5 rounded-lg">
+      <div className="flex items-center justify-center bg-accent max-w-33 text-wrap px-3 py-1.5 rounded-lg"
+      style={{ transform: `rotate(${-rotation}deg)`}}
+      >
         <EditableName
           ref={editableNameRef}
           name={name}
