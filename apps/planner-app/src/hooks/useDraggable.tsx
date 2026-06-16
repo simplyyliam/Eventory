@@ -20,7 +20,7 @@ interface UseDragTableOptions {
 /**
  * useDragTable
  *
- * Provides scale-aware, grid-snapping drag behaviour for a canvas table element.
+ * Provides scale-aware, grid-snapping drag behavior for a canvas table element.
  *
  * The core fix for the "heavy at zoom-out / too fast at zoom-in" bug:
  *   Screen-space delta (pixels the mouse moved) must be divided by the viewport
@@ -94,7 +94,7 @@ export function useDragTable({
   );
 
   const onPointerUp = useCallback(
-    (e: React.PointerEvent<HTMLElement>) => {
+    (_e: React.PointerEvent<HTMLElement>) => {
       if (!lastScreen.current) return;
 
       lastScreen.current = null;
