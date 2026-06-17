@@ -1,7 +1,7 @@
 import { GuestListContainer } from '@/components';
-import { MessageCard, TicketCard } from '@/features/guests-details';
 import { useLocation } from 'react-router-dom';
 import { motion } from 'motion/react';
+import { GuestInfo } from '@/features/guests-details';
 
 export const GuestDetailsScreen = () => {
   const location = useLocation();
@@ -11,7 +11,7 @@ export const GuestDetailsScreen = () => {
   if (!guest) return null;
   if(!event) return null
   console.log("EVENT:", event)
-  const seatNumber = guest?.seat?.split('-').pop();
+  // const seatNumber = guest?.seat?.split('-').pop();
 
   const item = {
   hidden: {
@@ -45,7 +45,7 @@ const container = {
 };
 
   return (
-    <GuestListContainer className="items-center justify-center mesh-gradient font-dmSans">
+    <GuestListContainer className="items-center justify-center p-1.25! font-dmSans">
       <motion.div
         className="flex flex-col gap-2.5 items-center justify-between w-full h-full"
         variants={container}
@@ -53,16 +53,11 @@ const container = {
         animate="show"
       >
         <motion.div className="w-full h-full" variants={item}>
-          <TicketCard
+          <GuestInfo
             eventName={event.name ?? 'No Event'}
             guestName={guest.name}
-            seatNumber={seatNumber ?? '0'}
-            tableNumber={guest.table?.tableNumber ?? 0}
+            tableName={guest.table?.name ?? ""}
           />
-        </motion.div>
-
-        <motion.div className="w-full h-full" variants={item}>
-          <MessageCard />
         </motion.div>
       </motion.div>
     </GuestListContainer>
