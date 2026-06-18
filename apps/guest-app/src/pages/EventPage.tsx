@@ -1,5 +1,5 @@
 import { GuestListContainer } from '@/components';
-import { Button, Input } from '@app/shared';
+import { Button, Input, Skeleton } from '@app/shared';
 import { HugeiconsIcon } from '@hugeicons/react';
 import { Search01Icon } from '@hugeicons/core-free-icons';
 import { GuestCard } from '@/features/guests-list';
@@ -10,6 +10,38 @@ import { ListFilter, X } from 'lucide-react';
 import { motion, AnimatePresence, useInView } from 'motion/react';
 import { getPublicEventBySlug } from '@app/shared/utils/publicEvent';
 
+
+// ─── Skeleton ─────────────────────────────────────────────────────────────────
+
+const GuestCardSkeleton = () => (
+  <div className="flex items-center gap-3 px-3 py-3.5 rounded-2xl">
+    <Skeleton className="w-10 h-10 rounded-full shrink-0 bg-muted-foreground/15" />
+    <div className="flex flex-col gap-2 flex-1">
+      <Skeleton className="h-3.5 w-3/4 bg-muted-foreground/15" />
+      <Skeleton className="h-2.5 w-2/5 bg-muted-foreground/15" />
+    </div>
+    <Skeleton className="w-4 h-4 shrink-0 bg-muted-foreground/15" />
+  </div>
+);
+
+const GuestListSkeleton = () => (
+  <div className="flex flex-col gap-2.5 w-full">
+    <div className="flex items-center justify-between h-12 px-2.5">
+      <Skeleton className="h-4 w-36 bg-muted-foreground/15" />
+      <Skeleton className="h-12 w-12 rounded-xl bg-muted-foreground/15" />
+    </div>
+    <div className="flex items-center justify-between px-2.5 py-3.5">
+      <Skeleton className="h-3 w-20 bg-muted-foreground/15" />
+      <Skeleton className="h-3 w-12 bg-muted-foreground/15" />
+    </div>
+    {Array.from({ length: 8 }).map((_, i) => (
+      <GuestCardSkeleton key={i} />
+    ))}
+  </div>
+);
+
+// ─── Scroll fade wrapper ──────────────────────────────────────────────────────
+
 const container = {
   hidden: { opacity: 0 },
   show: {
@@ -17,18 +49,13 @@ const container = {
     transition: {
       delayChildren: 0.1,
       staggerChildren: 0.06,
-      ease: "easeOut" as const,
+      ease: 'easeOut' as const,
     },
   },
 };
 
 const item = {
-  hidden: {
-    opacity: 0,
-    y: 20,
-    filter: 'blur(4px)',
-    scale: 0.98,
-  },
+  hidden: { opacity: 0, y: 20, filter: 'blur(4px)', scale: 0.98 },
   show: {
     opacity: 1,
     y: 0,
@@ -37,11 +64,7 @@ const item = {
     transition: {
       opacity: { duration: 0.2 },
       filter: { duration: 0.2 },
-      y: {
-        type: 'spring' as const,
-        stiffness: 100,
-        damping: 18,
-      },
+      y: { type: 'spring' as const, stiffness: 100, damping: 18 },
     },
   },
   exit: {
@@ -49,13 +72,13 @@ const item = {
     y: -20,
     filter: 'blur(4px)',
     scale: 0.95,
-    transition: { duration: 0.15, ease: "easeIn" as const }
-  }
+    transition: { duration: 0.15, ease: 'easeIn' as const },
+  },
 };
 
 const ScrollFadeItem = ({ children }: { children: React.ReactNode; isLast: boolean }) => {
   const itemRef = useRef<HTMLDivElement>(null);
-  const isInView = useInView(itemRef, { margin: "0px 0px -5% 0px" });
+  const isInView = useInView(itemRef, { margin: '0px 0px -5% 0px' });
 
   return (
     <motion.div
@@ -76,6 +99,8 @@ const ScrollFadeItem = ({ children }: { children: React.ReactNode; isLast: boole
   );
 };
 
+// ─── Page ─────────────────────────────────────────────────────────────────────
+
 export const GuestListPage = () => {
   const { slug } = useParams();
   const [event, setEvent] = useState<EventResponse | null>(null);
@@ -87,22 +112,17 @@ export const GuestListPage = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-  if (!slug) return;
-
-  getPublicEventBySlug(slug)
-    .then((res) => {
-      setEvent(res);
-      setIsLoading(false);
-    })
+    if (!slug) return;
+    getPublicEventBySlug(slug)
+      .then((res) => {
+        setEvent(res);
+        setIsLoading(false);
+      })
       .catch(() => setIsLoading(false));
   }, [slug]);
 
   const filteredGuests = event?.guests
-    .filter((guest) => {
-      const name = guest.name.toLowerCase();
-      const qry = query.toLowerCase();
-      return name.startsWith(qry);
-    })
+    .filter((guest) => guest.name.toLowerCase().startsWith(query.toLowerCase()))
     .sort((a, b) =>
       sortAZ ? a.name.localeCompare(b.name) : b.name.localeCompare(a.name)
     );
@@ -117,11 +137,17 @@ export const GuestListPage = () => {
     setQuery('');
   };
 
+  if (isLoading) {
+    return (
+      <GuestListContainer className="font-dmSans">
+        <GuestListSkeleton />
+      </GuestListContainer>
+    );
+  }
+
   return (
     <GuestListContainer className="font-dmSans">
-      {/* UI unchanged */}
       <div className="flex items-center justify-between h-12">
-
         <AnimatePresence mode="popLayout">
           {!isSearchOpen && (
             <motion.span
@@ -186,7 +212,6 @@ export const GuestListPage = () => {
             </motion.div>
           )}
         </AnimatePresence>
-
       </div>
 
       <div className="flex items-center justify-between text-[13px] gap-2 py-3.5 px-2.5">
@@ -200,43 +225,40 @@ export const GuestListPage = () => {
         </button>
       </div>
 
-      {!isLoading && (
-        <motion.div
-          variants={container}
-          initial="hidden"
-          animate="show"
-          layout="position"
-          transition={{ duration: 0.2, ease: "easeInOut" }}
-          className="flex flex-col gap-2.5 w-full h-full pb-28"
-        >
-          <AnimatePresence mode="popLayout">
-            {filteredGuests?.map((guest, index) => {
-              const isLastItem = index === (filteredGuests.length - 1);
-
-              return (
-                <motion.div key={guest.id} variants={item}>
-                  <ScrollFadeItem key={`${guest.id}-${query}`} isLast={isLastItem}>
-                    <GuestCard
-                      name={guest.name}
-                      onClick={() => {
-                        setTimeout(() => {
-                          navigate('/loading', {
-                            state: {
-                              destination: `/events/${slug}/guests/${guest.id}`,
-                              slug,
-                              guestId: guest.id
-                            }
-                          });
+      <motion.div
+        variants={container}
+        initial="hidden"
+        animate="show"
+        layout="position"
+        transition={{ duration: 0.2, ease: 'easeInOut' }}
+        className="flex flex-col gap-2.5 w-full h-full pb-28"
+      >
+        <AnimatePresence mode="popLayout">
+          {filteredGuests?.map((guest, index) => {
+            const isLastItem = index === filteredGuests.length - 1;
+            return (
+              <motion.div key={guest.id} variants={item}>
+                <ScrollFadeItem key={`${guest.id}-${query}`} isLast={isLastItem}>
+                  <GuestCard
+                    name={guest.name}
+                    onClick={() => {
+                      setTimeout(() => {
+                        navigate('/loading', {
+                          state: {
+                            destination: `/events/${slug}/guests/${guest.id}`,
+                            slug,
+                            guestId: guest.id,
+                          },
                         });
-                      }}
-                    />
-                  </ScrollFadeItem>
-                </motion.div>
-              );
-            })}
-          </AnimatePresence>
-        </motion.div>
-      )}
+                      });
+                    }}
+                  />
+                </ScrollFadeItem>
+              </motion.div>
+            );
+          })}
+        </AnimatePresence>
+      </motion.div>
     </GuestListContainer>
   );
 };
