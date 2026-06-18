@@ -1,8 +1,8 @@
-import { DisplayCard } from "@/features/display-card"
+import { QRCodeTwo } from "@/features/display-card"
 
 
 export const DisplayScreen = () => {
     return (
-        <DisplayCard/>
+        <QRCodeTwo/>
     )
 }

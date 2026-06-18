@@ -28,9 +28,6 @@ export const QRCode = ({ value }: Props) => {
         type: "dot",
       },
 
-      backgroundOptions: {
-        color: "#ffffff",
-      },
     });
 
     if (ref.current) {
