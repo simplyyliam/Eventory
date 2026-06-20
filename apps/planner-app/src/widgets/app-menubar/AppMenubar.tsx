@@ -14,8 +14,11 @@ import { TableProperties } from './components/TableProperties';
 import { HistoryControls } from './components/HistoryControls';
 import { withHistory } from '@/lib/withHistory';
 import { SnapToGrid } from './components/SnapToGrid';
+import { GuestListDialog } from './components/GuestListDialog';
+import { useState } from 'react';
 
 export const AppMenubar = () => {
+  const [open, setOpen] = useState(false)
   const addTable = useTableStore((s) => s.addTables);
   const tables = useTableStore((s) => s.tables);
 
@@ -26,6 +29,7 @@ export const AppMenubar = () => {
         <TableProperties tables={tables}/>
         <HistoryControls/>
         <SnapToGrid/>
+        <IconButton onClick={() => setOpen(true)} Label="Guest List"/>
       </MenubarGroup>
 
       <MenubarGroup>
@@ -46,6 +50,7 @@ export const AppMenubar = () => {
         <EventPublishDialog />
         <IconButton Icon={Download01Icon} />
       </MenubarGroup>
+      <GuestListDialog open={open} onOpenChange={setOpen}/>
     </div>
   );
 };
