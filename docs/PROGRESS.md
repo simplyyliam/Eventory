@@ -19,7 +19,7 @@ If you're a new session continuing the overhaul goal: read `CLAUDE.md`, `DECISIO
 
 - [x] `feat/floor-plan-editor`: react-konva editor, contents panel (drag/click to add), guests tab + drag-to-seat + auto-seat, inspector, guides/snap/marquee, sprites + bitmap caching for perf; shell retuned to the History reference
 
-- [ ] `feat/guests`: guests page (search, filter by RSVP/seated/table, bulk select, RSVP change, inline edit sheet, add, CSV/XLSX import with column preview, CSV export by table)
+- [x] `feat/guests`: list with search, RSVP/seating filters (URL params), inline RSVP menu, bulk bar, add/edit dialog with dietary tags, XLSX/CSV import with column detection + template, CSV export sorted by table
 - [ ] `feat/share-settings`: share page (publish toggle = status change, link, QR download, print-ready seating list) and settings page (name/rename, date, time, venue, address, welcome message, RSVP deadline, contact, room size, danger zone)
 - [ ] `feat/visualizer`: `features/visualizer/` with R3F + drei
   - Room from `venue.room`, clay walls cut away, wood floor, Lightformer lighting, contact shadows

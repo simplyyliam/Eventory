@@ -48,6 +48,7 @@ type WorkspaceState = Doc & {
 
   addGuests: (inputs: GuestInput[]) => void;
   updateGuest: (id: string, patch: Partial<Omit<Guest, 'id'>>) => void;
+  updateGuests: (ids: string[], patch: Partial<Omit<Guest, 'id'>>) => void;
   removeGuests: (ids: string[]) => void;
   assignSeat: (guestId: string, tableId: string, seat: string) => void;
   unseat: (guestIds: string[]) => void;
@@ -246,6 +247,8 @@ export const useWorkspace = create<WorkspaceState>()(
           })),
 
         updateGuest: (id, patch) => commit((s) => ({ guests: s.guests.map((g) => (g.id === id ? { ...g, ...patch } : g)) })),
+
+        updateGuests: (ids, patch) => commit((s) => ({ guests: s.guests.map((g) => (ids.includes(g.id) ? { ...g, ...patch } : g)) })),
 
         removeGuests: (ids) => commit((s) => ({ guests: s.guests.filter((g) => !ids.includes(g.id)) })),
 
