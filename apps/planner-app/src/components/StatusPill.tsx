@@ -21,8 +21,8 @@ const dots: Record<Tone, string> = {
 
 export function Pill({ tone = 'neutral', children, className, dot = true }: { tone?: Tone; children: React.ReactNode; className?: string; dot?: boolean }) {
   return (
-    <span className={cn('inline-flex h-5.5 items-center gap-1.5 rounded-md px-1.5 text-[12px] font-medium whitespace-nowrap', tones[tone], className)}>
-      {dot && <span className={cn('size-1.5 rounded-full', dots[tone])} />}
+    <span className={cn('inline-flex h-5 items-center gap-1 rounded-[4px] px-1.5 text-[11.5px] font-medium whitespace-nowrap', tones[tone], className)}>
+      {dot && <span className={cn('size-[5px] rounded-full', dots[tone])} />}
       {children}
     </span>
   );

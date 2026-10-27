@@ -37,6 +37,7 @@ type WorkspaceState = Doc & {
   addTable: (shape: TableShape, x: number, y: number, seatCount?: number) => string;
   updateTable: (id: string, patch: Partial<Omit<PlanTable, 'id'>>) => void;
   moveItems: (moves: { id: string; x: number; y: number }[]) => void;
+  patchItems: (patches: ({ id: string } & Partial<Pick<VenueElement, 'x' | 'y' | 'rotation' | 'width' | 'height'>>)[]) => void;
   duplicate: (ids: string[]) => string[];
   removeItems: (ids: string[]) => void;
   toggleSeat: (tableId: string, seat: string) => void;
@@ -152,6 +153,25 @@ export const useWorkspace = create<WorkspaceState>()(
               return m ? { ...item, x: m.x, y: m.y } : item;
             };
             return { tables: s.tables.map(move), venue: { ...s.venue, elements: s.venue.elements.map(move) } };
+          }),
+
+        // One history step for a whole multi-select transform.
+        patchItems: (patches) =>
+          commit((s) => {
+            const byId = new Map(patches.map((p) => [p.id, p]));
+            return {
+              tables: s.tables.map((t) => {
+                const p = byId.get(t.id);
+                return p ? { ...t, x: p.x ?? t.x, y: p.y ?? t.y, rotation: p.rotation ?? t.rotation } : t;
+              }),
+              venue: {
+                ...s.venue,
+                elements: s.venue.elements.map((e) => {
+                  const p = byId.get(e.id);
+                  return p ? { ...e, ...p } : e;
+                }),
+              },
+            };
           }),
 
         duplicate: (ids) => {

@@ -1,7 +1,6 @@
 import { format, parseISO } from 'date-fns';
 import { useWorkspace } from '@/store/workspace';
 import { daysUntil } from '@/domain/stats';
-import { SaveIndicator } from '@/components/SaveIndicator';
 import { EventStatusPill, Pill } from '@/components/StatusPill';
 import { whenLabel } from '@/features/dashboard/summaries';
 
@@ -29,7 +28,6 @@ export function EventHeader({ title, actions }: { title?: string; actions?: Reac
         <EventMeta />
       </div>
       <div className="flex items-center gap-2">
-        <SaveIndicator />
         {actions}
       </div>
     </div>
