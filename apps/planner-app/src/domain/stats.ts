@@ -24,8 +24,8 @@ export function eventStats(tables: PlanTable[], guests: Guest[]): EventStats {
       if (key) dietary.set(key, (dietary.get(key) ?? 0) + 1);
     }
   }
-  const seated = guests.filter((g) => g.tableId).length;
   const attending = guests.filter((g) => g.status !== 'declined');
+  const seated = attending.filter((g) => g.tableId).length;
   return {
     guests: guests.length,
     confirmed: guests.filter((g) => g.status === 'confirmed').length,
