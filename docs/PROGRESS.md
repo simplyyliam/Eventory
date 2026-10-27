@@ -2,6 +2,14 @@
 
 If you're a new session continuing the overhaul goal: read `CLAUDE.md`, `DECISIONS.md`, `docs/DESIGN.md`, then pick up the first unchecked item below. Each item is its own branch merged into `main` with `--no-ff`.
 
+## User design direction (keep applying)
+
+- Match `docs/design/(1) History _ X (1).jpg` closely: default (not inset) sidebar with hairline divider, event switcher at the top of the sidebar (no Eventory logo row), breadcrumb top bar with the current page as a grey chip, neutral greys, small radii, compact pills.
+- Flat / soft-minimal icons and marks only. No gradients or bevels.
+- Dark theme base is `#0a0a0a`.
+- Tiny, subtle interaction details everywhere (see docs/DESIGN.md), never playful.
+- Floor plan must stay 60fps: sprites + cached table bitmaps, no live canvas shadows, hit graph paused while panning/zooming.
+
 ## Done
 
 - [x] `chore/foundation`: tokens, shared primitive retune, domain layer, workspace store (zundo), autosave, shell, sidebar, ⌘K menu, server RSVP/privacy fixes, docs
@@ -9,15 +17,8 @@ If you're a new session continuing the overhaul goal: read `CLAUDE.md`, `DECISIO
 
 ## To do (in order)
 
-- [ ] `feat/floor-plan-editor`: react-konva editor at `features/floor-plan/`
-  - Stage with pan (space/middle drag, wheel/trackpad) and zoom to cursor, dotted grid, room rectangle
-  - Tables (circle/rectangle/square/row) and venue elements (stage, dance floor, bar…) from `domain/geometry.ts` + `ELEMENT_PRESETS`
-  - Contents panel on the left: drag items onto the canvas (native DnD + `stage.setPointersPositions`), or click to add at the centre
-  - Selection (click, shift-click, marquee), Transformer for rotation, alignment guides, arrow-key nudge, Delete, ⌘D duplicate
-  - Inspector on the right for the selection: name, seats stepper, shape, finish, rotation, hide seats, seated guests with assign/unseat
-  - Unseated guests popover with search; drag a guest onto a seat; auto-seat button
-  - Toolbar island: undo/redo, zoom %, fit, grid snap toggle, SaveIndicator
-  - Commit to the store only on drag/transform end
+- [x] `feat/floor-plan-editor`: react-konva editor, contents panel (drag/click to add), guests tab + drag-to-seat + auto-seat, inspector, guides/snap/marquee, sprites + bitmap caching for perf; shell retuned to the History reference
+
 - [ ] `feat/guests`: guests page (search, filter by RSVP/seated/table, bulk select, RSVP change, inline edit sheet, add, CSV/XLSX import with column preview, CSV export by table)
 - [ ] `feat/share-settings`: share page (publish toggle = status change, link, QR download, print-ready seating list) and settings page (name/rename, date, time, venue, address, welcome message, RSVP deadline, contact, room size, danger zone)
 - [ ] `feat/visualizer`: `features/visualizer/` with R3F + drei
