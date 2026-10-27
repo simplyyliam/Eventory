@@ -31,7 +31,7 @@ export function EventRoute() {
         <div className="flex max-w-xs flex-col items-center gap-3 text-center">
           <p className="text-[15px] font-semibold">Event not found</p>
           <p className="text-[13px] text-muted-foreground">It may have been renamed or deleted.</p>
-          <Button variant="outline" render={<Link to="/" />}>
+          <Button variant="outline" nativeButton={false} render={<Link to="/" />}>
             Back to events
           </Button>
         </div>
