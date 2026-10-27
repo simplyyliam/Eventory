@@ -200,3 +200,48 @@
     transform: none;
   }
 }
+
+#print-sheet {
+  display: none;
+}
+
+@media print {
+  body > *:not(#print-sheet) {
+    display: none !important;
+  }
+  #print-sheet {
+    display: block;
+    color: #000;
+    font-size: 11pt;
+  }
+  #print-sheet h1 {
+    font-size: 20pt;
+    font-weight: 600;
+    margin-bottom: 4pt;
+  }
+  #print-sheet h2 {
+    font-size: 13pt;
+    font-weight: 600;
+    margin: 14pt 0 6pt;
+  }
+  #print-sheet table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  #print-sheet th,
+  #print-sheet td {
+    text-align: left;
+    padding: 3pt 0;
+    border-bottom: 0.5pt solid #ddd;
+  }
+  #print-sheet .print-table {
+    break-before: page;
+  }
+  #print-sheet li {
+    padding: 3pt 0;
+    list-style: none;
+  }
+  #print-sheet em {
+    color: #555;
+  }
+}
