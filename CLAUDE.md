@@ -2,6 +2,10 @@
 
 Event planning monorepo. Planners build a seating plan; guests scan a QR code and find their table.
 
+## Ongoing work
+
+A multi-session overhaul is in progress. **Read `docs/PROGRESS.md` first**: it lists what's merged and the next branch to build.
+
 ## Layout
 
 | Path | What |
@@ -23,7 +27,7 @@ pnpm server dev             # needs DATABASE_URL in apps/server/.env
 pnpm planner-app build      # tsc + vite build, run before merging
 ```
 
-`VITE_API_URL` points the apps at the API (defaults to `http://localhost:3001`).
+`VITE_API_URL` points the apps at the API (defaults to `http://localhost:3001`). `.env.local` targets production, so for local testing run `node scripts/mock-api.mjs` (in-memory, port 3010) and start Vite with `VITE_API_URL=http://localhost:3010`.
 
 ## Planner app architecture
 
