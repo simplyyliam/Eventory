@@ -1,18 +1,18 @@
-import { RouterProvider } from "react-router-dom";
-import { Router } from "./router";
-import { TooltipProvider } from "@app/shared/components/ui/tooltip";
-import { ThemeProvider } from "@/components/theme-provider";
-import { useModal } from "@/hooks/useModal";
-import { useKeyboardShortcuts } from "../hooks/useKeyboardShortcuts";
+import { QueryClientProvider } from '@tanstack/react-query';
+import { RouterProvider } from 'react-router-dom';
+import { MotionConfig } from 'motion/react';
+import { TooltipProvider } from '@app/shared/components/ui/tooltip';
+import { queryClient } from '@/lib/queries';
+import { router } from './router';
 
-export default function App() {
-  useKeyboardShortcuts()
-  useModal()
+export function App() {
   return (
-    <ThemeProvider>
-      <TooltipProvider>
-        <RouterProvider router={Router} />
-      </TooltipProvider>
-    </ThemeProvider>
+    <QueryClientProvider client={queryClient}>
+      <MotionConfig reducedMotion="user">
+        <TooltipProvider delay={400}>
+          <RouterProvider router={router} />
+        </TooltipProvider>
+      </MotionConfig>
+    </QueryClientProvider>
   );
 }

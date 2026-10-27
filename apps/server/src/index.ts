@@ -150,7 +150,7 @@ app.patch('/internal/events/:slug', async (req, res) => {
         comments: g.comments ?? null,
         seat,
         tableId: realTableId,
-        status: (realTableId ? 'confirmed' : validStatus) as 'pending' | 'confirmed' | 'declined',
+        status: validStatus,
       };
     });
 
@@ -188,6 +188,19 @@ app.patch('/internal/events/:slug', async (req, res) => {
     res.status(500).json({ error: 'Failed to autosave event data structure' });
   }
 });
+// Guests on public pages only need what the guest app shows; emails and
+// notes stay private to the planner.
+const publicGuestSelect = {
+  id: true,
+  name: true,
+  status: true,
+  seat: true,
+  tableId: true,
+  dietary: false,
+  email: false,
+  comments: false,
+} as const;
+
 // shows only events that are published (for Display + Guest app)
 app.get('/public/events/:slug', async (req, res) => {
   const { slug } = req.params;
@@ -200,7 +213,7 @@ app.get('/public/events/:slug', async (req, res) => {
       },
       include: {
         tables: true,
-        guests: true,
+        guests: { select: publicGuestSelect, where: { status: { not: 'declined' } } },
       },
     });
 
@@ -219,9 +232,9 @@ app.get('/public/events/:slug/guests/:guestId', async (req, res) => {
   const { guestId } = req.params;
 
   try {
-    const guest = await prisma.guest.findUnique({
-      where: { id: guestId },
-      include: { table: true },
+    const guest = await prisma.guest.findFirst({
+      where: { id: guestId, event: { slug: req.params.slug, status: 'published' } },
+      select: { ...publicGuestSelect, table: true },
     });
 
     if (!guest) {
@@ -342,9 +355,6 @@ app.post('/events', async (req, res) => {
       include: { tables: true, guests: true },
     });
 
-    console.log('🚀 Upserted Event:');
-    console.dir(event, { depth: null });
-
     res.status(201).json(event);
   } catch (err: any) {
     console.error(err);
@@ -368,7 +378,6 @@ app.get('/events', async (_, res) => {
 app.patch('/events/:slug', async (req, res) => {
   const { slug } = req.params
   const { name, status, metadata } = req.body
-  console.log('PATCH /events/:slug', slug, req.body)
   try {
     const event = await prisma.event.update({
       where: { slug },
@@ -418,7 +427,6 @@ app.delete('/events/:slug', async (req, res) => {
 app.patch('/tables/:tableId', async (req, res) => {
   const { tableId } = req.params
   const { name } = req.body
-  console.log('PATCH /tables/:tableId', tableId, req.body)
   try {
     const table = await prisma.table.update({
       where: { id: tableId },

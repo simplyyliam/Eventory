@@ -1,96 +1,41 @@
-import { createBrowserRouter, type RouteObject } from "react-router-dom";
-import AppLayout from "./layout/AppLayout";
-import type { ComponentType } from "react";
+import { createBrowserRouter, Navigate, useParams } from 'react-router-dom';
+import { AppShell } from './AppShell';
+import { RouteError } from './RouteError';
+import { DashboardPage } from '@/features/dashboard/DashboardPage';
+import { EventRoute } from '@/features/event/EventRoute';
+import { OverviewPage } from '@/features/overview/OverviewPage';
+import { GuestsPage } from '@/features/guests/GuestsPage';
+import { SharePage } from '@/features/share/SharePage';
+import { SettingsPage } from '@/features/settings/SettingsPage';
 
-type PageModule = {
-  default: ComponentType;
-};
+// The two canvas-heavy screens are split out so the dashboard loads light.
+const lazyPage = (load: () => Promise<{ default: React.ComponentType }>) => async () => ({ Component: (await load()).default });
 
-const pages = import.meta.glob("../pages/**/page.tsx", {
-  eager: true,
-});
-
-const appRoutes: RouteObject[] = [];
-const standaloneRoutes: RouteObject[] = [];
-
-let entryRoute: RouteObject | null = null;
-
-for (const [path, module] of Object.entries(pages)) {
-  const page = module as PageModule;
-  const Component = page.default;
-
-  // ----------------------------
-  // 1. Convert file path → route
-  // ----------------------------
-  let routePath = path
-    .replace("../pages", "")
-    .replace("/page.tsx", "");
-
-  const isStandalone = routePath.includes("/standalone/");
-
-  // remove grouping prefixes
-  routePath = routePath
-    .replace("/standalone", "")
-    .replace("/app", "");
-
-  const normalizePath = routePath.length === 0 ? "/" : routePath;
-
-  const route: RouteObject = {
-    path: normalizePath,
-    element: <Component />,
-  };
-
-  // ----------------------------
-  // 2. ENTRY ROUTE LOGIC
-  // ----------------------------
-  const isEntryPage =
-    isStandalone && normalizePath === "/dashboard";
-
-  if (isEntryPage) {
-    entryRoute = {
-      path: "/",
-      element: <Component />,
-    };
-    continue;
-  }
-
-  // ----------------------------
-  // 3. ROUTE CLASSIFICATION
-  // ----------------------------
-  if (isStandalone) {
-    standaloneRoutes.push(route);
-  } else {
-    appRoutes.push(route);
-
-    if (normalizePath === "/venue") {
-      appRoutes.push({
-        path: "/venue/:eventSlug",
-        element: <Component />,
-      });
-    }
-  }
+function LegacyVenueRedirect() {
+  const { slug } = useParams();
+  return <Navigate to={`/events/${slug}/floor-plan`} replace />;
 }
 
-export const Router = createBrowserRouter([
-  // --------------------------------
-  // ENTRY ROUTE (landing / default)
-  // --------------------------------
-  entryRoute ?? {
-    path: "/",
-    element: <div>Missing entry page</div>,
-  },
-
-  // --------------------------------
-  // APP SHELL ROUTES
-  // --------------------------------
+export const router = createBrowserRouter([
   {
-    path: "/",
-    element: <AppLayout />,
-    children: appRoutes,
+    element: <AppShell />,
+    errorElement: <RouteError />,
+    children: [
+      { index: true, element: <DashboardPage /> },
+      {
+        path: 'events/:slug',
+        element: <EventRoute />,
+        children: [
+          { index: true, element: <OverviewPage /> },
+          { path: 'floor-plan', lazy: lazyPage(() => import('@/features/floor-plan/FloorPlanPage')) },
+          { path: 'guests', element: <GuestsPage /> },
+          { path: 'view', lazy: lazyPage(() => import('@/features/visualizer/VisualizerPage')) },
+          { path: 'share', element: <SharePage /> },
+          { path: 'settings', element: <SettingsPage /> },
+        ],
+      },
+      { path: 'venue/:slug', element: <LegacyVenueRedirect /> },
+      { path: '*', element: <Navigate to="/" replace /> },
+    ],
   },
-
-  // --------------------------------
-  // STANDALONE ROUTES
-  // --------------------------------
-  ...standaloneRoutes,
 ]);
