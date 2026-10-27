@@ -55,7 +55,7 @@ export function CommandMenu() {
       );
     }
     for (const e of events ?? []) {
-      list.push({ id: `event-${e.id}`, group: 'Events', label: e.name, icon: <EventMark name={e.name} small />, run: () => navigate(`/events/${e.slug}`) });
+      list.push({ id: `event-${e.id}`, group: 'Events', label: e.name, icon: <EventMark name={e.name} size="sm" />, run: () => navigate(`/events/${e.slug}`) });
     }
     const dark = resolvedTheme(theme) === 'dark';
     list.push(
