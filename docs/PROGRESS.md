@@ -32,6 +32,9 @@ If you're a new session continuing the overhaul goal: read `CLAUDE.md`, `DECISIO
 
 ## Status
 
+Research sources are in `docs/RESEARCH.md`. Next session: ask the user to try the 3D view on their 4K screen and to confirm the dressed scene looks right; adjust decor based on their feedback.
+
+
 The overhaul is complete. Possible follow-ups:
 
 - Redeploy `apps/server` so the RSVP and privacy fixes go live (DECISIONS 007, 008). Until then, seating someone still flips them to "confirmed" on save, and public pages still include emails.
