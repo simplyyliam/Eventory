@@ -103,6 +103,11 @@ export const ELEMENT_PRESETS: Record<ElementKind, { label: string; width: number
   entrance: { label: 'Entrance', width: m(2), height: m(0.3) },
   pillar: { label: 'Pillar', width: m(0.5), height: m(0.5) },
   plant: { label: 'Plant', width: m(0.7), height: m(0.7) },
+  cake: { label: 'Cake table', width: m(1.2), height: m(1.2) },
+  gifts: { label: 'Gift table', width: m(1.8), height: m(0.8) },
+  sign: { label: 'Welcome sign', width: m(0.8), height: m(0.5) },
+  'photo-booth': { label: 'Photo booth', width: m(3), height: m(2) },
+  lounge: { label: 'Lounge', width: m(3), height: m(2.4) },
 };
 
 export const createElement = (kind: ElementKind, x: number, y: number): VenueElement => ({

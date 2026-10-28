@@ -25,7 +25,7 @@ function DanceFloorLines({ w, h, color }: { w: number; h: number; color: string 
 export const ElementNode = memo(function ElementNode({ element, selected, labelSize: rawLabel, p, dark, handlers }: Props) {
   const style = ELEMENT_STYLE[element.kind];
   const { width: w, height: h } = element;
-  const round = element.kind === 'pillar' || element.kind === 'plant';
+  const round = element.kind === 'pillar' || element.kind === 'plant' || element.kind === 'cake';
   const labelSize = Math.min(rawLabel, Math.min(w, h) * 0.35);
 
   return (

@@ -6,7 +6,6 @@ import { autoSeat } from '@/domain/seating';
 import type {
   ChecklistItem,
   ElementKind,
-  EventDetails,
   EventMetadata,
   EventStatus,
   EventSummary,
@@ -31,7 +30,7 @@ type WorkspaceState = Doc & {
   hydrate: (event: EventSummary) => void;
   clear: () => void;
   setEventInfo: (info: Partial<EventInfo>) => void;
-  updateDetails: (patch: Partial<EventDetails>) => void;
+  updateDetails: (patch: Partial<Omit<EventMetadata, 'venue'>>) => void;
   setChecklist: (items: ChecklistItem[]) => void;
 
   addTable: (shape: TableShape, x: number, y: number, seatCount?: number) => string;

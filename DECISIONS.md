@@ -64,4 +64,8 @@ Chairs and plants in the 3D view use CC0 models from Poly Haven instead of primi
 
 ## 014 · 3D navigation without game controls
 
-Walk and fly work like a property tour, not a game. You drag to look, click the floor to glide there, and scroll to move. There is no pointer lock and no WASD. Everything runs on one `CameraControls` instance with per-mode settings, and the canvas renders on demand at the native pixel ratio.
+Walk and fly work like a property tour, not a game. You drag to look, click the floor to glide there, and scroll to move. There is no pointer lock. WASD/arrow keys also move the camera (requested after the first version left them out); they drive the same controls, so there's no captured cursor or crosshair. Everything runs on one `CameraControls` instance with per-mode settings, and the canvas renders on demand at the native pixel ratio.
+
+## 015 · Decor styles instead of per-item decoration
+
+Event holders need the 3D view to show the room as it will feel on the day, and a set of styles gets most of the way with one choice. Each style sets napkins, chargers, centrepieces (flowers, balloons, candles or greenery), fairy lights, chandeliers, curtain colour and the banner and sign text. It's stored as `metadata.decor` (`{ theme, accent }`). Place settings and bulbs are instanced, so a dressed room adds only a handful of draw calls.

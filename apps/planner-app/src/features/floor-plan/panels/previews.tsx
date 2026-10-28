@@ -102,6 +102,49 @@ export function Preview({ payload }: { payload: DropPayload }) {
           <circle cx="22" cy="22" r="6" fill="currentColor" fillOpacity={0.12} />
         </svg>
       );
+    case 'cake':
+      return (
+        <svg {...common}>
+          <circle cx="22" cy="22" r="13" />
+          <circle cx="22" cy="22" r="8" fill="currentColor" fillOpacity={0.12} />
+          <circle cx="22" cy="22" r="4" />
+        </svg>
+      );
+    case 'gifts':
+      return (
+        <svg {...common}>
+          <rect x="7" y="17" width="30" height="11" rx="2" />
+          <rect x="11" y="13" width="7" height="7" rx="1" fill="currentColor" fillOpacity={0.12} />
+          <rect x="22" y="11" width="9" height="9" rx="1" fill="currentColor" fillOpacity={0.12} />
+          <path d="M26.5 11v9M22 15.5h9" strokeOpacity={0.6} />
+        </svg>
+      );
+    case 'sign':
+      return (
+        <svg {...common}>
+          <rect x="12" y="10" width="20" height="16" rx="1.5" />
+          <path d="M16 15h12M18 19h8M15 26l-3 9M29 26l3 9M22 26v9" strokeOpacity={0.7} />
+        </svg>
+      );
+    case 'photo-booth':
+      return (
+        <svg {...common}>
+          <path d="M8 30V14h28v16" />
+          <circle cx="13" cy="12" r="3" />
+          <circle cx="31" cy="12" r="3" />
+          <circle cx="22" cy="9" r="3" />
+          <circle cx="22" cy="34" r="2.5" fill="currentColor" fillOpacity={0.2} />
+        </svg>
+      );
+    case 'lounge':
+      return (
+        <svg {...common}>
+          <rect x="8" y="10" width="28" height="9" rx="3" />
+          <rect x="17" y="23" width="10" height="7" rx="1.5" fill="currentColor" fillOpacity={0.12} />
+          <rect x="8" y="31" width="9" height="6" rx="2" />
+          <rect x="27" y="31" width="9" height="6" rx="2" />
+        </svg>
+      );
     case 'plant':
       return (
         <svg {...common}>

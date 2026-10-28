@@ -3,11 +3,10 @@ import { Html } from '@react-three/drei';
 import * as THREE from 'three';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 import { seatPoses, toPlan } from '@/domain/geometry';
-import type { Guest, PlanTable, TableFinish, VenueElement } from '@/domain/types';
+import type { Guest, PlanTable, TableFinish } from '@/domain/types';
 import { toMetres, useView } from '../viewStore';
 import { clothTexture, woodTexture } from './textures';
-import { useChairModel, usePlantModel } from './models';
-import { Clone } from '@react-three/drei';
+import { useChairModel } from './models';
 
 const TABLE_H = 0.75;
 const deg = (d: number) => (d * Math.PI) / 180;
@@ -110,30 +109,7 @@ const FINISH_3D: Record<TableFinish, { color: string; cloth: boolean; grain?: st
   walnut: { color: '#6f4b33', cloth: false, grain: '#3c2718' },
 };
 
-function Centrepiece({ evening }: { evening: boolean }) {
-  return (
-    <group position-y={TABLE_H}>
-      <mesh position-y={0.06} castShadow>
-        <cylinderGeometry args={[0.05, 0.04, 0.12, 16]} />
-        <meshStandardMaterial color="#e8e4dc" roughness={0.2} metalness={0.1} />
-      </mesh>
-      <mesh position-y={0.16} castShadow>
-        <icosahedronGeometry args={[0.09, 1]} />
-        <meshStandardMaterial color="#7f9a6c" roughness={0.9} flatShading />
-      </mesh>
-      {[-0.16, 0.16].map((x) => (
-        <group key={x} position={[x, 0, 0.05]}>
-          <mesh position-y={0.04}>
-            <cylinderGeometry args={[0.018, 0.018, 0.08, 10]} />
-            <meshStandardMaterial color="#f6f1e6" emissive={evening ? '#ffb257' : '#000000'} emissiveIntensity={evening ? 0.6 : 0} />
-          </mesh>
-        </group>
-      ))}
-    </group>
-  );
-}
-
-function TableMesh({ table, highlighted, evening, children }: { table: PlanTable; highlighted: boolean; evening: boolean; children?: React.ReactNode }) {
+function TableMesh({ table, highlighted, children }: { table: PlanTable; highlighted: boolean; children?: React.ReactNode }) {
   const finish = FINISH_3D[table.finish];
   const w = toMetres(table.width);
   const h = toMetres(table.height);
@@ -194,7 +170,6 @@ function TableMesh({ table, highlighted, evening, children }: { table: PlanTable
           )}
         </>
       )}
-      <Centrepiece evening={evening} />
       {children}
     </group>
   );
@@ -214,7 +189,6 @@ export function Tables({ tables, guests }: { tables: PlanTable[]; guests: Guest[
   const selected = useView((s) => s.selected);
   const hovered = useView((s) => s.hovered);
   const labels = useView((s) => s.labels);
-  const evening = useView((s) => s.lighting === 'evening');
   const { select, hover } = useView.getState();
 
   return (
@@ -244,7 +218,7 @@ export function Tables({ tables, guests }: { tables: PlanTable[]; guests: Guest[
               select(selected === t.id ? null : t.id);
             }}
           >
-            <TableMesh table={t} highlighted={hovered === t.id || selected === t.id} evening={evening} />
+            <TableMesh table={t} highlighted={hovered === t.id || selected === t.id} />
             {selected === t.id && <SelectionHalo table={t} />}
             {/* kept mounted and hidden with CSS: mounting drei Html mid-render races React 19 */}
             <Html position={[0, 1.55, 0]} center zIndexRange={[20, 0]} style={{ pointerEvents: 'none' }}>
@@ -261,123 +235,6 @@ export function Tables({ tables, guests }: { tables: PlanTable[]; guests: Guest[
           </group>
         );
       })}
-    </>
-  );
-}
-
-function Plant({ size }: { size: number }) {
-  const scene = usePlantModel();
-  // the model is about 0.7 m across
-  return <Clone object={scene} scale={size / 0.7} castShadow receiveShadow />;
-}
-
-function Element({ el, dark, evening }: { el: VenueElement; dark: boolean; evening: boolean }) {
-  const w = toMetres(el.width);
-  const d = toMetres(el.height);
-  const clay = dark ? '#bdb7ae' : '#f1eee9';
-  const pos: [number, number, number] = [toMetres(el.x), 0, toMetres(el.y)];
-
-  const body = (() => {
-    switch (el.kind) {
-      case 'stage':
-        return (
-          <>
-            <mesh position-y={0.3} castShadow receiveShadow>
-              <boxGeometry args={[w, 0.6, d]} />
-              <meshStandardMaterial color="#3a3530" roughness={0.6} />
-            </mesh>
-            <mesh position-y={0.605} receiveShadow>
-              <boxGeometry args={[w - 0.04, 0.01, d - 0.04]} />
-              <meshStandardMaterial map={woodTexture('#5a4636', '#2e2219')} roughness={0.35} />
-            </mesh>
-            {evening && <spotLight position={[0, 3.2, d / 2 + 1]} angle={0.6} penumbra={0.8} intensity={14} distance={8} color="#ffd9a8" />}
-          </>
-        );
-      case 'dance-floor':
-        return (
-          <mesh position-y={0.012} receiveShadow>
-            <boxGeometry args={[w, 0.024, d]} />
-            <meshStandardMaterial color={dark ? '#1d1d1d' : '#2a2725'} roughness={0.12} metalness={0.2} />
-          </mesh>
-        );
-      case 'bar':
-        return (
-          <>
-            <mesh position-y={0.52} castShadow receiveShadow>
-              <boxGeometry args={[w, 1.04, d]} />
-              <meshStandardMaterial color={clay} roughness={0.9} />
-            </mesh>
-            <mesh position-y={1.07} castShadow>
-              <boxGeometry args={[w + 0.1, 0.06, d + 0.12]} />
-              <meshStandardMaterial map={woodTexture('#6f4b33', '#3c2718')} roughness={0.3} />
-            </mesh>
-          </>
-        );
-      case 'buffet':
-        return (
-          <mesh position-y={0.43} castShadow receiveShadow>
-            <boxGeometry args={[w, 0.86, d]} />
-            <meshStandardMaterial color="#f7f5f0" roughness={0.95} bumpMap={clothTexture()} bumpScale={0.3} />
-          </mesh>
-        );
-      case 'dj':
-        return (
-          <>
-            <mesh position-y={0.5} castShadow>
-              <boxGeometry args={[w, 1, d]} />
-              <meshStandardMaterial color="#26262a" roughness={0.5} />
-            </mesh>
-            <mesh position-y={1.02}>
-              <boxGeometry args={[w * 0.8, 0.04, d * 0.6]} />
-              <meshStandardMaterial color="#111" emissive={evening ? '#5b8def' : '#000'} emissiveIntensity={0.4} />
-            </mesh>
-          </>
-        );
-      case 'entrance':
-        return (
-          <>
-            {[-1, 1].map((s) => (
-              <mesh key={s} position={[(s * w) / 2, 1.1, 0]} castShadow>
-                <boxGeometry args={[0.12, 2.2, 0.3]} />
-                <meshStandardMaterial color={clay} roughness={0.9} />
-              </mesh>
-            ))}
-            <mesh position-y={2.25} castShadow>
-              <boxGeometry args={[w + 0.12, 0.12, 0.3]} />
-              <meshStandardMaterial color={clay} roughness={0.9} />
-            </mesh>
-            <mesh position-y={0.006} rotation-x={-Math.PI / 2}>
-              <planeGeometry args={[w * 0.8, 0.9]} />
-              <meshStandardMaterial color="#8a7f70" roughness={1} />
-            </mesh>
-          </>
-        );
-      case 'pillar':
-        return (
-          <mesh position-y={1.5} castShadow receiveShadow>
-            <cylinderGeometry args={[w / 2, w / 2, 3, 32]} />
-            <meshStandardMaterial color={clay} roughness={0.9} />
-          </mesh>
-        );
-      case 'plant':
-        return <Plant size={w} />;
-    }
-  })();
-
-  return (
-    <group position={pos} rotation-y={-deg(el.rotation)}>
-      {body}
-    </group>
-  );
-}
-
-export function Elements({ elements, dark }: { elements: VenueElement[]; dark: boolean }) {
-  const evening = useView((s) => s.lighting === 'evening');
-  return (
-    <>
-      {elements.map((el) => (
-        <Element key={el.id} el={el} dark={dark} evening={evening} />
-      ))}
     </>
   );
 }

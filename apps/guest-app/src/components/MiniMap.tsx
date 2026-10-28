@@ -56,7 +56,7 @@ export function MiniMap({ event, tableId, seat }: { event: PublicEvent; tableId:
       {room && <rect x={minX} y={minY} width={maxX - minX} height={maxY - minY} rx={30} fill="var(--card)" stroke="var(--line)" strokeWidth={8} />}
       {elements.map((el) => (
         <g key={el.id} transform={`translate(${el.x} ${el.y}) rotate(${el.rotation})`}>
-          {el.kind === 'pillar' || el.kind === 'plant' ? (
+          {el.kind === 'pillar' || el.kind === 'plant' || el.kind === 'cake' ? (
             <circle r={Math.min(el.width, el.height) / 2} fill={ELEMENT_FILL[el.kind]} />
           ) : (
             <rect

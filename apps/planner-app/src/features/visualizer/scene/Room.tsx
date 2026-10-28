@@ -10,6 +10,10 @@ const WALL_H = 3;
 const WALL_T = 0.16;
 const CUT_H = 0.35;
 
+// Live wall heights (north, south, west, east) so wall decor can hide when its
+// wall drops for the cut-away view.
+export const wallHeights = [WALL_H, WALL_H, WALL_H, WALL_H];
+
 type Wall = { pos: [number, number]; size: [number, number]; normal: THREE.Vector3 };
 
 // Walls between the camera and the room drop down to a low ledge, like a
@@ -45,6 +49,7 @@ export function Room({ room, dark }: { room: RoomSize; dark: boolean }) {
       const h = THREE.MathUtils.damp(mesh.scale.y, target, 10, delta);
       if (Math.abs(h - target) > 0.002) moving = true;
       mesh.scale.y = h;
+      wallHeights[i] = h;
       mesh.position.y = h / 2;
     });
     if (moving) {

@@ -46,6 +46,16 @@ const GROUPS: { title: string; items: Entry[] }[] = [
       { label: 'Plant', hint: '0.7 m', payload: { type: 'element', kind: 'plant' } },
     ],
   },
+  {
+    title: 'Extras',
+    items: [
+      { label: 'Cake table', hint: '1.2 m', payload: { type: 'element', kind: 'cake' } },
+      { label: 'Gift table', hint: '1.8 m', payload: { type: 'element', kind: 'gifts' } },
+      { label: 'Welcome sign', hint: 'Easel', payload: { type: 'element', kind: 'sign' } },
+      { label: 'Photo booth', hint: '3 × 2 m', payload: { type: 'element', kind: 'photo-booth' } },
+      { label: 'Lounge', hint: 'Sofa set', payload: { type: 'element', kind: 'lounge' } },
+    ],
+  },
 ];
 
 const footprint = (payload: DropPayload) => {

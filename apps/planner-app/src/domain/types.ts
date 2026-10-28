@@ -41,7 +41,12 @@ export type ElementKind =
   | 'dj'
   | 'entrance'
   | 'pillar'
-  | 'plant';
+  | 'plant'
+  | 'cake'
+  | 'gifts'
+  | 'sign'
+  | 'photo-booth'
+  | 'lounge';
 
 export type VenueElement = {
   id: string;
@@ -82,8 +87,13 @@ export type EventDetails = {
   contactEmail: string;
 };
 
+export type DecorTheme = 'wedding' | 'birthday' | 'party' | 'corporate' | 'minimal';
+
+export type Decor = { theme: DecorTheme; accent: string };
+
 export type EventMetadata = Partial<EventDetails> & {
   venue?: Venue;
+  decor?: Decor;
   checklist?: ChecklistItem[];
   // legacy fields from the first version
   comment?: string;
