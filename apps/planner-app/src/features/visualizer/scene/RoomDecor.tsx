@@ -5,7 +5,7 @@ import * as THREE from 'three';
 import type { Decor, Room } from '@/domain/types';
 import { toMetres } from '../viewStore';
 import { THEMES, glowTexture, pleatGeometry } from './decor';
-import { WALL_H, wallHeights } from './Room';
+import { WALL_H, wallHeights } from './wallState';
 import { useChandelierModel } from './models';
 
 type WallSpec = { pos: [number, number, number]; rot: number; length: number };

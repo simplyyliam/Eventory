@@ -83,7 +83,8 @@ export const useWorkspace = create<WorkspaceState>()(
 
         hydrate: (event) => {
           const tables = (event.tables as Record<string, unknown>[]).map(toPlanTable);
-          const { venue: _venue, ...details } = event.metadata ?? {};
+          const details: EventMetadata = { ...(event.metadata ?? {}) };
+          delete details.venue;
           set({
             event: { id: event.id, name: event.name, slug: event.slug, status: event.status, updatedAt: event.updatedAt },
             details,

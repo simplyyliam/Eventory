@@ -1,14 +1,15 @@
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
-import { useRef } from 'react';
+import { useState } from 'react';
 import { cn } from '@app/shared';
 
 // Digits roll up when the value grows and down when it shrinks, so a changing
 // count reads as movement rather than a flicker.
 export function RollingNumber({ value, className, format }: { value: number; className?: string; format?: (n: number) => string }) {
   const reduce = useReducedMotion();
-  const prev = useRef(value);
-  const direction = value >= prev.current ? 1 : -1;
-  prev.current = value;
+  // remember the last value to know which way to roll (adjusting state during render is fine here)
+  const [last, setLast] = useState({ value, direction: 1 });
+  if (last.value !== value) setLast({ value, direction: value >= last.value ? 1 : -1 });
+  const direction = last.value !== value ? (value >= last.value ? 1 : -1) : last.direction;
   const text = format ? format(value) : value.toLocaleString();
 
   return (

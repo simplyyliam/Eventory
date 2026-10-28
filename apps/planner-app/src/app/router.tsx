@@ -1,4 +1,5 @@
-import { createBrowserRouter, Navigate, useParams } from 'react-router-dom';
+import { createBrowserRouter, Navigate } from 'react-router-dom';
+import { LegacyVenueRedirect } from './LegacyVenueRedirect';
 import { AppShell } from './AppShell';
 import { RouteError } from './RouteError';
 import { DashboardPage } from '@/features/dashboard/DashboardPage';
@@ -11,10 +12,6 @@ import { SettingsPage } from '@/features/settings/SettingsPage';
 // The two canvas-heavy screens are split out so the dashboard loads light.
 const lazyPage = (load: () => Promise<{ default: React.ComponentType }>) => async () => ({ Component: (await load()).default });
 
-function LegacyVenueRedirect() {
-  const { slug } = useParams();
-  return <Navigate to={`/events/${slug}/floor-plan`} replace />;
-}
 
 export const router = createBrowserRouter([
   {

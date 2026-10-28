@@ -3,7 +3,8 @@ import { Grid2x2Check, Grid2x2X, Maximize, Minus, Plus, Redo2, Undo2 } from 'luc
 import { cn } from '@app/shared';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@app/shared/components/ui/tooltip';
 import { redo, undo, useWorkspace } from '@/store/workspace';
-import { Kbd, MOD } from '@/components/layout';
+import { Kbd } from '@/components/layout';
+import { MOD } from '@/lib/platform';
 import { useEditor } from '../editorStore';
 import { fitToContent, zoomAt } from '../canvas/viewport';
 

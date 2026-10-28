@@ -25,6 +25,7 @@ pnpm planner-app dev        # http://localhost:5173
 pnpm guest-app dev
 pnpm server dev             # needs DATABASE_URL in apps/server/.env
 pnpm planner-app build      # tsc + vite build, run before merging
+pnpm lint                   # eslint (incl. React Compiler hook rules) for planner, guest app and shared
 ```
 
 `VITE_API_URL` points the apps at the API (defaults to `http://localhost:3001`). `.env.local` targets production, so for local testing run `node scripts/mock-api.mjs` (in-memory, port 3010) and start Vite with `VITE_API_URL=http://localhost:3010`.

@@ -1,8 +1,9 @@
 import { useLayoutEffect, useMemo, useRef } from 'react';
+import type { Spot } from './spots';
 import { Html } from '@react-three/drei';
 import * as THREE from 'three';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
-import { seatPoses, toPlan } from '@/domain/geometry';
+import { seatPoses } from '@/domain/geometry';
 import type { Guest, PlanTable, TableFinish } from '@/domain/types';
 import { toMetres, useView } from '../viewStore';
 import { clothTexture, woodTexture } from './textures';
@@ -11,23 +12,7 @@ import { useChairModel } from './models';
 const TABLE_H = 0.75;
 const deg = (d: number) => (d * Math.PI) / 180;
 
-type Spot = { x: number; z: number; rot: number; guest: Guest | null };
 
-// Every visible seat in world space, shared by chairs and seated people.
-export function useSpots(tables: PlanTable[], guests: Guest[]) {
-  return useMemo(() => {
-    const bySeat = new Map(guests.filter((g) => g.seat).map((g) => [g.seat!, g]));
-    const spots: Spot[] = [];
-    for (const t of tables) {
-      for (const pose of seatPoses(t)) {
-        if (t.hiddenSeats.includes(pose.id)) continue;
-        const p = toPlan(t, pose.x, pose.y);
-        spots.push({ x: toMetres(p.x), z: toMetres(p.y), rot: -deg(pose.angle + t.rotation), guest: bySeat.get(pose.id) ?? null });
-      }
-    }
-    return spots;
-  }, [tables, guests]);
-}
 
 function personGeometry() {
   const body = new THREE.CapsuleGeometry(0.15, 0.32, 4, 12);
@@ -72,7 +57,7 @@ export function Chairs({ spots }: { spots: Spot[] }) {
 
 export function People({ spots }: { spots: Spot[] }) {
   const ref = useRef<THREE.InstancedMesh>(null);
-  const geo = useMemo(personGeometry, []);
+  const geo = useMemo(() => personGeometry(), []);
   const seated = spots.filter((s) => s.guest);
 
   useLayoutEffect(() => {

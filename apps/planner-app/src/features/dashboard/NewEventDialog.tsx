@@ -1,14 +1,10 @@
 import { useState } from 'react';
-import { create } from 'zustand';
 import { Button, Input } from '@app/shared';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@app/shared/components/ui/dialog';
 import { useCreateEvent } from '@/lib/queries';
+import { useNewEventDialog } from './newEventStore';
 import { Spinner } from '@app/shared/components/ui/spinner';
 
-export const useNewEventDialog = create<{ open: boolean; setOpen: (v: boolean) => void }>((set) => ({
-  open: false,
-  setOpen: (open) => set({ open }),
-}));
 
 export function NewEventDialog() {
   const { open, setOpen } = useNewEventDialog();

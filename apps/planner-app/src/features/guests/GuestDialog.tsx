@@ -1,11 +1,11 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { X } from 'lucide-react';
 import { Button, Input, cn } from '@app/shared';
 import { Textarea } from '@app/shared/components/ui/textarea';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@app/shared/components/ui/dialog';
 import { useWorkspace } from '@/store/workspace';
 import type { Guest, RsvpStatus } from '@/domain/types';
-import { rsvpLabel } from '@/components/StatusPill';
+import { rsvpLabel } from '@/components/status';
 
 const COMMON_DIETS = ['Vegetarian', 'Vegan', 'Gluten-free', 'Halal', 'Kosher', 'Nut allergy', 'Dairy-free', 'Pescatarian'];
 
@@ -67,14 +67,19 @@ export function GuestDialog({ guest, open, onOpenChange }: { guest: Guest | null
   const [notes, setNotes] = useState('');
   const [another, setAnother] = useState(false);
 
-  useEffect(() => {
-    if (!open) return;
-    setName(guest?.name ?? '');
-    setEmail(guest?.email ?? '');
-    setStatus(guest?.status ?? 'pending');
-    setDietary(guest?.dietary ?? []);
-    setNotes(guest?.comments ?? '');
-  }, [open, guest]);
+  // reset the form each time it opens, for whichever guest it opened with
+  const formFor = open ? (guest?.id ?? 'new') : null;
+  const [loadedFor, setLoadedFor] = useState<string | null>(null);
+  if (formFor !== loadedFor) {
+    setLoadedFor(formFor);
+    if (formFor) {
+      setName(guest?.name ?? '');
+      setEmail(guest?.email ?? '');
+      setStatus(guest?.status ?? 'pending');
+      setDietary(guest?.dietary ?? []);
+      setNotes(guest?.comments ?? '');
+    }
+  }
 
   const submit = (e: React.FormEvent) => {
     e.preventDefault();

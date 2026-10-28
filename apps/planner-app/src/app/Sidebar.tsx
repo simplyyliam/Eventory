@@ -32,10 +32,11 @@ import { useEvents } from '@/lib/queries';
 import { useTheme, type Theme } from '@/lib/theme';
 import { useWorkspace } from '@/store/workspace';
 import { eventStats } from '@/domain/stats';
-import { Kbd, MOD } from '@/components/layout';
-import { useCommandMenu } from './CommandMenu';
+import { Kbd } from '@/components/layout';
+import { MOD } from '@/lib/platform';
+import { useCommandMenu } from './commandMenuStore';
 import { useShell } from './shellStore';
-import { useNewEventDialog } from '@/features/dashboard/NewEventDialog';
+import { useNewEventDialog } from '@/features/dashboard/newEventStore';
 
 type Item = { to: string; label: string; icon: React.ElementType; end?: boolean; badge?: number };
 

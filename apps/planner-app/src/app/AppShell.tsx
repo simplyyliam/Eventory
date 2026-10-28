@@ -8,8 +8,6 @@ import { CommandMenu } from './CommandMenu';
 import { Topbar } from './Topbar';
 import { useShell } from './shellStore';
 
-export { useShell };
-
 export function AppShell() {
   const { mobileOpen, setMobileOpen, collapsed } = useShell();
   const theme = useTheme((s) => s.theme);
