@@ -21,13 +21,9 @@ If you're a new session continuing the overhaul goal: read `CLAUDE.md`, `DECISIO
 
 - [x] `feat/guests`: list with search, RSVP/seating filters (URL params), inline RSVP menu, bulk bar, add/edit dialog with dietary tags, XLSX/CSV import with column detection + template, CSV export sorted by table
 - [x] `feat/share-settings`: publish switch (status PATCH), link + QR download, printable A–Z seating chart + per-table pages; settings rows for name (rename), date/time, venue, room size, welcome message, RSVP deadline, contact, delete
-- [ ] `feat/visualizer`: `features/visualizer/` with R3F + drei
-  - Room from `venue.room`, clay walls cut away, wood floor, Lightformer lighting, contact shadows
-  - Tables/chairs/elements from the same geometry (units / 200 = metres), seated guests as soft figures
-  - Modes: orbit (CameraControls), walk and fly (PointerLock + WASD; fly adds Space/Shift)
-  - Floating islands: mode switch, view presets (top / isometric / entrance), day/evening lighting, labels toggle, back to 2D
-  - Click a table: frosted drei `<Html>` card with name, seated/capacity, guest names, dietary notes
-  - Read-only. No editing in 3D.
+- [x] `feat/visualizer`: R3F scene from the workspace store (clay cut-away walls, oak floor, instanced chairs + seated figures, tables by finish, venue elements), Matterport-style navigation via CameraControls only (orbit / walk: drag to look + click floor / fly: drag + scroll), frosted table card + camera focus, day/evening, labels/people toggles. Perf: frameloop demand, shadows on demand, 2 lights max, full native DPR (user does NOT want quality reduced, and does NOT want game-like WASD/pointer-lock)
+- [ ] `feat/3d-assets` (optional, needs the user's OK to download): swap primitive furniture for CC0 models (e.g. Kenney Furniture Kit / Poly Haven), loaded as glTF, still instanced
+
 - [ ] `feat/guest-app`: mobile overhaul from the mobile references (cream background, serif display, mono labels, bottom sheet). Find yourself by name, then a ticket with table, seat, tablemates, a mini floor plan highlighting the table, and the welcome message from `metadata.welcomeMessage`.
 - [ ] Final pass: `pnpm planner-app build`, `pnpm guest-app build`, update docs, remove dead files (`apps/planner-app/public/textures`, old shared custom components if unused)
 
