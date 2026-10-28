@@ -25,7 +25,15 @@ If you're a new session continuing the overhaul goal: read `CLAUDE.md`, `DECISIO
 - [x] `feat/3d-assets`: Poly Haven CC0 dining_chair_02 + potted_plant_02, simplified with gltf-transform (chair 22k → 2.6k tris), chair still one InstancedMesh. Credits in public/models/CREDITS.txt
 
 - [x] `feat/guest-app-overhaul`: cream/terracotta mobile design, search-first name lookup (word-prefix match), ticket with table + seat, mini floor plan with every seat and the guest's seat marked, tablemates, welcome message, date/venue/map link. Seat geometry moved to `shared/src/domain/geometry.ts`
-- [ ] Final pass: `pnpm planner-app build`, `pnpm guest-app build`, update docs, remove dead files (`apps/planner-app/public/textures`, old shared custom components if unused)
+- [x] `chore/final-pass`: removed dead shared components, unused textures and old guest images; all four apps build
+
+## Status
+
+The overhaul is complete. Possible follow-ups:
+
+- Redeploy `apps/server` so the RSVP and privacy fixes go live (DECISIONS 007, 008). Until then, seating someone still flips them to "confirmed" on save, and public pages still include emails.
+- Root `eslint.config.js` can't resolve `@eslint/js` from the repo root (pre-existing). Either install the ESLint packages at the root or move the config into each app.
+- The display app (`apps/display-app`) wasn't part of this overhaul.
 
 ## Testing without production
 
