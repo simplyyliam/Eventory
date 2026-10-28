@@ -24,7 +24,7 @@ If you're a new session continuing the overhaul goal: read `CLAUDE.md`, `DECISIO
 - [x] `feat/visualizer`: R3F scene from the workspace store (clay cut-away walls, oak floor, instanced chairs + seated figures, tables by finish, venue elements), Matterport-style navigation via CameraControls only (orbit / walk: drag to look + click floor / fly: drag + scroll), frosted table card + camera focus, day/evening, labels/people toggles. Perf: frameloop demand, shadows on demand, 2 lights max, full native DPR (user does NOT want quality reduced, and does NOT want game-like WASD/pointer-lock)
 - [x] `feat/3d-assets`: Poly Haven CC0 dining_chair_02 + potted_plant_02, simplified with gltf-transform (chair 22k → 2.6k tris), chair still one InstancedMesh. Credits in public/models/CREDITS.txt
 
-- [ ] `feat/guest-app`: mobile overhaul from the mobile references (cream background, serif display, mono labels, bottom sheet). Find yourself by name, then a ticket with table, seat, tablemates, a mini floor plan highlighting the table, and the welcome message from `metadata.welcomeMessage`.
+- [x] `feat/guest-app-overhaul`: cream/terracotta mobile design, search-first name lookup (word-prefix match), ticket with table + seat, mini floor plan with every seat and the guest's seat marked, tablemates, welcome message, date/venue/map link. Seat geometry moved to `shared/src/domain/geometry.ts`
 - [ ] Final pass: `pnpm planner-app build`, `pnpm guest-app build`, update docs, remove dead files (`apps/planner-app/public/textures`, old shared custom components if unused)
 
 ## Testing without production

@@ -1,264 +1,126 @@
-import { GuestListContainer } from '@/components';
-import { Button, Input, Skeleton } from '@app/shared';
-import { HugeiconsIcon } from '@hugeicons/react';
-import { Search01Icon } from '@hugeicons/core-free-icons';
-import { GuestCard } from '@/features/guests-list';
-import { useNavigate, useParams } from 'react-router-dom';
-import { useEffect, useState, useRef } from 'react';
-import type { EventResponse } from '@app/shared/types/event.types';
-import { ListFilter, X } from 'lucide-react';
-import { motion, AnimatePresence, useInView } from 'motion/react';
-import { getPublicEventBySlug } from '@app/shared/utils/publicEvent';
+import { useMemo, useRef, useState } from 'react';
+import { Link, useParams } from 'react-router-dom';
+import { AnimatePresence, motion } from 'motion/react';
+import { ArrowUpRight, Search, X } from 'lucide-react';
+import { format, parseISO } from 'date-fns';
+import { initials, matches, usePublicEvent } from '@/lib/event';
+import { Screen, StatusScreen } from '@/components/Screen';
 
-
-// ─── Skeleton ─────────────────────────────────────────────────────────────────
-
-const GuestCardSkeleton = () => (
-  <div className="flex items-center gap-3 px-3 py-3.5 rounded-2xl">
-    <Skeleton className="w-10 h-10 rounded-full shrink-0 bg-muted-foreground/15" />
-    <div className="flex flex-col gap-2 flex-1">
-      <Skeleton className="h-3.5 w-3/4 bg-muted-foreground/15" />
-      <Skeleton className="h-2.5 w-2/5 bg-muted-foreground/15" />
-    </div>
-    <Skeleton className="w-4 h-4 shrink-0 bg-muted-foreground/15" />
-  </div>
-);
-
-const GuestListSkeleton = () => (
-  <div className="flex flex-col gap-2.5 w-full">
-    <div className="flex items-center justify-between h-12 px-2.5">
-      <Skeleton className="h-4 w-36 bg-muted-foreground/15" />
-      <Skeleton className="h-12 w-12 rounded-xl bg-muted-foreground/15" />
-    </div>
-    <div className="flex items-center justify-between px-2.5 py-3.5">
-      <Skeleton className="h-3 w-20 bg-muted-foreground/15" />
-      <Skeleton className="h-3 w-12 bg-muted-foreground/15" />
-    </div>
-    {Array.from({ length: 8 }).map((_, i) => (
-      <GuestCardSkeleton key={i} />
-    ))}
-  </div>
-);
-
-// ─── Scroll fade wrapper ──────────────────────────────────────────────────────
-
-const container = {
-  hidden: { opacity: 0 },
-  show: {
-    opacity: 1,
-    transition: {
-      delayChildren: 0.1,
-      staggerChildren: 0.06,
-      ease: 'easeOut' as const,
-    },
-  },
-};
-
-const item = {
-  hidden: { opacity: 0, y: 20, filter: 'blur(4px)', scale: 0.98 },
-  show: {
-    opacity: 1,
-    y: 0,
-    filter: 'blur(0px)',
-    scale: 1,
-    transition: {
-      opacity: { duration: 0.2 },
-      filter: { duration: 0.2 },
-      y: { type: 'spring' as const, stiffness: 100, damping: 18 },
-    },
-  },
-  exit: {
-    opacity: 0,
-    y: -20,
-    filter: 'blur(4px)',
-    scale: 0.95,
-    transition: { duration: 0.15, ease: 'easeIn' as const },
-  },
-};
-
-const ScrollFadeItem = ({ children }: { children: React.ReactNode; isLast: boolean }) => {
-  const itemRef = useRef<HTMLDivElement>(null);
-  const isInView = useInView(itemRef, { margin: '0px 0px -5% 0px' });
-
-  return (
-    <motion.div
-      ref={itemRef}
-      animate={{
-        opacity: isInView ? 1 : 0,
-        scale: isInView ? 1 : 0.97,
-        filter: isInView ? 'blur(0px)' : 'blur(4px)',
-      }}
-      transition={{
-        opacity: { duration: 0.2 },
-        scale: { duration: 0.2 },
-        filter: { duration: 0.2 },
-      }}
-    >
-      {children}
-    </motion.div>
-  );
-};
-
-// ─── Page ─────────────────────────────────────────────────────────────────────
-
-export const GuestListPage = () => {
+export function EventPage() {
   const { slug } = useParams();
-  const [event, setEvent] = useState<EventResponse | null>(null);
+  const { data: event, loading, error, retry } = usePublicEvent(slug);
   const [query, setQuery] = useState('');
-  const [isLoading, setIsLoading] = useState(true);
-  const [isSearchOpen, setIsSearchOpen] = useState(false);
-  const [sortAZ, setSortAZ] = useState(true);
-  const inputRef = useRef<HTMLInputElement>(null);
-  const navigate = useNavigate();
+  const input = useRef<HTMLInputElement>(null);
 
-  useEffect(() => {
-    if (!slug) return;
-    getPublicEventBySlug(slug)
-      .then((res) => {
-        setEvent(res);
-        setIsLoading(false);
-      })
-      .catch(() => setIsLoading(false));
-  }, [slug]);
+  const results = useMemo(() => {
+    if (!event || !query.trim()) return [];
+    return event.guests.filter((g) => matches(g.name, query)).sort((a, b) => a.name.localeCompare(b.name)).slice(0, 12);
+  }, [event, query]);
 
-  const filteredGuests = event?.guests
-    .filter((guest) => guest.name.toLowerCase().startsWith(query.toLowerCase()))
-    .sort((a, b) =>
-      sortAZ ? a.name.localeCompare(b.name) : b.name.localeCompare(a.name)
-    );
+  if (loading) return <StatusScreen loading />;
+  if (error || !event)
+    return <StatusScreen title="This page isn’t available" body="The event may not be published yet. Check the link, or ask your host." action={{ label: 'Try again', onClick: retry }} />;
 
-  const handleSearchOpen = () => {
-    setIsSearchOpen(true);
-    setTimeout(() => inputRef.current?.focus(), 50);
-  };
-
-  const handleSearchClose = () => {
-    setIsSearchOpen(false);
-    setQuery('');
-  };
-
-  if (isLoading) {
-    return (
-      <GuestListContainer className="font-dmSans">
-        <GuestListSkeleton />
-      </GuestListContainer>
-    );
-  }
+  const meta = event.metadata ?? {};
+  const tableName = new Map(event.tables.map((t) => [t.id, t.name]));
+  const when = [meta.date ? format(parseISO(meta.date), 'EEE d MMM yyyy') : null, meta.startTime].filter(Boolean).join(' · ');
 
   return (
-    <GuestListContainer className="font-dmSans">
-      <div className="flex items-center justify-between h-12">
-        <AnimatePresence mode="popLayout">
-          {!isSearchOpen && (
-            <motion.span
-              key="event-name"
-              className="px-2.5 py-3.5 font-medium whitespace-nowrap"
-              initial={{ opacity: 0, x: -12 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -12 }}
-              transition={{ duration: 0.2, ease: 'easeInOut' }}
-            >
-              {event?.name}
-            </motion.span>
-          )}
-        </AnimatePresence>
-
-        <AnimatePresence>
-          {isSearchOpen && (
-            <motion.div
-              key="search-input"
-              className="flex-1 mx-2"
-              style={{ originX: 1 }}
-              initial={{ opacity: 0, scaleX: 0.85 }}
-              animate={{ opacity: 1, scaleX: 1 }}
-              exit={{ opacity: 0, scaleX: 0.85 }}
-              transition={{ duration: 0.22, ease: [0.25, 0.46, 0.45, 0.94] }}
-            >
-              <Input
-                ref={inputRef}
-                className="focus:outline-none h-12 p-3 border-none font-medium w-full"
-                placeholder="Find yourself..."
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-              />
-            </motion.div>
-          )}
-        </AnimatePresence>
-
-        <AnimatePresence mode="wait">
-          {isSearchOpen ? (
-            <motion.div
-              key="close-btn"
-              initial={{ opacity: 0, rotate: -45, scale: 0.8 }}
-              animate={{ opacity: 1, rotate: 0, scale: 1 }}
-              exit={{ opacity: 0, rotate: 45, scale: 0.8 }}
-              transition={{ duration: 0.18, ease: 'easeOut' }}
-            >
-              <Button variant="outline" className="h-12 w-12 shrink-0" onClick={handleSearchClose}>
-                <X size={20} />
-              </Button>
-            </motion.div>
-          ) : (
-            <motion.div
-              key="search-btn"
-              initial={{ opacity: 0, rotate: 45, scale: 0.8 }}
-              animate={{ opacity: 1, rotate: 0, scale: 1 }}
-              exit={{ opacity: 0, rotate: -45, scale: 0.8 }}
-              transition={{ duration: 0.18, ease: 'easeOut' }}
-            >
-              <Button variant="outline" className="h-12 w-12 shrink-0" onClick={handleSearchOpen}>
-                <HugeiconsIcon icon={Search01Icon} size={24} />
-              </Button>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
-
-      <div className="flex items-center justify-between text-[13px] gap-2 py-3.5 px-2.5">
-        <span className="text-muted-foreground">{`Guest - ${event?.guests.length ?? 0}`}</span>
-        <button
-          onClick={() => setSortAZ((prev) => !prev)}
-          className="flex items-center gap-1 text-muted-foreground"
-        >
-          <span className="text-[12px] font-medium">{sortAZ ? 'A–Z' : 'Z–A'}</span>
-          <ListFilter size={20} />
-        </button>
-      </div>
-
-      <motion.div
-        variants={container}
-        initial="hidden"
-        animate="show"
-        layout="position"
-        transition={{ duration: 0.2, ease: 'easeInOut' }}
-        className="flex flex-col gap-2.5 w-full h-full pb-28"
+    <Screen>
+      <motion.header
+        initial={{ opacity: 0, transform: 'translateY(-8px)' }}
+        animate={{ opacity: 1, transform: 'translateY(0px)' }}
+        transition={{ duration: 0.5, ease: [0.23, 1, 0.32, 1] }}
+        className="grain relative overflow-hidden rounded-b-[32px] bg-accent px-6 pt-[max(env(safe-area-inset-top),1.5rem)] pb-9 text-accent-ink"
       >
-        <AnimatePresence mode="popLayout">
-          {filteredGuests?.map((guest, index) => {
-            const isLastItem = index === filteredGuests.length - 1;
-            return (
-              <motion.div key={guest.id} variants={item}>
-                <ScrollFadeItem key={`${guest.id}-${query}`} isLast={isLastItem}>
-                  <GuestCard
-                    name={guest.name}
-                    onClick={() => {
-                      setTimeout(() => {
-                        navigate('/loading', {
-                          state: {
-                            destination: `/events/${slug}/guests/${guest.id}`,
-                            slug,
-                            guestId: guest.id,
-                          },
-                        });
-                      });
-                    }}
-                  />
-                </ScrollFadeItem>
+        <p className="font-mono text-[10.5px] tracking-[0.16em] uppercase opacity-75">{when || 'You’re invited'}</p>
+        <h1 className="mt-10 font-serif text-[46px] leading-[0.98] tracking-[-0.01em] text-balance">{event.name}</h1>
+        {meta.venueName && <p className="mt-4 font-mono text-[11px] tracking-[0.14em] uppercase opacity-80">{meta.venueName}</p>}
+      </motion.header>
+
+      <motion.section
+        initial={{ opacity: 0, transform: 'translateY(10px)' }}
+        animate={{ opacity: 1, transform: 'translateY(0px)' }}
+        transition={{ delay: 0.12, duration: 0.5, ease: [0.23, 1, 0.32, 1] }}
+        className="flex flex-1 flex-col gap-5 px-5 pt-8 pb-[max(env(safe-area-inset-bottom),2rem)]"
+      >
+        <div className="flex flex-col gap-1 px-1">
+          <p className="label">Find your seat</p>
+          <h2 className="font-serif text-[30px] leading-tight">What’s your name?</h2>
+        </div>
+
+        <label className="flex h-14 items-center gap-3 rounded-2xl border border-line bg-card px-4 shadow-[0_1px_2px_rgb(0_0_0/0.04)] transition-[border-color,box-shadow] focus-within:border-ink/30 focus-within:shadow-[0_0_0_4px_color-mix(in_oklch,var(--accent)_14%,transparent)]">
+          <Search className="size-5 text-ink-faint" strokeWidth={1.75} />
+          <input
+            ref={input}
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="First or last name"
+            autoComplete="off"
+            autoCapitalize="words"
+            enterKeyHint="search"
+            className="h-full flex-1 bg-transparent text-[17px] outline-none placeholder:text-ink-faint"
+          />
+          {query && (
+            <button
+              aria-label="Clear"
+              onClick={() => {
+                setQuery('');
+                input.current?.focus();
+              }}
+              className="press grid size-7 place-items-center rounded-full bg-line text-ink-soft"
+            >
+              <X className="size-3.5" />
+            </button>
+          )}
+        </label>
+
+        <div className="flex flex-col">
+          <AnimatePresence mode="popLayout" initial={false}>
+            {!query.trim() ? (
+              <motion.p key="hint" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="px-1 text-[14px] leading-6 text-ink-soft">
+                Start typing and tap your name to see your table, your seat and who you’re sitting with.
+              </motion.p>
+            ) : results.length === 0 ? (
+              <motion.div key="none" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex flex-col gap-2 px-1 text-[14px] leading-6 text-ink-soft">
+                <p>We couldn’t find “{query.trim()}”. Try just your surname, or the name on your invitation.</p>
+                {meta.contactEmail && (
+                  <a href={`mailto:${meta.contactEmail}`} className="text-ink underline underline-offset-4">
+                    Contact the host
+                  </a>
+                )}
               </motion.div>
-            );
-          })}
-        </AnimatePresence>
-      </motion.div>
-    </GuestListContainer>
+            ) : (
+              results.map((g, i) => (
+                <motion.div
+                  key={g.id}
+                  layout="position"
+                  initial={{ opacity: 0, transform: 'translateY(6px)' }}
+                  animate={{ opacity: 1, transform: 'translateY(0px)' }}
+                  exit={{ opacity: 0, transition: { duration: 0.1 } }}
+                  transition={{ delay: i * 0.03, duration: 0.25, ease: [0.23, 1, 0.32, 1] }}
+                >
+                  <Link
+                    to={`/events/${event.slug}/guests/${g.id}`}
+                    className="press flex h-16 items-center gap-3.5 border-b border-line px-1 active:bg-card"
+                  >
+                    <span className="grid size-10 shrink-0 place-items-center rounded-full bg-card font-mono text-[12px] text-ink-soft shadow-[inset_0_0_0_1px_var(--line)]">{initials(g.name)}</span>
+                    <span className="flex min-w-0 flex-1 flex-col">
+                      <span className="truncate text-[16px]">{g.name}</span>
+                      <span className="font-mono text-[10.5px] tracking-[0.12em] text-ink-faint uppercase">
+                        {g.tableId ? tableName.get(g.tableId) : 'Seat to be confirmed'}
+                      </span>
+                    </span>
+                    <ArrowUpRight className="size-5 text-ink-faint" strokeWidth={1.5} />
+                  </Link>
+                </motion.div>
+              ))
+            )}
+          </AnimatePresence>
+        </div>
+
+        <p className="mt-auto pt-10 text-center font-mono text-[10px] tracking-[0.16em] text-ink-faint uppercase">{event.guests.length} guests · Eventory</p>
+      </motion.section>
+    </Screen>
   );
-};
+}
