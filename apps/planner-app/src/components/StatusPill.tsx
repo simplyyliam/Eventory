@@ -1,5 +1,6 @@
 import { cn } from '@app/shared';
 import type { EventStatus, RsvpStatus } from '@/domain/types';
+import { rsvpLabel, rsvpTone } from './status';
 
 export type Tone = 'neutral' | 'ok' | 'warn' | 'bad' | 'info';
 
@@ -28,8 +29,6 @@ export function Pill({ tone = 'neutral', children, className, dot = true }: { to
   );
 }
 
-export const rsvpTone: Record<RsvpStatus, Tone> = { confirmed: 'ok', pending: 'warn', declined: 'bad' };
-export const rsvpLabel: Record<RsvpStatus, string> = { confirmed: 'Attending', pending: 'Awaiting reply', declined: 'Declined' };
 
 export const RsvpPill = ({ status }: { status: RsvpStatus }) => <Pill tone={rsvpTone[status]}>{rsvpLabel[status]}</Pill>;
 

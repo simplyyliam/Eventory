@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { motion } from 'motion/react';
 import { cn } from '@app/shared';
 
@@ -14,7 +14,12 @@ export function CommitInput({
   ...props
 }: { value: string; onCommit: (v: string) => void; multiline?: boolean } & Omit<React.InputHTMLAttributes<HTMLInputElement>, 'value'>) {
   const [draft, setDraft] = useState(value);
-  useEffect(() => setDraft(value), [value]);
+  // pick up outside changes (undo, another tab) without an effect
+  const [source, setSource] = useState(value);
+  if (value !== source) {
+    setSource(value);
+    setDraft(value);
+  }
   const commit = () => {
     if (draft !== value) onCommit(draft);
   };

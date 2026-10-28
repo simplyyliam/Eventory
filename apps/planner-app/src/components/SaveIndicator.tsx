@@ -6,7 +6,7 @@ import { useSaveStatus, flushSave } from '@/store/autosave';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@app/shared/components/ui/tooltip';
 
 function useNow(ms: number) {
-  const [now, setNow] = useState(Date.now());
+  const [now, setNow] = useState(() => Date.now());
   useEffect(() => {
     const id = setInterval(() => setNow(Date.now()), ms);
     return () => clearInterval(id);

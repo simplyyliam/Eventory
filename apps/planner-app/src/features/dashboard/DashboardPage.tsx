@@ -13,11 +13,12 @@ import {
   DropdownMenuTrigger,
 } from '@app/shared/components/ui/dropdown-menu';
 import { useDeleteEvent, useEvents } from '@/lib/queries';
-import { Card, EmptyState, Kbd, MOD, Page } from '@/components/layout';
+import { Card, EmptyState, Kbd, Page } from '@/components/layout';
+import { MOD } from '@/lib/platform';
 import { EventStatusPill } from '@/components/StatusPill';
 import { ProgressRing } from '@/components/ProgressRing';
 import { EventMark } from '@/app/Sidebar';
-import { useNewEventDialog } from './NewEventDialog';
+import { useNewEventDialog } from './newEventStore';
 import { DeleteEventDialog } from './DeleteEventDialog';
 import { greeting, sortRows, toRows, whenLabel, type EventRow } from './summaries';
 

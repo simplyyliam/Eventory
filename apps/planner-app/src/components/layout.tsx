@@ -9,8 +9,6 @@ export function Kbd({ children, className }: { children: React.ReactNode; classN
   );
 }
 
-export const isMac = typeof navigator !== 'undefined' && /Mac|iPhone|iPad/.test(navigator.platform);
-export const MOD = isMac ? '⌘' : 'Ctrl';
 
 export function PageHeader({ title, description, actions, meta }: { title: React.ReactNode; description?: React.ReactNode; actions?: React.ReactNode; meta?: React.ReactNode }) {
   return (

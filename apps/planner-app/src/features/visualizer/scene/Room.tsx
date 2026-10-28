@@ -4,15 +4,12 @@ import * as THREE from 'three';
 import type { Room as RoomSize } from '@/domain/types';
 import { toMetres, useView } from '../viewStore';
 import { floorTexture } from './textures';
-import { walkTo } from './CameraRig';
+import { walkTo } from './camera';
+import { WALL_H, wallHeights } from './wallState';
 
-const WALL_H = 3;
 const WALL_T = 0.16;
 const CUT_H = 0.35;
 
-// Live wall heights (north, south, west, east) so wall decor can hide when its
-// wall drops for the cut-away view.
-export const wallHeights = [WALL_H, WALL_H, WALL_H, WALL_H];
 
 type Wall = { pos: [number, number]; size: [number, number]; normal: THREE.Vector3 };
 
@@ -117,4 +114,3 @@ export function Room({ room, dark }: { room: RoomSize; dark: boolean }) {
   );
 }
 
-export { WALL_H };

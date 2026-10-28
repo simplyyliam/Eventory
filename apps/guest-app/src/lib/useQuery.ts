@@ -1,31 +1,41 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useSyncExternalStore } from 'react';
 
-// Tiny cached fetch hook; the guest app only makes one request per event, so
-// pulling in a query library isn't worth the bundle.
-const cache = new Map<string, Promise<unknown>>();
+// Tiny cached fetch store; the guest app makes one request per event, so a
+// query library isn't worth the bundle.
+type Entry = { data: unknown; error: unknown; loading: boolean };
 
-type State<T> = { data: T | null; error: unknown; loading: boolean };
+const entries = new Map<string, Entry>();
+const listeners = new Set<() => void>();
+const notify = () => listeners.forEach((l) => l());
+const IDLE: Entry = { data: null, error: null, loading: false };
+// snapshots must be stable references, so these are shared constants
+const LOADING: Entry = { data: null, error: null, loading: true };
 
-export function useQuery<T>(key: string | null, fetcher: () => Promise<T>): State<T> & { retry: () => void } {
-  const [state, setState] = useState<State<T>>({ data: null, error: null, loading: !!key });
-  const [attempt, setAttempt] = useState(0);
+function load(key: string, fetcher: () => Promise<unknown>) {
+  entries.set(key, LOADING);
+  notify();
+  fetcher()
+    .then((data) => entries.set(key, { data, error: null, loading: false }))
+    .catch((error) => entries.set(key, { data: null, error, loading: false }))
+    .finally(notify);
+}
 
-  useEffect(() => {
-    if (!key) return;
-    let alive = true;
-    if (!cache.has(key)) cache.set(key, fetcher());
-    setState((s) => ({ ...s, loading: true, error: null }));
-    (cache.get(key) as Promise<T>)
-      .then((data) => alive && setState({ data, error: null, loading: false }))
-      .catch((error) => {
-        cache.delete(key);
-        if (alive) setState({ data: null, error, loading: false });
-      });
-    return () => {
-      alive = false;
-    };
+export function useQuery<T>(key: string | null, fetcher: () => Promise<T>) {
+  const subscribe = useCallback(
+    (onChange: () => void) => {
+      listeners.add(onChange);
+      if (key && !entries.has(key)) load(key, fetcher);
+      return () => listeners.delete(onChange);
+    },
     // fetcher is recreated each render; the key identifies the request
-  }, [key, attempt]);
-
-  return { ...state, retry: () => setAttempt((a) => a + 1) };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [key],
+  );
+  const entry = useSyncExternalStore(subscribe, () => (key ? (entries.get(key) ?? LOADING) : IDLE));
+  return {
+    data: entry.data as T | null,
+    error: entry.error,
+    loading: entry.loading,
+    retry: () => key && load(key, fetcher),
+  };
 }

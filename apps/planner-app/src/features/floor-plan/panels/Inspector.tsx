@@ -24,7 +24,11 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
 // Text input that commits on blur/Enter so typing doesn't flood undo history.
 function CommitInput({ value, onCommit, className, ...props }: { value: string; onCommit: (v: string) => void } & Omit<React.InputHTMLAttributes<HTMLInputElement>, 'value'>) {
   const [draft, setDraft] = useState(value);
-  useEffect(() => setDraft(value), [value]);
+  const [source, setSource] = useState(value);
+  if (value !== source) {
+    setSource(value);
+    setDraft(value);
+  }
   const commit = () => {
     if (draft !== value) onCommit(draft);
   };

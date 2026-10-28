@@ -3,8 +3,10 @@ import { useThree } from '@react-three/fiber';
 import { Environment, Lightformer } from '@react-three/drei';
 import { useWorkspace } from '@/store/workspace';
 import { toMetres, useView } from '../viewStore';
-import { Room, WALL_H } from './Room';
-import { Chairs, People, Tables, useSpots } from './Furniture';
+import { Room } from './Room';
+import { WALL_H } from './wallState';
+import { Chairs, People, Tables } from './Furniture';
+import { useSpots } from './spots';
 import { Elements } from './Elements';
 import { Centrepieces, PlaceSettings } from './TableDressing';
 import { RoomDecor } from './RoomDecor';
@@ -63,13 +65,13 @@ export function Scene({ dark }: { dark: boolean }) {
 
   // Shadows are only re-rendered when something in the room changes, not every
   // frame. Walking around a static room costs no shadow passes at all.
-  const gl = useThree((s) => s.gl);
-  const invalidate = useThree((s) => s.invalidate);
+  const get = useThree((s) => s.get);
   useEffect(() => {
+    const { gl, invalidate } = get();
     gl.shadowMap.autoUpdate = false;
     gl.shadowMap.needsUpdate = true;
     invalidate();
-  }, [gl, invalidate, tables, guests, venue, evening, people, dark, decor.theme, decor.accent]);
+  }, [get, tables, guests, venue, evening, people, dark, decor.theme, decor.accent]);
 
   return (
     <>

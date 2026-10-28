@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { create } from 'zustand';
 import { Box, CalendarPlus, Home, LayoutGrid, Moon, QrCode, Search, Settings2, Sun, Users } from 'lucide-react';
 import { Dialog as DialogPrimitive } from '@base-ui/react/dialog';
 import { cn } from '@app/shared';
@@ -8,12 +7,9 @@ import { useEvents } from '@/lib/queries';
 import { useTheme, resolvedTheme } from '@/lib/theme';
 import { useWorkspace } from '@/store/workspace';
 import { EventMark } from './Sidebar';
-import { useNewEventDialog } from '@/features/dashboard/NewEventDialog';
+import { useCommandMenu } from './commandMenuStore';
+import { useNewEventDialog } from '@/features/dashboard/newEventStore';
 
-export const useCommandMenu = create<{ open: boolean; setOpen: (v: boolean) => void }>((set) => ({
-  open: false,
-  setOpen: (open) => set({ open }),
-}));
 
 type Command = { id: string; group: string; label: string; icon: React.ReactNode; run: () => void };
 
