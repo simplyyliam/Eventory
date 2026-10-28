@@ -57,3 +57,11 @@ Publishing used to re-upload the whole event through `POST /events`, which regen
 ## 012 · Guest app reads the floor plan
 
 Guests now see where their table is: the guest app draws a small map from the same table positions and venue metadata. It also shows tablemates and the planner's welcome message, which replaces the hard-coded birthday text.
+
+## 013 · Poly Haven models, simplified at build time
+
+Chairs and plants in the 3D view use CC0 models from Poly Haven instead of primitives. The originals are around 20k triangles per chair, which in a 300-seat room is millions of triangles and too slow on integrated GPUs. They are run once through `gltf-transform optimize` (simplify to ~12%, 512px WebP textures) and committed as GLB files under `public/models`. The chair stays a single mesh, so every seat renders in one instanced draw call. The exact command is in `public/models/CREDITS.txt`.
+
+## 014 · 3D navigation without game controls
+
+Walk and fly work like a property tour, not a game. You drag to look, click the floor to glide there, and scroll to move. There is no pointer lock and no WASD. Everything runs on one `CameraControls` instance with per-mode settings, and the canvas renders on demand at the native pixel ratio.

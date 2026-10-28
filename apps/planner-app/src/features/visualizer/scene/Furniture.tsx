@@ -6,6 +6,8 @@ import { seatPoses, toPlan } from '@/domain/geometry';
 import type { Guest, PlanTable, TableFinish, VenueElement } from '@/domain/types';
 import { toMetres, useView } from '../viewStore';
 import { clothTexture, woodTexture } from './textures';
+import { useChairModel, usePlantModel } from './models';
+import { Clone } from '@react-three/drei';
 
 const TABLE_H = 0.75;
 const deg = (d: number) => (d * Math.PI) / 180;
@@ -28,34 +30,6 @@ export function useSpots(tables: PlanTable[], guests: Guest[]) {
   }, [tables, guests]);
 }
 
-function chairGeometries() {
-  const parts: THREE.BufferGeometry[] = [];
-  const leg = (x: number, z: number, h: number) => {
-    const g = new THREE.CylinderGeometry(0.018, 0.015, h, 8);
-    g.translate(x, h / 2, z);
-    parts.push(g);
-  };
-  leg(-0.18, 0.17, 0.43);
-  leg(0.18, 0.17, 0.43);
-  leg(-0.18, -0.18, 0.92);
-  leg(0.18, -0.18, 0.92);
-  const seat = new THREE.BoxGeometry(0.42, 0.035, 0.4);
-  seat.translate(0, 0.44, 0);
-  parts.push(seat);
-  const rail = new THREE.BoxGeometry(0.4, 0.05, 0.03);
-  rail.translate(0, 0.88, -0.18);
-  parts.push(rail);
-  for (const x of [-0.09, 0, 0.09]) {
-    const s = new THREE.BoxGeometry(0.018, 0.4, 0.018);
-    s.translate(x, 0.66, -0.18);
-    parts.push(s);
-  }
-  const frame = mergeGeometries(parts)!;
-  const cushion = new THREE.BoxGeometry(0.38, 0.05, 0.36, 1, 1, 1);
-  cushion.translate(0, 0.48, 0.01);
-  return { frame, cushion };
-}
-
 function personGeometry() {
   const body = new THREE.CapsuleGeometry(0.15, 0.32, 4, 12);
   body.translate(0, 0.8, -0.05);
@@ -73,37 +47,28 @@ const OUTFITS = ['#3f4a5a', '#7a8b99', '#b48a78', '#5b6b52', '#2f2f35', '#a99c8a
 
 const seedOf = (s: string) => [...s].reduce((h, c) => (h * 31 + c.charCodeAt(0)) >>> 0, 3);
 
-export function Chairs({ spots, dark }: { spots: Spot[]; dark: boolean }) {
-  const frameRef = useRef<THREE.InstancedMesh>(null);
-  const cushionRef = useRef<THREE.InstancedMesh>(null);
-  const geo = useMemo(chairGeometries, []);
+export function Chairs({ spots }: { spots: Spot[] }) {
+  const ref = useRef<THREE.InstancedMesh>(null);
+  const { geometry, material } = useChairModel();
   const count = spots.length;
 
   useLayoutEffect(() => {
+    const mesh = ref.current;
+    if (!mesh) return;
     const m = new THREE.Matrix4();
     const q = new THREE.Quaternion();
     const one = new THREE.Vector3(1, 1, 1);
     const up = new THREE.Vector3(0, 1, 0);
     spots.forEach((s, i) => {
       m.compose(new THREE.Vector3(s.x, 0, s.z), q.setFromAxisAngle(up, s.rot), one);
-      frameRef.current?.setMatrixAt(i, m);
-      cushionRef.current?.setMatrixAt(i, m);
+      mesh.setMatrixAt(i, m);
     });
-    if (frameRef.current) frameRef.current.instanceMatrix.needsUpdate = true;
-    if (cushionRef.current) cushionRef.current.instanceMatrix.needsUpdate = true;
+    mesh.instanceMatrix.needsUpdate = true;
+    mesh.computeBoundingSphere();
   }, [spots]);
 
   if (count === 0) return null;
-  return (
-    <>
-      <instancedMesh key={`f${count}`} ref={frameRef} args={[geo.frame, undefined, count]} castShadow receiveShadow>
-        <meshStandardMaterial color={dark ? '#9a7550' : '#c49a68'} roughness={0.55} />
-      </instancedMesh>
-      <instancedMesh key={`c${count}`} ref={cushionRef} args={[geo.cushion, undefined, count]} castShadow receiveShadow>
-        <meshStandardMaterial color="#f3efe8" roughness={0.9} bumpMap={clothTexture()} bumpScale={0.4} />
-      </instancedMesh>
-    </>
-  );
+  return <instancedMesh key={count} ref={ref} args={[geometry, material, count]} castShadow receiveShadow />;
 }
 
 export function People({ spots }: { spots: Spot[] }) {
@@ -300,6 +265,12 @@ export function Tables({ tables, guests }: { tables: PlanTable[]; guests: Guest[
   );
 }
 
+function Plant({ size }: { size: number }) {
+  const scene = usePlantModel();
+  // the model is about 0.7 m across
+  return <Clone object={scene} scale={size / 0.7} castShadow receiveShadow />;
+}
+
 function Element({ el, dark, evening }: { el: VenueElement; dark: boolean; evening: boolean }) {
   const w = toMetres(el.width);
   const d = toMetres(el.height);
@@ -389,18 +360,7 @@ function Element({ el, dark, evening }: { el: VenueElement; dark: boolean; eveni
           </mesh>
         );
       case 'plant':
-        return (
-          <>
-            <mesh position-y={0.2} castShadow>
-              <cylinderGeometry args={[w * 0.32, w * 0.26, 0.4, 20]} />
-              <meshStandardMaterial color="#d8d2c8" roughness={0.8} />
-            </mesh>
-            <mesh position-y={0.85} castShadow>
-              <icosahedronGeometry args={[w * 0.55, 1]} />
-              <meshStandardMaterial color="#6f8f5c" roughness={0.9} flatShading />
-            </mesh>
-          </>
-        );
+        return <Plant size={w} />;
     }
   })();
 
