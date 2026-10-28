@@ -69,3 +69,25 @@ Walk and fly work like a property tour, not a game. You drag to look, click the 
 ## 015 · Decor styles instead of per-item decoration
 
 Event holders need the 3D view to show the room as it will feel on the day, and a set of styles gets most of the way with one choice. Each style sets napkins, chargers, centrepieces (flowers, balloons, candles or greenery), fairy lights, chandeliers, curtain colour and the banner and sign text. It's stored as `metadata.decor` (`{ theme, accent }`). Place settings and bulbs are instanced, so a dressed room adds only a handful of draw calls.
+
+## 016 · 3D performance at 4K on integrated graphics
+
+Measured on the target laptop (Ryzen 5 7430U, Radeon Barcelo iGPU) in Chrome at 3344×2064 (a 4K-class canvas). Before tuning it ran at about 14 fps, and the same scene at 1× pixel ratio ran at 56–60 fps, so it was fill-rate bound. Removing features one at a time showed where the time went:
+
+| Cost per frame at 4K | ms |
+| --- | --- |
+| Image-based environment lighting on every material | ~19 |
+| Evening point lights and spotlight | ~15 |
+| Shadow map re-rendered every frame by the animating cut-away walls | full extra pass |
+| 4× MSAA | ~2× fill cost |
+
+Fixes, none of which visibly reduce quality:
+
+- The environment map is kept only on glossy and metal materials (`scene/reflections.tsx`). Matte surfaces use a stronger hemisphere light.
+- Evening warmth comes from emissive lamps and additive glows instead of real lights.
+- Walls don't cast shadows, so moving them never triggers a shadow pass.
+- MSAA is off at a pixel ratio of 1.5 or more, where aliasing isn't visible.
+- PCF shadows with a blur radius replace PCFSoft, which ignores the radius and samples more.
+- While the camera moves, frames render at 60% resolution (drei `AdaptiveDpr` via `regress`). Every still frame is at full native resolution.
+
+Result: WebGL GPU time while walking at 4K is 8.6 ms median (12 ms p90), measured with `EXT_disjoint_timer_query_webgl2`. That's within the 16.7 ms budget. The scripted test shows a 60 fps median. The rest of each frame is Chrome compositing the 4K page.

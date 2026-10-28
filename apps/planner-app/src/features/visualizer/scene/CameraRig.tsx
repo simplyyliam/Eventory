@@ -70,6 +70,7 @@ const typing = (t: EventTarget | null) => t instanceof HTMLElement && (t.isConte
 function useKeyboardMove(ref: React.RefObject<CameraControls | null>, mode: NavMode) {
   const keys = useRef(new Set<string>());
   const invalidate = useThree((s) => s.invalidate);
+  const regress = useThree((s) => s.performance.regress);
 
   useEffect(() => {
     if (mode === 'orbit') return;
@@ -111,7 +112,8 @@ function useKeyboardMove(ref: React.RefObject<CameraControls | null>, mode: NavM
       const rise = (k.has('Space') || k.has('KeyE') ? 1 : 0) - (k.has('KeyQ') || k.has('ShiftLeft') || k.has('ShiftRight') ? 1 : 0);
       if (rise) void c.elevate(rise * step, false);
     }
-    // keep frames coming while a key is held; the scene otherwise renders on demand
+    // keep frames coming while a key is held, at motion resolution
+    regress();
     invalidate();
   });
 }
@@ -166,5 +168,5 @@ export function CameraRig({ w, d }: { w: number; d: number }) {
     void c.setLookAt(pos.x + right.x, pos.y, pos.z + right.z, target.x + right.x, target.y, target.z + right.z, true);
   }, [selected, mode]);
 
-  return <CameraControls ref={ref} makeDefault smoothTime={0.35} draggingSmoothTime={0.14} dollySpeed={0.6} />;
+  return <CameraControls ref={ref} makeDefault regress smoothTime={0.35} draggingSmoothTime={0.14} dollySpeed={0.6} />;
 }

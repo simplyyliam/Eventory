@@ -4,7 +4,6 @@ import { Environment, Lightformer } from '@react-three/drei';
 import { useWorkspace } from '@/store/workspace';
 import { toMetres, useView } from '../viewStore';
 import { Room } from './Room';
-import { WALL_H } from './wallState';
 import { Chairs, People, Tables } from './Furniture';
 import { useSpots } from './spots';
 import { Elements } from './Elements';
@@ -13,13 +12,14 @@ import { RoomDecor } from './RoomDecor';
 import { decorOf } from './decor';
 import { CameraRig } from './CameraRig';
 import { TableCard } from './TableCard';
+import { SelectiveReflections } from './reflections';
 
 function Lights({ w, d, evening, dark }: { w: number; d: number; evening: boolean; dark: boolean }) {
   const span = Math.max(w, d);
   const shadowCam = span * 0.75;
   return (
     <>
-      <hemisphereLight args={[evening ? '#ffd9b0' : '#ffffff', evening ? '#3a2c20' : '#d8cfc3', evening ? 0.18 : dark ? 0.45 : 0.75]} />
+      <hemisphereLight args={[evening ? '#ffc890' : '#ffffff', evening ? '#4a3524' : '#d8cfc3', evening ? 0.85 : dark ? 0.9 : 1.45]} />
       <directionalLight
         position={[w * 0.45, 14, d * 0.35]}
         intensity={evening ? 0.35 : 2.1}
@@ -33,13 +33,10 @@ function Lights({ w, d, evening, dark }: { w: number; d: number; evening: boolea
         shadow-camera-top={shadowCam}
         shadow-camera-bottom={-shadowCam}
         shadow-camera-far={60}
-        shadow-radius={6}
+        shadow-radius={5}
       />
-      {/* two warm fills only: every extra light makes every surface more expensive */}
-      {evening &&
-        [-1, 1].map((ix) => (
-          <pointLight key={ix} position={[(ix * w) / 4, WALL_H - 0.3, 0]} intensity={9} distance={span} decay={1.4} color="#ffc98a" />
-        ))}
+      {/* Evening warmth comes from the hemisphere, emissive lamps and additive
+          glows. Real point lights cost ~15 ms a frame at 4K on integrated GPUs. */}
       <Environment resolution={256} frames={1}>
         <Lightformer intensity={evening ? 0.4 : 1.6} position={[0, 6, 0]} rotation-x={Math.PI / 2} scale={[12, 12, 1]} color={evening ? '#ffcf9a' : '#ffffff'} />
         <Lightformer intensity={evening ? 0.2 : 0.8} position={[-8, 3, 4]} rotation-y={Math.PI / 2} scale={[10, 4, 1]} />
@@ -87,6 +84,7 @@ export function Scene({ dark }: { dark: boolean }) {
       <Chairs spots={spots} />
       {people && <People spots={spots} />}
       <TableCard />
+      <SelectiveReflections />
       <CameraRig w={w} d={d} />
     </>
   );
