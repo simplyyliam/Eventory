@@ -4,7 +4,7 @@ import * as THREE from 'three';
 import type { Decor, VenueElement } from '@/domain/types';
 import { toMetres, useView } from '../viewStore';
 import { clothTexture, woodTexture } from './textures';
-import { THEMES, danceFloorTexture, pleatGeometry, textTexture } from './decor';
+import { THEMES, danceFloorTexture, glowTexture, pleatGeometry, textTexture } from './decor';
 import { useOttomanModel, usePlantModel, useSofaModel, useStoolModel } from './models';
 
 const deg = (d: number) => (d * Math.PI) / 180;
@@ -87,7 +87,13 @@ function Stage({ w, d, decor, eventName, evening }: Ctx) {
       </group>
       <Speaker position={[-w / 2 - 0.4, 0, d / 2 - 0.2]} />
       <Speaker position={[w / 2 + 0.4, 0, d / 2 - 0.2]} />
-      {evening && <spotLight position={[0, 3.4, d / 2 + 1.5]} angle={0.7} penumbra={0.8} intensity={16} distance={9} color="#ffd9a8" />}
+      {/* a warm pool of stage light, drawn as an additive glow rather than a real light */}
+      {evening && (
+        <mesh rotation-x={-Math.PI / 2} position={[0, 0.612, 0]}>
+          <planeGeometry args={[w * 0.9, d * 1.2]} />
+          <meshBasicMaterial map={glowTexture()} color="#ffcf8a" transparent opacity={0.55} depthWrite={false} blending={THREE.AdditiveBlending} />
+        </mesh>
+      )}
     </>
   );
 }

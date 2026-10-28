@@ -19,6 +19,7 @@ export function Room({ room, dark }: { room: RoomSize; dark: boolean }) {
   const w = toMetres(room.width);
   const d = toMetres(room.depth);
   const mode = useView((s) => s.mode);
+  const evening = useView((s) => s.lighting === 'evening');
   const refs = useRef<(THREE.Mesh | null)[]>([]);
   const tex = useMemo(() => {
     const t = floorTexture().clone();
@@ -35,7 +36,7 @@ export function Room({ room, dark }: { room: RoomSize; dark: boolean }) {
   ];
 
   const toCam = useMemo(() => new THREE.Vector3(), []);
-  useFrame(({ camera, invalidate, gl }, delta) => {
+  useFrame(({ camera, invalidate }, delta) => {
     let moving = false;
     walls.forEach((wall, i) => {
       const mesh = refs.current[i];
@@ -49,10 +50,8 @@ export function Room({ room, dark }: { room: RoomSize; dark: boolean }) {
       wallHeights[i] = h;
       mesh.position.y = h / 2;
     });
-    if (moving) {
-      gl.shadowMap.needsUpdate = true;
-      invalidate();
-    }
+    // walls don't cast shadows, so moving them never forces a shadow pass
+    if (moving) invalidate();
   });
 
   const clay = dark ? '#bdb7ae' : '#f1eee9';
@@ -92,7 +91,7 @@ export function Room({ room, dark }: { room: RoomSize; dark: boolean }) {
       {mode === 'walk' && (
         <mesh rotation-x={Math.PI / 2} position-y={WALL_H}>
           <planeGeometry args={[w + WALL_T * 2, d + WALL_T * 2]} />
-          <meshBasicMaterial color={dark ? '#4a4743' : '#e4e0da'} />
+          <meshBasicMaterial color={evening ? '#2a231d' : dark ? '#4a4743' : '#e4e0da'} />
         </mesh>
       )}
       {walls.map((wall, i) => (
@@ -103,7 +102,6 @@ export function Room({ room, dark }: { room: RoomSize; dark: boolean }) {
           }}
           position={[wall.pos[0], WALL_H / 2, wall.pos[1]]}
           scale={[1, WALL_H, 1]}
-          castShadow
           receiveShadow
         >
           <boxGeometry args={[wall.size[0], 1, wall.size[1]]} />

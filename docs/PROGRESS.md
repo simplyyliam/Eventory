@@ -27,6 +27,7 @@ If you're a new session continuing the overhaul goal: read `CLAUDE.md`, `DECISIO
 - [x] `feat/guest-app-overhaul`: cream/terracotta mobile design, search-first name lookup (word-prefix match), ticket with table + seat, mini floor plan with every seat and the guest's seat marked, tablemates, welcome message, date/venue/map link. Seat geometry moved to `shared/src/domain/geometry.ts`
 - [x] `feat/event-dressing`: 3D view dressed like a real event. Place settings at every seat (instanced), centrepieces/number cards/runners, decor styles (Wedding, Birthday, Family party, Corporate, Minimal) + accent colour saved in `metadata.decor` (3D island + Settings), windows/curtains/sconces/uplights per wall (hidden with the cut-away), fairy lights, chandeliers, richer stage/bar/buffet/DJ/dance floor/entrance/pillars, new elements (cake, gifts, welcome sign, photo booth, lounge). WASD/arrows restored in walk/fly on top of drag-to-look (still no pointer lock). More Poly Haven models (chandelier, bar stool, sofa, ottoman, vase).
 - [x] `chore/lint`: ESLint installed at the workspace root (`pnpm lint`), all findings fixed (React Compiler hook rules, fast-refresh exports split into modules)
+- [x] `perf/3d-4k`: profiled on the real iGPU at 4K (14 fps → 60 fps median; WebGL GPU 8.6 ms median). See DECISIONS 016
 - [x] `chore/final-pass`: removed dead shared components, unused textures and old guest images; all four apps build
 
 ## Status

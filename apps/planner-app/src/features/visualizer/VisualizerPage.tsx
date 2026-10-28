@@ -1,6 +1,7 @@
 import { Suspense, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Canvas } from '@react-three/fiber';
+import { AdaptiveDpr } from '@react-three/drei';
 import { AnimatePresence, motion } from 'motion/react';
 import { Box, Eye, Footprints, LayoutGrid, Moon, Plane, Rotate3d, Square, Sun, Tag, Users } from 'lucide-react';
 import { Button, cn } from '@app/shared';
@@ -108,20 +109,26 @@ export default function VisualizerPage() {
   }, [navigate, slug]);
 
 
-  // Full native resolution; smoothness comes from rendering only when something moves.
+  // Native resolution when the view is still. While it moves, frames drop to
+  // 60% resolution and snap back the moment it stops (see AdaptiveDpr). On
+  // integrated GPUs at 4K this is the difference between ~15 and 60 fps.
   const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  // MSAA costs a lot of bandwidth at high pixel density and isn't visible there
+  const antialias = dpr < 1.5;
 
   return (
     <div className="relative h-full w-full overflow-hidden">
       <Canvas
         id="view-canvas"
-        shadows
+        shadows="percentage"
+        performance={{ min: 0.6, debounce: 180 }}
         dpr={dpr}
         frameloop="demand"
         camera={{ fov: 42, near: 0.1, far: 400, position: [12, 12, 14] }}
-        gl={{ antialias: true, powerPreference: 'high-performance' }}
+        gl={{ antialias, powerPreference: 'high-performance' }}
         onPointerMissed={() => v.select(null)}
       >
+        <AdaptiveDpr />
         <Suspense fallback={null}>
           <Scene dark={dark} />
         </Suspense>
