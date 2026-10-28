@@ -1,8 +1,7 @@
-// Plan coordinates are in "units": 200 units = 1 metre. The scale was picked so
-// tables saved by the old editor keep a sensible real-world size.
-export const UNITS_PER_METRE = 200;
-
-export type TableShape = 'circle' | 'rectangle' | 'square' | 'row';
+// 200 units = 1 metre, picked so tables saved by the old editor keep a
+// sensible real-world size. Defined in shared so the guest app agrees.
+export { UNITS_PER_METRE, type TableShape } from '@app/shared/domain/geometry';
+import type { TableShape } from '@app/shared/domain/geometry';
 
 export type TableFinish = 'linen' | 'ivory' | 'sage' | 'oak' | 'walnut';
 

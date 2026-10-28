@@ -42,7 +42,7 @@ src/
 ```
 
 - **The workspace store is the single source of truth for the open event.** Tables, guests and the venue layout live in `store/workspace.ts`. The 2D editor and the 3D view both render from it, so they can't drift apart.
-- **Geometry lives in `domain/geometry.ts`.** Seat positions, table sizes and chair angles are computed there and nowhere else. Plan units are 200 per metre.
+- **Geometry lives in `shared/src/domain/geometry.ts`** (re-exported by the planner's `domain/geometry.ts`). Seat positions, table sizes, chair angles and the legacy seat-count rule are computed there and nowhere else, so the 2D plan, the 3D view and the guest app's mini map all agree. Plan units are 200 per metre.
 - **Undo/redo** comes from zundo and covers tables, guests and venue. Commit to the store on gesture end (drag end, transform end), not on every pointer move.
 - **Saving**: `useAutosave` debounces a PATCH to `/internal/events/:slug` and shows status in the header. No toasts for routine saves.
 - The venue (room size, stage, bar...) and event details (date, venue name, welcome message, checklist) are stored in `Event.metadata` JSON, so they need no migration.

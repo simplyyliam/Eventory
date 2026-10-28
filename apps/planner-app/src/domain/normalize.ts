@@ -1,4 +1,4 @@
-import { clampSeats, tableSize } from './geometry';
+import { resolveSeatCount, tableSize } from './geometry';
 import {
   UNITS_PER_METRE,
   type ElementKind,
@@ -21,18 +21,10 @@ type Raw = Record<string, unknown>;
 const num = (v: unknown, fallback: number) => (typeof v === 'number' && Number.isFinite(v) ? v : fallback);
 const str = (v: unknown, fallback = '') => (typeof v === 'string' ? v : fallback);
 
-// Old rectangle tables derived their seat count from their length.
-const legacyRectSeats = (height: number) => 2 + Math.floor(height / 75) * 2;
-
 export function toPlanTable(raw: Raw, index: number): PlanTable {
   const shape = SHAPES.includes(raw.shape as TableShape) ? (raw.shape as TableShape) : 'circle';
   const textureId = str(raw.textureId);
-  const isLegacy = !FINISHES.includes(textureId as TableFinish);
-  const rawSeats = num(raw.seatCount, 8);
-  const seatCount = clampSeats(
-    shape,
-    shape === 'rectangle' && isLegacy ? legacyRectSeats(num(raw.height, 320)) : rawSeats,
-  );
+  const seatCount = resolveSeatCount(shape, num(raw.seatCount, 8), textureId, num(raw.height, 320));
   const size = tableSize(shape, seatCount);
   const tableNumber = num(raw.tableNumber, index + 1);
 
