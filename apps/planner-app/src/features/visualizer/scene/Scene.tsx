@@ -4,7 +4,11 @@ import { Environment, Lightformer } from '@react-three/drei';
 import { useWorkspace } from '@/store/workspace';
 import { toMetres, useView } from '../viewStore';
 import { Room, WALL_H } from './Room';
-import { Chairs, Elements, People, Tables, useSpots } from './Furniture';
+import { Chairs, People, Tables, useSpots } from './Furniture';
+import { Elements } from './Elements';
+import { Centrepieces, PlaceSettings } from './TableDressing';
+import { RoomDecor } from './RoomDecor';
+import { decorOf } from './decor';
 import { CameraRig } from './CameraRig';
 import { TableCard } from './TableCard';
 
@@ -49,6 +53,8 @@ export function Scene({ dark }: { dark: boolean }) {
   const venue = useWorkspace((s) => s.venue);
   const evening = useView((s) => s.lighting === 'evening');
   const people = useView((s) => s.people);
+  const decor = decorOf(useWorkspace((s) => s.details.decor));
+  const eventName = useWorkspace((s) => s.event?.name ?? '');
   const spots = useSpots(tables, guests);
   const w = toMetres(venue.room.width);
   const d = toMetres(venue.room.depth);
@@ -63,7 +69,7 @@ export function Scene({ dark }: { dark: boolean }) {
     gl.shadowMap.autoUpdate = false;
     gl.shadowMap.needsUpdate = true;
     invalidate();
-  }, [gl, invalidate, tables, guests, venue, evening, people, dark]);
+  }, [gl, invalidate, tables, guests, venue, evening, people, dark, decor.theme, decor.accent]);
 
   return (
     <>
@@ -71,8 +77,11 @@ export function Scene({ dark }: { dark: boolean }) {
       <fog attach="fog" args={[bg, span * 1.6, span * 4]} />
       <Lights w={w} d={d} evening={evening} dark={dark} />
       <Room room={venue.room} dark={dark} />
-      <Elements elements={venue.elements} dark={dark} />
+      <RoomDecor room={venue.room} decor={decor} evening={evening} />
+      <Elements elements={venue.elements} dark={dark} decor={decor} eventName={eventName} />
       <Tables tables={tables} guests={guests} />
+      <Centrepieces tables={tables} decor={decor} evening={evening} />
+      <PlaceSettings tables={tables} decor={decor} />
       <Chairs spots={spots} />
       {people && <People spots={spots} />}
       <TableCard />

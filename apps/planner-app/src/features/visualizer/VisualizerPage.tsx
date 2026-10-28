@@ -10,6 +10,7 @@ import { resolvedTheme, useTheme } from '@/lib/theme';
 import { eventStats } from '@/domain/stats';
 import { useEditor } from '@/features/floor-plan/editorStore';
 import { Scene } from './scene/Scene';
+import { DecorPicker } from './DecorPicker';
 import { useView, type NavMode, type ViewPreset } from './viewStore';
 
 const island = 'rounded-xl bg-surface/90 shadow-[0_0_0_1px_var(--hairline),0_8px_28px_-10px_rgb(0_0_0/0.2)] backdrop-blur-xl';
@@ -67,8 +68,8 @@ const MODES: { value: NavMode; label: string; icon: React.ElementType; hint: str
 
 const HINTS: Record<NavMode, string> = {
   orbit: 'Drag to rotate · Right-drag to pan · Scroll to zoom · Click a table for details',
-  walk: 'Drag to look around · Click the floor to walk there · Scroll to step forward',
-  fly: 'Drag to look around · Scroll to glide · Right-drag to pan',
+  walk: 'WASD or arrows to move · Drag to look around · Click the floor to walk there',
+  fly: 'WASD to move · Space / Q to rise and sink · Drag to look around',
 };
 
 const PRESETS: { value: ViewPreset; label: string; icon: React.ElementType }[] = [
@@ -152,6 +153,8 @@ export default function VisualizerPage() {
       {/* bottom: view presets and display toggles */}
       <div className={cn('absolute bottom-4 left-1/2 flex -translate-x-1/2 items-center gap-1 p-1', island)}>
         <Seg id="preset" value={v.mode === 'orbit' ? v.preset : ('' as ViewPreset)} items={PRESETS} onChange={v.setPreset} />
+        <span className="mx-1 h-5 w-px bg-hairline" />
+        <DecorPicker />
         <span className="mx-1 h-5 w-px bg-hairline" />
         <IconToggle on={v.lighting === 'day'} onClick={() => v.setLighting('day')} label="Daylight">
           <Sun className="size-4" strokeWidth={1.75} />

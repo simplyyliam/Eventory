@@ -60,6 +60,11 @@ export const ELEMENT_STYLE: Record<ElementKind, { fill: string; darkFill: string
   entrance: { fill: '#c7d7f5', darkFill: '#36456a', stroke: '#8fa9e0', text: '#2e4580' },
   pillar: { fill: '#dcd8d1', darkFill: '#4a4743', stroke: '#c6c1b8', text: '#6f665a' },
   plant: { fill: '#b9cfa6', darkFill: '#4f6544', stroke: '#93ad7f', text: '#3e5530' },
+  cake: { fill: '#f6e9ee', darkFill: '#4a3a40', stroke: '#e3c4cf', text: '#8a4d63' },
+  gifts: { fill: '#f3ede2', darkFill: '#3d3830', stroke: '#ddd2bf', text: '#7a6a50' },
+  sign: { fill: '#efe6d6', darkFill: '#3e3a33', stroke: '#c9b796', text: '#6b5a3a' },
+  'photo-booth': { fill: '#ece6f5', darkFill: '#3b3548', stroke: '#cfc3e6', text: '#5d4a85' },
+  lounge: { fill: '#e7e2da', darkFill: '#36332f', stroke: '#cfc7ba', text: '#6a6156' },
 };
 
 export function usePalette(): { p: Palette; dark: boolean } {

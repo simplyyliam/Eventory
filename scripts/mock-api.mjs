@@ -2,6 +2,30 @@
 import http from 'node:http';
 import { randomUUID } from 'node:crypto';
 
+const m = (metres) => metres * 200;
+const el = (kind, label, x, y, w, h, rotation = 0) => ({ id: randomUUID(), kind, label, x: m(x), y: m(y), width: m(w), height: m(h), rotation });
+// A dressed room so the floor plan and 3D view have something to show.
+const weddingVenue = {
+  room: { width: m(24), depth: m(16) },
+  elements: [
+    el('stage', 'Stage', 0, -6.2, 6, 2.6),
+    el('dance-floor', 'Dance floor', 0, -2.2, 5, 4),
+    el('dj', 'DJ booth', 5, -6.4, 2, 1),
+    el('bar', 'Bar', -10.5, 0, 4, 0.8, 90),
+    el('buffet', 'Buffet', 10.6, 1, 4, 1, 90),
+    el('cake', 'Cake table', 8.5, -5.5, 1.2, 1.2),
+    el('gifts', 'Gift table', -8.5, 6.5, 1.8, 0.8),
+    el('sign', 'Welcome sign', 2.5, 6.8, 0.8, 0.5, 180),
+    el('photo-booth', 'Photo booth', -9, -5.6, 3, 2),
+    el('lounge', 'Lounge', 8.8, 5.6, 3, 2.4, 180),
+    el('entrance', 'Entrance', 0, 7.85, 2, 0.3),
+    el('pillar', 'Pillar', -4, -0.5, 0.5, 0.5),
+    el('pillar', 'Pillar', 4, -0.5, 0.5, 0.5),
+    el('plant', 'Plant', -1.6, 7.2, 0.7, 0.7),
+    el('plant', 'Plant', 1.6, 7.2, 0.7, 0.7),
+  ],
+};
+
 const slugify = (n) => n.toLowerCase().trim().replace(/\s+/g, '-');
 const now = () => new Date().toISOString();
 const inDays = (d) => new Date(Date.now() + d * 864e5).toISOString().slice(0, 10);
@@ -23,8 +47,8 @@ function seedEvent(name, opts) {
 const events = [
   seedEvent('Amara & Theo Wedding', {
     status: 'published', guests: 32, seated: 18,
-    metadata: { date: inDays(12), startTime: '16:00', venueName: 'The Glasshouse, Kew', address: '12 Garden Row, London', welcomeMessage: 'We are so glad you are here. Find your table, grab a drink, and settle in.', contactEmail: 'hello@example.com' },
-    tables: [{ shape: 'circle', seats: 8, x: -600, y: -300 }, { shape: 'circle', seats: 8, x: 0, y: -300 }, { shape: 'circle', seats: 8, x: 600, y: -300 }, { shape: 'rectangle', seats: 8, x: 0, y: 400, height: 320 }],
+    metadata: { date: inDays(12), startTime: '16:00', venueName: 'The Glasshouse, Kew', address: '12 Garden Row, London', welcomeMessage: 'We are so glad you are here. Find your table, grab a drink, and settle in.', contactEmail: 'hello@example.com', venue: weddingVenue, decor: { theme: 'wedding', accent: '#c99a3c' } },
+    tables: [{ shape: 'circle', seats: 8, x: m(-6), y: m(1) }, { shape: 'circle', seats: 8, x: m(-2.5), y: m(3.4) }, { shape: 'circle', seats: 8, x: m(2.5), y: m(3.4) }, { shape: 'circle', seats: 8, x: m(6), y: m(1) }, { shape: 'rectangle', seats: 8, x: m(-6), y: m(5), height: 320 }],
   }),
   seedEvent('Northwind Annual Dinner', { status: 'draft', guests: 14, seated: 0, metadata: { date: inDays(45), venueName: 'Riverside Hall' }, tables: [] }),
   seedEvent('Spring Fundraiser', { status: 'draft', guests: 8, seated: 8, metadata: { date: inDays(-20) }, tables: [{ shape: 'circle', seats: 8, x: 0, y: 0 }] }),
@@ -94,4 +118,4 @@ http.createServer(async (req, res) => {
     return send(res, 200, { ...e, guests: e.guests.filter((g) => g.status !== 'declined').map(publicGuest) });
   }
   send(res, 404, { error: 'no route' });
-}).listen(3010, () => console.log('mock api on 3010'));
+}).listen(Number(process.env.PORT ?? 3010), () => console.log(`mock api on ${process.env.PORT ?? 3010}`));

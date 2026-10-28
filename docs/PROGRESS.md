@@ -25,6 +25,7 @@ If you're a new session continuing the overhaul goal: read `CLAUDE.md`, `DECISIO
 - [x] `feat/3d-assets`: Poly Haven CC0 dining_chair_02 + potted_plant_02, simplified with gltf-transform (chair 22k → 2.6k tris), chair still one InstancedMesh. Credits in public/models/CREDITS.txt
 
 - [x] `feat/guest-app-overhaul`: cream/terracotta mobile design, search-first name lookup (word-prefix match), ticket with table + seat, mini floor plan with every seat and the guest's seat marked, tablemates, welcome message, date/venue/map link. Seat geometry moved to `shared/src/domain/geometry.ts`
+- [x] `feat/event-dressing`: 3D view dressed like a real event. Place settings at every seat (instanced), centrepieces/number cards/runners, decor styles (Wedding, Birthday, Family party, Corporate, Minimal) + accent colour saved in `metadata.decor` (3D island + Settings), windows/curtains/sconces/uplights per wall (hidden with the cut-away), fairy lights, chandeliers, richer stage/bar/buffet/DJ/dance floor/entrance/pillars, new elements (cake, gifts, welcome sign, photo booth, lounge). WASD/arrows restored in walk/fly on top of drag-to-look (still no pointer lock). More Poly Haven models (chandelier, bar stool, sofa, ottoman, vase).
 - [x] `chore/final-pass`: removed dead shared components, unused textures and old guest images; all four apps build
 
 ## Status

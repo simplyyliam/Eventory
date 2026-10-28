@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react';
+import { useFrame, useThree } from '@react-three/fiber';
 import { CameraControls, CameraControlsImpl } from '@react-three/drei';
 import * as THREE from 'three';
 import { useWorkspace } from '@/store/workspace';
@@ -77,6 +78,60 @@ function configure(c: CameraControls, mode: NavMode, w: number, d: number) {
   }
 }
 
+const MOVE_KEYS = new Set(['KeyW', 'KeyA', 'KeyS', 'KeyD', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Space', 'KeyE', 'KeyQ', 'ShiftLeft', 'ShiftRight']);
+
+const typing = (t: EventTarget | null) => t instanceof HTMLElement && (t.isContentEditable || ['INPUT', 'TEXTAREA', 'SELECT'].includes(t.tagName));
+
+// WASD / arrow keys alongside drag-to-look. Walk moves along the floor; fly
+// moves where you're looking, with Space/E and Q to rise and sink.
+function useKeyboardMove(ref: React.RefObject<CameraControls | null>, mode: NavMode) {
+  const keys = useRef(new Set<string>());
+  const invalidate = useThree((s) => s.invalidate);
+
+  useEffect(() => {
+    if (mode === 'orbit') return;
+    const down = (e: KeyboardEvent) => {
+      if (typing(e.target) || e.metaKey || e.ctrlKey || !MOVE_KEYS.has(e.code)) return;
+      e.preventDefault();
+      keys.current.add(e.code);
+      invalidate();
+    };
+    const up = (e: KeyboardEvent) => keys.current.delete(e.code);
+    const clear = () => keys.current.clear();
+    window.addEventListener('keydown', down);
+    window.addEventListener('keyup', up);
+    window.addEventListener('blur', clear);
+    return () => {
+      window.removeEventListener('keydown', down);
+      window.removeEventListener('keyup', up);
+      window.removeEventListener('blur', clear);
+      keys.current.clear();
+    };
+  }, [mode, invalidate]);
+
+  useFrame((_, delta) => {
+    const c = ref.current;
+    const k = keys.current;
+    if (!c || mode === 'orbit' || k.size === 0) return;
+    const fly = mode === 'fly';
+    const fast = !fly && (k.has('ShiftLeft') || k.has('ShiftRight'));
+    const step = (fly ? 6 : 2.4) * (fast ? 1.8 : 1) * Math.min(delta, 0.05);
+    const fwd = (k.has('KeyW') || k.has('ArrowUp') ? 1 : 0) - (k.has('KeyS') || k.has('ArrowDown') ? 1 : 0);
+    const side = (k.has('KeyD') || k.has('ArrowRight') ? 1 : 0) - (k.has('KeyA') || k.has('ArrowLeft') ? 1 : 0);
+    if (fwd) {
+      if (fly) void c.dolly(fwd * step, false);
+      else void c.forward(fwd * step, false);
+    }
+    if (side) void c.truck(side * step, 0, false);
+    if (fly) {
+      const rise = (k.has('Space') || k.has('KeyE') ? 1 : 0) - (k.has('KeyQ') || k.has('ShiftLeft') || k.has('ShiftRight') ? 1 : 0);
+      if (rise) void c.elevate(rise * step, false);
+    }
+    // keep frames coming while a key is held; the scene otherwise renders on demand
+    invalidate();
+  });
+}
+
 export function CameraRig({ w, d }: { w: number; d: number }) {
   const ref = useRef<CameraControls>(null);
   const mode = useView((s) => s.mode);
@@ -84,6 +139,7 @@ export function CameraRig({ w, d }: { w: number; d: number }) {
   const tick = useView((s) => s.presetTick);
   const selected = useView((s) => s.selected);
   const first = useRef(true);
+  useKeyboardMove(ref, mode);
 
   useEffect(() => {
     controls = ref.current;

@@ -7,6 +7,10 @@ import { UNITS_PER_METRE, type EventSummary } from '@/domain/types';
 import { Card, Page, Section } from '@/components/layout';
 import { CommitInput, SettingRow } from '@/components/fields';
 import { DeleteEventDialog } from '@/features/dashboard/DeleteEventDialog';
+import { THEMES, decorOf } from '@/domain/decor';
+import { AccentSwatches } from '@/features/visualizer/DecorPicker';
+import type { DecorTheme } from '@/domain/types';
+import { cn } from '@app/shared';
 
 const m = (u: number) => String(Math.round((u / UNITS_PER_METRE) * 10) / 10);
 
@@ -21,6 +25,7 @@ export function SettingsPage() {
   const remove = useDeleteEvent();
   const navigate = useNavigate();
   const [deleting, setDeleting] = useState(false);
+  const decor = decorOf(details.decor);
 
   const metres = (v: string) => {
     const n = parseFloat(v.replace(',', '.'));
@@ -55,6 +60,27 @@ export function SettingsPage() {
               <CommitInput value={m(room.depth)} inputMode="decimal" className="w-20 tabular" onCommit={(v) => { const d = metres(v); if (d) setRoom({ ...room, depth: d }); }} />
               m
             </div>
+          </SettingRow>
+        </Card>
+      </Section>
+
+      <Section title="Decor">
+        <Card>
+          <SettingRow label="Style" hint="Sets linens, centrepieces, lighting and signage in the 3D view.">
+            <div className="flex flex-wrap gap-1.5">
+              {(Object.keys(THEMES) as DecorTheme[]).map((t) => (
+                <button
+                  key={t}
+                  onClick={() => updateDetails({ decor: { ...decor, theme: t } })}
+                  className={cn('pressable h-8 rounded-lg border px-3 text-[13px] transition-colors', decor.theme === t ? 'border-foreground bg-foreground text-background' : 'border-hairline hover:bg-accent')}
+                >
+                  {THEMES[t].label}
+                </button>
+              ))}
+            </div>
+          </SettingRow>
+          <SettingRow label="Accent colour" hint="Runners, banners, ribbons and uplighting.">
+            <AccentSwatches value={decor.accent} onChange={(accent) => updateDetails({ decor: { ...decor, accent } })} />
           </SettingRow>
         </Card>
       </Section>
