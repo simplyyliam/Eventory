@@ -73,7 +73,7 @@ export function Scene({ dark }: { dark: boolean }) {
       <Room room={venue.room} dark={dark} />
       <Elements elements={venue.elements} dark={dark} />
       <Tables tables={tables} guests={guests} />
-      <Chairs spots={spots} dark={dark} />
+      <Chairs spots={spots} />
       {people && <People spots={spots} />}
       <TableCard />
       <CameraRig w={w} d={d} />
